@@ -19,6 +19,6 @@ Allow: /contact
 Crawl-delay: 1
 
 # Sitemap location (update with your actual domain after deployment)
-# Example: Sitemap: https://fortu.vercel.app/sitemap.xml
+# Example: Sitemap: https://fortu.up.railway.app/sitemap.xml
 # Sitemap: https://your-domain.com/sitemap.xml
 

@@ -23,7 +23,7 @@ npx sanity deploy
 You'll be prompted to choose a hostname (e.g., `fortu`).
 Your studio will be available at `https://fortu.sanity.studio`.
 
-### Option B: Self-host on Vercel/Netlify
+### Option B: Self-host on Railway/Netlify
 
 ```bash
 cd studio-fortu
@@ -41,7 +41,7 @@ Go to [sanity.io/manage](https://sanity.io/manage) > Your Project > API > CORS O
 Add these origins:
 - `http://localhost:5173` (local development)
 - `https://your-production-domain.com` (production)
-- `https://your-app.vercel.app` (if using Vercel)
+- `https://your-app.up.railway.app` (if using the Railway-generated domain)
 
 Enable "Allow credentials" for each.
 
@@ -68,15 +68,18 @@ npm run build
 
 Output will be in the `dist` folder.
 
-### Deploy to Vercel
+### Deploy to Railway
 
-1. Push code to GitHub/GitLab
-2. Import project at [vercel.com/new](https://vercel.com/new)
-3. Add environment variables in Vercel dashboard:
+1. Push code to GitHub
+2. Create a project at [railway.com/new](https://railway.com/new) > Deploy from GitHub repo (root directory `/`)
+3. Add environment variables in the service's Variables tab **before the first build** (Vite inlines them at build time; changing them requires a redeploy):
    - `VITE_SANITY_PROJECT_ID` = `mb1o2t9p`
    - `VITE_SANITY_DATASET` = `production`
    - `VITE_SANITY_API_VERSION` = `2024-01-01`
-4. Deploy
+4. Deploy. Railway detects Vite, runs `npm run build`, and serves `dist` with its built-in Caddy server (SPA fallback to `index.html` included, no start script needed)
+5. Settings > Networking: generate a domain and/or add a custom domain
+
+---
 
 ### Deploy to Netlify
 
@@ -99,7 +102,7 @@ For SPA routing, create `public/_redirects`:
 
 ### Frontend Changes
 
-If using Vercel/Netlify with Git integration:
+If using Railway/Netlify with Git integration:
 ```bash
 git add .
 git commit -m "your changes"
