@@ -98,6 +98,22 @@ For SPA routing, create `public/_redirects`:
 
 ---
 
+## Staging Environment
+
+The `staging` branch deploys to its own Railway environment
+(`https://fortu-landing-page-staging.up.railway.app`). Production (`main`, fortu.co.id) is a separate environment and is not affected by staging deploys.
+
+Workflow: create a branch from `staging`, open a PR **into `staging`**, and only merge to `main` after approval.
+
+Staging must never be indexed by Google. `vite.config.ts` handles this at build time:
+
+- When `RAILWAY_GIT_BRANCH=staging` (set automatically by Railway) or `VITE_NOINDEX=true`, the build adds `<meta name="robots" content="noindex, nofollow">` and replaces `robots.txt` with `Disallow: /`.
+- Builds from `main` are unchanged.
+
+Checklist for a new staging domain: add it to Sanity CORS origins (sanity.io/manage > API > CORS Origins) and set the same `VITE_SANITY_*` variables as production.
+
+---
+
 ## 4. Redeploying After Changes
 
 ### Frontend Changes
