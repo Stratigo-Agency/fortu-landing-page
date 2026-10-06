@@ -6,6 +6,9 @@
     <!-- Product Slides -->
     <BannerSlides />
 
+    <!-- Product Compare Section (directly below the product slides) -->
+    <Compare />
+
     <!-- CMS Demo Section -->
     <CMSDemo />
     <Service />
@@ -13,8 +16,6 @@
     <!-- Use Case Section -->
     <UseCaseSection />
 
-    <!-- Product Compare Section -->
-    <Compare />
     <!-- FAQ Section -->
     <FAQ />
     <CTA variant="light" />
