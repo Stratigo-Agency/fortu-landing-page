@@ -2,6 +2,7 @@
   <Transition name="slide-up">
     <div
       v-if="showBanner"
+      ref="bannerEl"
       class="cookie-banner fixed bottom-0 left-0 right-0 z-[1001] bg-fortu-dark border-t border-fortu-medium/30 shadow-lg"
     >
       <div class="mx-auto px-4 md:px-16 py-4 md:py-6">
@@ -39,11 +40,37 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink } from 'vue-router'
 
 const COOKIE_CONSENT_KEY = 'fortu_cookie_consent'
 const showBanner = ref(false)
+const bannerEl = ref<HTMLElement | null>(null)
+
+// Share the banner height with fixed-position elements (e.g. the floating
+// contact button in App.vue) so they can sit above the banner instead of under it.
+const setBannerHeight = (px: number) => {
+  document.documentElement.style.setProperty('--cookie-banner-height', `${px}px`)
+}
+
+let resizeObserver: ResizeObserver | null = null
+
+watch(bannerEl, (el) => {
+  resizeObserver?.disconnect()
+  resizeObserver = null
+  if (!el) {
+    setBannerHeight(0)
+    return
+  }
+  setBannerHeight(el.offsetHeight)
+  resizeObserver = new ResizeObserver(() => setBannerHeight(el.offsetHeight))
+  resizeObserver.observe(el)
+})
+
+onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
+  setBannerHeight(0)
+})
 
 const acceptCookies = () => {
   localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted')

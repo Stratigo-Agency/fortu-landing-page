@@ -153,7 +153,7 @@ h1 {
 /* WhatsApp Floating Button */
 .whatsapp-button {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(24px + var(--cookie-banner-height, 0px));
   right: 24px;
   width: 56px;
   height: 56px;
@@ -186,7 +186,7 @@ h1 {
 
 @media (max-width: 768px) {
   .whatsapp-button {
-    bottom: 16px;
+    bottom: calc(16px + var(--cookie-banner-height, 0px));
     right: 16px;
     width: 50px;
     height: 50px;
