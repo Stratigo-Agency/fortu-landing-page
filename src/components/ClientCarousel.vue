@@ -1,170 +1,78 @@
 <template>
-  <section v-if="clients.length > 0" class="client-carousel-section overflow-hidden py-8">
+  <section class="client-carousel-section py-6 md:py-8" aria-label="Klien Fortu Digital">
     <div class="mx-auto px-4 md:px-16 mb-4">
-      <p class="text-fortu-light/60 text-sm uppercase tracking-wider text-center">Dipercaya Oleh</p>
+      <p class="text-fortu-off-white/80 text-sm uppercase tracking-wider text-center">Dipercaya Oleh</p>
     </div>
-    <!-- Carousel wrapper -->
-    <div class="relative">
-      <!-- Scrolling track -->
-      <div class="carousel-track flex gap-8">
-        <!-- First set of cards -->
-        <div 
-          v-for="(client, index) in clients" 
-          :key="`first-${client._id || index}`"
-          class="carousel-card rounded-lg p-8 flex-shrink-0 h-24 w-48 flex items-center justify-center"
-        >
-          <img 
-            v-if="getLogoUrl(client)"
-            :src="getLogoUrl(client)"
-            :alt="client.name"
-            loading="lazy"
-            decoding="async"
-            width="160"
-            height="48"
-            class="h-24 w-48 object-contain transition-all duration-300"
-            @error="handleImageError($event, client)"
-          />
+    <!-- Glass strip keeps logos readable on top of the moving hero video -->
+    <div class="carousel-strip overflow-hidden border-y border-white/10 bg-black/40 backdrop-blur-md py-4">
+      <div class="carousel-viewport">
+        <div class="carousel-track flex w-max">
+          <!-- Two identical sets give a seamless loop (track moves -50%) -->
+          <div
+            v-for="setIndex in 2"
+            :key="setIndex"
+            class="carousel-set flex flex-shrink-0 gap-4 pr-4"
+            :class="{ 'carousel-set-clone': setIndex === 2 }"
+            :aria-hidden="setIndex === 2 ? 'true' : undefined"
+          >
+            <div
+              v-for="logo in clientLogos"
+              :key="logo.file"
+              class="carousel-card flex-shrink-0 h-20 w-44 rounded-lg overflow-hidden"
+              :class="logo.tone === 'dark' ? 'bg-[#111315]' : 'bg-[#f3f4f6]'"
+            >
+              <img
+                :src="logo.src"
+                :alt="setIndex === 1 ? logo.name : ''"
+                loading="lazy"
+                decoding="async"
+                width="176"
+                height="80"
+                class="h-full w-full object-contain"
+              />
+            </div>
+          </div>
         </div>
-        <!-- Second set for seamless loop -->
-        <div 
-          v-for="(client, index) in clients" 
-          :key="`second-${client._id || index}`"
-          class="carousel-card rounded-lg p-8 flex-shrink-0 h-24 w-48 flex items-center justify-center"
-        >
-          <img 
-            v-if="getLogoUrl(client)"
-            :src="getLogoUrl(client)"
-            :alt="client.name"
-            loading="lazy"
-            decoding="async"
-            width="160"
-            height="48"
-            class="h-24 w-48 object-contain transition-all duration-300"
-            @error="handleImageError($event, client)"
-          />
-        </div>
-        <!-- Third set for seamless loop -->
-        <div 
-          v-for="(client, index) in clients" 
-          :key="`third-${client._id || index}`"
-          class="carousel-card rounded-lg p-8 flex-shrink-0 h-24 w-48 flex items-center justify-center"
-        >
-          <img 
-            v-if="getLogoUrl(client)"
-            :src="getLogoUrl(client)"
-            :alt="client.name"
-            loading="lazy"
-            decoding="async"
-            width="160"
-            height="48"
-            class="h-24 w-48 object-contain transition-all duration-300"
-            @error="handleImageError($event, client)"
-          />
-        </div>
-        <!-- Fourth set for seamless loop -->
-        <div 
-          v-for="(client, index) in clients" 
-          :key="`fourth-${client._id || index}`"
-          class="carousel-card rounded-lg p-8 flex-shrink-0 h-24 w-48 flex items-center justify-center"
-        >
-          <img 
-            v-if="getLogoUrl(client)"
-            :src="getLogoUrl(client)"
-            :alt="client.name"
-            loading="lazy"
-            decoding="async"
-            width="160"
-            height="48"
-            class="h-24 w-48 object-contain transition-all duration-300"
-            @error="handleImageError($event, client)"
-          />
-        </div>
-        
-
-        
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { client as sanityClient } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
-import { CLIENT_LOGOS_QUERY, type ClientLogo } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
-
-const clients = ref<ClientLogo[]>([])
-
-const getLogoUrl = (client: ClientLogo): string => {
-  if (!client.logo) {
-    console.warn(`Client "${client.name}" has no logo`)
-    return ''
-  }
-  
-  // Check if asset exists
-  if (!client.logo.asset) {
-    console.warn(`Client "${client.name}" logo has no asset`)
-    return ''
-  }
-  
-  try {
-    // Always use urlFor to apply crop/hotspot settings
-    // Pass the full image object (not just asset) to preserve hotspot and crop
-    const builder = urlFor(client.logo).width(320).fit('max').quality(IMAGE_CONFIG.quality)
-    const url = IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
-    
-    if (!url) {
-      console.warn(`Failed to generate URL for client "${client.name}"`)
-      return ''
-    }
-    
-    return url
-  } catch (error) {
-    console.error(`Error generating logo URL for client "${client.name}":`, error)
-    return ''
-  }
-}
-
-const handleImageError = (event: Event, client: ClientLogo) => {
-  console.error(`Failed to load image for client "${client.name}"`, event)
-  // Optionally hide the broken image
-  const img = event.target as HTMLImageElement
-  if (img) {
-    img.style.display = 'none'
-  }
-}
-
-onMounted(async () => {
-  try {
-    clients.value = await sanityClient.fetch(CLIENT_LOGOS_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch client logos:', e)
-  }
-})
+import { clientLogos } from '@/data/clientLogos'
 </script>
 
 <style scoped>
 .carousel-track {
-  animation: scroll 25s linear infinite;
-  width: max-content;
+  animation: scroll 60s linear infinite;
 }
 
-
+/* Pause while the visitor points at the strip */
+.carousel-strip:hover .carousel-track {
+  animation-play-state: paused;
+}
 
 @keyframes scroll {
   0% {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-25%);
+    transform: translateX(-50%);
   }
 }
 
-/* Pause animation when user prefers reduced motion */
+/* Reduced motion: no animation, strip becomes manually scrollable */
 @media (prefers-reduced-motion: reduce) {
   .carousel-track {
     animation: none;
+  }
+
+  .carousel-viewport {
+    overflow-x: auto;
+  }
+
+  .carousel-set-clone {
+    display: none;
   }
 }
 </style>
