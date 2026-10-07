@@ -120,6 +120,7 @@
 </template>
 
 <script setup lang="ts">
+import { useSeo } from '@/composables/useSeo'
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { client, urlFor } from '@/sanity/client'
@@ -184,6 +185,12 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+})
+
+useSeo({
+  title: 'Blog & Berita Digital Signage | Fortu Digital',
+  description:
+    'Artikel, studi kasus, dan liputan media tentang digital signage, interactive display, dan solusi visual dari Fortu Digital.',
 })
 </script>
 

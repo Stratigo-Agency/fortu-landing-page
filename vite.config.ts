@@ -23,7 +23,7 @@ function noIndexPlugin(): Plugin {
       return [
         {
           tag: 'meta',
-          attrs: { name: 'robots', content: 'noindex, nofollow' },
+          attrs: { name: 'robots', content: 'noindex, nofollow', 'data-build': '' },
           injectTo: 'head-prepend',
         },
       ]

@@ -59,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import { useSeo } from '@/composables/useSeo'
 import { ref, onMounted } from 'vue'
 import { client } from '@/sanity/client'
 import { ABOUT_PAGE_QUERY, type AboutPage } from '@/sanity/queries'
@@ -93,6 +94,12 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+})
+
+useSeo({
+  title: 'Tentang Fortu Digital | Vendor Digital Signage Indonesia',
+  description:
+    'Kenali Fortu Digital: tim di balik perangkat, CMS cloud, dan instalasi digital signage untuk instansi, korporasi, dan institusi pendidikan di Indonesia.',
 })
 </script>
 
