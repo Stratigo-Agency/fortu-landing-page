@@ -31,9 +31,8 @@ SCALE = 4
 # Tiles with a dark background hold white/gold logos: recolour them.
 DARK_TILES = {"the-westin-jakarta", "trinland", "hariom-s", "7am-7pm", "sumak"}
 BRAND_DARK = (16, 17, 17)
-RECOLOR = {"sumak": (154, 123, 79)}
-# Originals that are white-on-solid-black: key the black out and recolour to brand dark.
-KEY_BLACK = {"7am-7pm"}
+# Transparent originals whose white lettering must become dark grey.
+WHITE_TO_GRAY = {"dunex"}
 
 
 def smoothstep(x, a, b):
@@ -41,8 +40,12 @@ def smoothstep(x, a, b):
     return t * t * (3 - 2 * t)
 
 
-def extract(img, slug):
-    a = np.asarray(img.convert("RGB")).astype(np.float32)[3:-3, 3:-3]
+def extract(img, dark, margin=3):
+    """Key a flat-background image to transparent. dark=True: light logo on a dark
+    background, recoloured to the brand dark; otherwise colours are kept."""
+    a = np.asarray(img.convert("RGB")).astype(np.float32)
+    if margin:
+        a = a[margin:-margin, margin:-margin]
     h, w, _ = a.shape
     border = np.concatenate([a[0], a[-1], a[:, 0], a[:, -1]])
     bg = np.median(border, axis=0)
@@ -55,14 +58,35 @@ def extract(img, slug):
     size = (w * SCALE, h * SCALE)
     n_big = np.asarray(Image.fromarray((n * 255).astype(np.uint8)).resize(size, Image.LANCZOS))
     alpha = smoothstep(n_big.astype(np.float32) / 255, 0.16, 0.62)
-    if slug in DARK_TILES:
+    if dark:
         rgb = np.zeros((size[1], size[0], 3), np.uint8)
-        rgb[:] = RECOLOR.get(slug, BRAND_DARK)
+        rgb[:] = BRAND_DARK
     else:
         # un-mix the tile background from partially covered edge pixels
         c = np.clip(bg + (a - bg) / np.maximum(n, 0.3)[..., None], 0, 255).astype(np.uint8)
         rgb = np.asarray(Image.fromarray(c).resize(size, Image.BICUBIC))
     return Image.fromarray(np.dstack([rgb, (alpha * 255).astype(np.uint8)]))
+
+
+def from_original(img, slug):
+    """Original logos: use as-is when transparent; otherwise key the flat background."""
+    alpha = np.asarray(img.getchannel("A"))
+    if (alpha < 250).mean() > 0.02:
+        if slug in WHITE_TO_GRAY:  # white lettering on transparent: invisible on white
+            px = np.asarray(img).copy()
+            white = (px[..., :3].min(-1) > 235) & (px[..., 3] > 0)
+            px[white, :3] = (74, 78, 84)
+            img = Image.fromarray(px)
+    else:
+        rgb = np.asarray(img.convert("RGB")).astype(np.float32)
+        border = np.concatenate([rgb[0], rgb[-1], rgb[:, 0], rgb[:, -1]])
+        bg_lum = float((np.median(border, axis=0) * np.array([0.299, 0.587, 0.114])).sum())
+        img = extract(img, dark=bg_lum < 110, margin=0)
+        # extract() upsamples 4x; bring it back so all originals share one pipeline
+        img = img.resize((max(1, img.width // SCALE), max(1, img.height // SCALE)), Image.LANCZOS)
+    if max(img.size) > 1400:
+        img.thumbnail((1400, 1400), Image.LANCZOS)
+    return img
 
 
 def trim(img, pad):
@@ -81,17 +105,9 @@ def main():
         slug = os.path.splitext(os.path.basename(path))[0]
         orig = os.path.join(ORIGINALS, slug + ".png")
         if os.path.exists(orig):
-            full = Image.open(orig).convert("RGBA")
-            if slug in KEY_BLACK:
-                lum = np.asarray(full.convert("L")).astype(np.float32) / 255
-                a = (smoothstep(lum, 0.2, 0.8) * 255).astype(np.uint8)
-                rgb = np.zeros((full.height, full.width, 3), np.uint8)
-                rgb[:] = BRAND_DARK
-                full = Image.fromarray(np.dstack([rgb, a]))
-            if max(full.size) > 1400:
-                full.thumbnail((1400, 1400), Image.LANCZOS)
+            full = from_original(Image.open(orig).convert("RGBA"), slug)
         else:
-            full = extract(Image.open(path), slug)
+            full = extract(Image.open(path), slug in DARK_TILES)
         logo = trim(full, 2 * SCALE)
         if max(logo.size) > 900:
             logo.thumbnail((900, 900), Image.LANCZOS)
