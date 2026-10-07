@@ -5,7 +5,6 @@ import { urlFor } from '@/sanity/client'
 import { HERO_QUERY, type Hero } from '@/sanity/queries'
 import { IMAGE_CONFIG } from '@/config/image'
 import Button from '@/reusables/Button.vue'
-import ClientCarousel from '@/components/ClientCarousel.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const hero = ref<Hero | null>(null)
@@ -152,11 +151,6 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    
-    <!-- Client Carousel at bottom -->
-    <div class="hero-carousel relative z-[2] pb-8">
-      <ClientCarousel />
-    </div>
   </section>
 
   <SectionSkeleton v-else-if="loading" min-height="min-h-dvh" :cards="0" class="pt-24" />
@@ -221,29 +215,6 @@ onMounted(async () => {
 
   .hero-buttons {
     gap: 0.75rem;
-  }
-
-  /* the client strip is the biggest block down here - shrink it rather than
-     let it push the hero past the screen */
-  .hero-carousel {
-    padding-bottom: 0.5rem;
-  }
-
-  .hero-carousel :deep(.client-carousel-section) {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-
-  .hero-carousel :deep(.client-carousel-section) {
-    --logo-scale: 0.62;
-  }
-
-  .hero-carousel :deep(.carousel-card) {
-    height: 3rem;
-  }
-
-  .hero-carousel :deep(.carousel-strip) {
-    padding: 0.5rem 0;
   }
 }
 </style>

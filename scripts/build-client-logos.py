@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """
-Build the white, transparent client logos used by the hero marquee.
+Build the transparent, full-colour client logos used by the marquee section.
 
 Input : scripts/sources/<slug>.webp   one tile per client, cropped from the CTO's
                                       logo sheet (6 Oct 2026); flat background
-        scripts/originals/<slug>.png  optional original logo (any colour, with alpha);
-                                      used instead of the tile when present
-Output: public/clients/<slug>.webp    white silhouette + alpha, 4x upscaled, trimmed
+        scripts/originals/<slug>.png  optional original logo (RGBA); used as-is
+                                      (scaled 4x) instead of the tile when present
+Output: public/clients/<slug>.webp    colour logo + alpha, 4x upscaled, trimmed
+        src/data/clientLogoSizes.ts   pixel sizes for optical size normalisation
 
-The alpha of a tile logo comes from its colour distance to the tile background,
-is upscaled, then re-sharpened, so edges stay crisp at retina sizes.
+The alpha comes from each pixel's colour distance to the tile background, is
+upscaled and re-sharpened; colours are un-mixed from the background so edges stay
+clean on white. Logos that are white/gold on a dark tile are recoloured to the
+brand dark (they would vanish on a white section).
 
 Usage: python3 scripts/build-client-logos.py
 """
@@ -25,14 +28,10 @@ ORIGINALS = os.path.join(HERE, "originals")
 OUT = os.path.join(HERE, "..", "public", "clients")
 SIZES_TS = os.path.join(HERE, "..", "src", "data", "clientLogoSizes.ts")
 SCALE = 4
-# Logos with a large solid fill: keep the dark detail inside the fill as a cut-out.
-KNOCKOUT = {"pln", "trip-tour"}
-# Detailed emblems: opacity follows darkness (line-art look) instead of a flat silhouette.
-LUMA = {"smk-angkasa", "mabes-tni-al"}
-# Round emblem above a wordmark: cut the lighter monogram out of the emblem only.
-EMBLEM_CUTOUT = {"grand-mercure"}
-# Light lettering on a solid box: keep only the lettering.
-LETTERING = {"whsmith"}
+# Tiles with a dark background hold white/gold logos: recolour them.
+DARK_TILES = {"the-westin-jakarta", "trinland", "hariom-s", "7am-7pm", "sumak"}
+BRAND_DARK = (16, 17, 17)
+RECOLOR = {"sumak": (154, 123, 79)}
 
 
 def smoothstep(x, a, b):
@@ -40,9 +39,8 @@ def smoothstep(x, a, b):
     return t * t * (3 - 2 * t)
 
 
-def extract_alpha(img, slug):
-    a = np.asarray(img.convert("RGB")).astype(np.float32)
-    a = a[3:-3, 3:-3]  # drop tile edge pixels
+def extract(img, slug):
+    a = np.asarray(img.convert("RGB")).astype(np.float32)[3:-3, 3:-3]
     h, w, _ = a.shape
     border = np.concatenate([a[0], a[-1], a[:, 0], a[:, -1]])
     bg = np.median(border, axis=0)
@@ -51,39 +49,18 @@ def extract_alpha(img, slug):
     d = np.asarray(d8.filter(ImageFilter.GaussianBlur(0.5))).astype(np.float32)
     fg = d[d > 25]
     ref = max(np.percentile(fg, 85) if fg.size > 50 else 120.0, 60.0)
-    n = np.clip(d / ref, 0, 1.4)
-    lum = (a * np.array([0.299, 0.587, 0.114])).sum(-1)
-    if slug in LUMA:
-        bg_lum = float((bg * np.array([0.299, 0.587, 0.114])).sum())
-        n = np.clip((bg_lum - lum) / bg_lum * 1.7, 0, 1) ** 0.85 * np.clip(d / (0.35 * ref), 0, 1)
-    elif slug in EMBLEM_CUTOUT:
-        top = np.zeros_like(lum, dtype=bool)
-        top[: int(h * 0.56)] = True
-        fill = np.percentile(lum[(d > 0.6 * ref) & top], 25)
-        cut = np.clip(1.0 - np.clip(lum - fill, 0, None) / 55.0, 0.0, 1.0)
-        n = n * np.where(top, cut, 1.0)
-    elif slug in LETTERING:
-        box = d > 0.6 * ref
-        ys, xs = np.where(box)
-        inside = np.zeros_like(box)
-        inside[ys.min() + 3:ys.max() - 2, xs.min() + 3:xs.max() - 2] = True
-        fill = np.percentile(lum[box], 40)
-        n = np.clip((lum - fill) / (255 - fill) * 1.3, 0, 1) * inside
-    elif slug in KNOCKOUT:
-        fill = np.percentile(lum[d > 0.6 * ref], 80)
-        n = n * np.clip((lum - 0.45 * fill) / (0.55 * fill), 0.0, 1.0) ** 0.7
-    big = Image.fromarray((np.clip(n, 0, 1) * 255).astype(np.uint8)).resize(
-        (w * SCALE, h * SCALE), Image.LANCZOS
-    )
-    return smoothstep(np.asarray(big).astype(np.float32) / 255, 0.16, 0.62)
-
-
-def to_white_rgba(alpha):
-    h, w = alpha.shape
-    out = np.zeros((h, w, 4), np.uint8)
-    out[..., :3] = 255
-    out[..., 3] = (alpha * 255).astype(np.uint8)
-    return Image.fromarray(out)
+    n = np.clip(d / ref, 0, 1)
+    size = (w * SCALE, h * SCALE)
+    n_big = np.asarray(Image.fromarray((n * 255).astype(np.uint8)).resize(size, Image.LANCZOS))
+    alpha = smoothstep(n_big.astype(np.float32) / 255, 0.16, 0.62)
+    if slug in DARK_TILES:
+        rgb = np.zeros((size[1], size[0], 3), np.uint8)
+        rgb[:] = RECOLOR.get(slug, BRAND_DARK)
+    else:
+        # un-mix the tile background from partially covered edge pixels
+        c = np.clip(bg + (a - bg) / np.maximum(n, 0.3)[..., None], 0, 255).astype(np.uint8)
+        rgb = np.asarray(Image.fromarray(c).resize(size, Image.BICUBIC))
+    return Image.fromarray(np.dstack([rgb, (alpha * 255).astype(np.uint8)]))
 
 
 def trim(img, pad):
@@ -102,10 +79,11 @@ def main():
         slug = os.path.splitext(os.path.basename(path))[0]
         orig = os.path.join(ORIGINALS, slug + ".png")
         if os.path.exists(orig):
-            alpha = np.asarray(Image.open(orig).convert("RGBA").getchannel("A")).astype(np.float32) / 255
+            src = Image.open(orig).convert("RGBA")
+            full = src.resize((src.width * SCALE, src.height * SCALE), Image.LANCZOS)
         else:
-            alpha = extract_alpha(Image.open(path), slug)
-        logo = trim(to_white_rgba(alpha), 2 * SCALE)
+            full = extract(Image.open(path), slug)
+        logo = trim(full, 2 * SCALE)
         logo.save(os.path.join(OUT, slug + ".webp"), "WEBP", quality=95, method=6)
         sizes[slug] = logo.size
         print(f"{slug:24s} {logo.size[0]}x{logo.size[1]}")
