@@ -19,8 +19,8 @@
     <!-- Use Case Section -->
     <UseCaseSection />
 
-    <!-- FAQ Section -->
-    <FAQ />
+    <!-- Latest articles & media coverage -->
+    <LatestArticles />
     <CTA variant="light" />
   </div>
 </template>
@@ -48,8 +48,8 @@ const BannerSlides = defineAsyncComponent({
   delay: 200,
   timeout: 3000,
 })
-const FAQ = defineAsyncComponent({
-  loader: () => import('@/components/FAQ.vue'),
+const LatestArticles = defineAsyncComponent({
+  loader: () => import('@/components/LatestArticles.vue'),
   delay: 200,
   timeout: 3000,
 })
