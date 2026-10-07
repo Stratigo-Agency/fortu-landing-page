@@ -13,8 +13,15 @@
 </template>
 
 <script setup lang="ts">
+import { useSeo } from '@/composables/useSeo'
 import PageHero from '@/components/PageHero.vue'
 import ProductCatalog from '@/components/ProductCatalog.vue'
 import Compare from '@/components/Compare.vue'
 import CTA from '@/components/CTA.vue'
+
+useSeo({
+  title: 'Produk Digital Signage & Interactive Display | Fortu Digital',
+  description:
+    'Katalog Fortu Digital: layar digital signage, interactive flat panel, dan videotron untuk ruang rapat, ritel, pendidikan, dan lobi perusahaan.',
+})
 </script>

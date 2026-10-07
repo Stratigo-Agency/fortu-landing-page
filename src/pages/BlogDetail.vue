@@ -131,6 +131,7 @@
 </template>
 
 <script setup lang="ts">
+import { useSeo } from '@/composables/useSeo'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { client, urlFor } from '@/sanity/client'
@@ -208,7 +209,6 @@ const fetchPost = async (slug: string) => {
       return
     }
     post.value = data
-    document.title = `${data.seoTitle || data.title} | FORTU Digital`
     relatedPosts.value = (await client.fetch(RELATED_BLOG_POSTS_QUERY, {
       currentId: data._id,
     })) as BlogPostListItem[]
@@ -232,6 +232,20 @@ watch(
     if (s) fetchPost(s)
   },
 )
+
+const trimTo = (text: string, max: number) =>
+  text.length <= max ? text : text.slice(0, max - 1).replace(/\s+\S*$/, '') + '…'
+
+useSeo(() => {
+  const p = post.value
+  return {
+    title: p ? trimTo(`${p.seoTitle || p.title} | Fortu Digital`, 70) : 'Blog | Fortu Digital',
+    description: p ? trimTo((p.seoDescription || p.excerpt || '').trim(), 155) || undefined : undefined,
+    image: coverImageUrl.value ?? undefined,
+    type: 'article',
+    noindex: !!error.value && !p,
+  }
+})
 </script>
 
 <style scoped>

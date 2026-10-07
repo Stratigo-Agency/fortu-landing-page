@@ -46,7 +46,14 @@
 </template>
 
 <script setup lang="ts">
+import { useSeo } from '@/composables/useSeo'
 import Button from '@/reusables/Button.vue'
+
+useSeo({
+  title: 'Halaman Tidak Ditemukan | Fortu Digital',
+  description: 'Halaman yang Anda cari tidak tersedia. Kembali ke beranda Fortu Digital.',
+  noindex: true,
+})
 </script>
 
 <style scoped>

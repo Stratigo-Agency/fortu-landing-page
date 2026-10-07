@@ -95,6 +95,7 @@
 </template>
 
 <script setup lang="ts">
+import { useSeo } from '@/composables/useSeo'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { client, urlFor } from '@/sanity/client'
@@ -239,6 +240,34 @@ onMounted(() => {
   const slug = route.params.slug as string
   if (slug) {
     fetchProduct(slug)
+  }
+})
+
+const productImageUrl = computed(() => {
+  const img = product.value?.heroImage || product.value?.images?.[0]
+  if (!img?.asset) return undefined
+  try {
+    return urlFor(img).width(1200).height(630).fit('crop').quality(80).url()
+  } catch {
+    return undefined
+  }
+})
+
+const trimTo = (text: string, max: number) =>
+  text.length <= max ? text : text.slice(0, max - 1).replace(/\s+\S*$/, '') + '…'
+
+useSeo(() => {
+  const name = product.value?.name
+  const desc = product.value?.description?.replace(/\s+/g, ' ').trim()
+  return {
+    title: name ? trimTo(`${name} | Fortu Digital`, 60) : 'Produk | Fortu Digital',
+    description: desc
+      ? trimTo(desc, 155)
+      : name
+        ? `Spesifikasi, fitur, dan informasi pemesanan ${name} dari Fortu Digital.`
+        : undefined,
+    image: productImageUrl.value,
+    noindex: !!error.value && !product.value,
   }
 })
 </script>

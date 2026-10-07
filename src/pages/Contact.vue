@@ -276,6 +276,7 @@
 </template>
 
 <script setup lang="ts">
+import { useSeo } from '@/composables/useSeo'
 import { ref, computed, onMounted } from 'vue'
 import { client } from '@/sanity/client'
 import { SITE_SETTINGS_QUERY, FAQ_QUERY, type SiteSettings, type FAQ } from '@/sanity/queries'
@@ -324,6 +325,12 @@ onMounted(async () => {
     loading.value = false
     faqLoading.value = false
   }
+})
+
+useSeo({
+  title: 'Hubungi Fortu Digital | Konsultasi Digital Signage',
+  description:
+    'Hubungi tim Fortu Digital lewat WhatsApp, telepon, atau email untuk konsultasi digital signage dan interactive display, dari perangkat sampai instalasi.',
 })
 </script>
 
