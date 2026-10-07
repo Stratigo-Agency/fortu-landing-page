@@ -124,6 +124,24 @@ export default defineType({
       group: 'contact',
       description: 'WhatsApp number with country code (e.g., +6289684073110)',
     }),
+    defineField({
+      name: 'contactSalesUrl',
+      title: 'Tujuan "Hubungi Sales"',
+      type: 'url',
+      group: 'contact',
+      description:
+        'Tujuan pilihan "Hubungi Sales" di semua tombol Hubungi Kami. Kosongkan untuk memakai Linktree Fortu. Contoh: link WhatsApp sales. Kode pelacak asal website (utm) ditambahkan otomatis.',
+      validation: (Rule) => Rule.uri({scheme: ['http', 'https']}),
+    }),
+    defineField({
+      name: 'contactPartnershipUrl',
+      title: 'Tujuan "Partnership & Kolaborasi"',
+      type: 'url',
+      group: 'contact',
+      description:
+        'Tujuan pilihan "Partnership & Kolaborasi". Kosongkan untuk memakai Linktree Fortu. Contoh: mailto:partnership@fortu.co.id tidak didukung, gunakan alamat https.',
+      validation: (Rule) => Rule.uri({scheme: ['http', 'https']}),
+    }),
     // SOCIAL MEDIA
     defineField({
       name: 'socialMedia',

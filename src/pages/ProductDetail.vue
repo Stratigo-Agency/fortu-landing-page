@@ -28,6 +28,7 @@
     <!-- Product Hero -->
     <ProductHero
       :product-name="product.name"
+      :product-slug="product.slug?.current"
       :description="product.description"
       :hero-image="product.heroImage"
       :hero-video="product.heroVideo"

@@ -132,15 +132,14 @@
       </div>
 
       <!-- Buy Button -->
-      <div v-if="whatsappLink" class="mt-8" data-track-source="product_hero">
+      <div class="mt-8" data-track-source="product_hero">
         <Button
-          :href="whatsappLink"
-          variant="green"
+          variant="secondary"
           size="lg"
-          target="_blank"
           class="gap-2"
+          @click="askAboutProduct"
         >
-          Beli via WhatsApp
+          Hubungi Kami tentang produk ini
         </Button>
       </div>
     </div>
@@ -270,18 +269,14 @@
       </div>
 
       <!-- Buy Button -->
-      <div v-if="whatsappLink" class="mt-8" data-track-source="product_hero">
+      <div class="mt-8" data-track-source="product_hero">
         <Button
-          :href="whatsappLink"
-          variant="green"
+          variant="secondary"
           size="lg"
-          target="_blank"
           class="gap-2"
+          @click="askAboutProduct"
         >
-          Beli via WhatsApp
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-          </svg>
+          Hubungi Kami tentang produk ini
         </Button>
       </div>
     </div>
@@ -289,10 +284,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { urlFor } from '@/sanity/client'
-import { client } from '@/sanity/client'
-import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
+import { useContactChooser } from '@/composables/useContactChooser'
 import { IMAGE_CONFIG } from '@/config/image'
 import Button from '@/reusables/Button.vue'
 
@@ -327,6 +321,7 @@ interface ProductVariant {
 
 const props = defineProps<{
   productName: string
+  productSlug?: string
   description?: string
   heroImage?: HeroAsset
   heroVideo?: HeroAsset
@@ -389,27 +384,14 @@ const handleVariantSelect = (variant: ProductVariant) => {
   emit('select-variant', variant)
 }
 
-// Fetch site settings for WhatsApp
-const siteSettings = ref<SiteSettings | null>(null)
+const { openChooser } = useContactChooser()
 
-const whatsappLink = computed(() => {
-  if (!siteSettings.value?.whatsapp) return null
-  // Remove any non-numeric characters except +
-  const phone = siteSettings.value.whatsapp.replace(/[^\d+]/g, '')
-  // Remove leading + if present for wa.me format
-  const cleanPhone = phone.startsWith('+') ? phone.slice(1) : phone
-  // Add product name to message
-  const message = encodeURIComponent(`Halo, saya tertarik dengan produk ${props.productName}`)
-  return `https://wa.me/${cleanPhone}?text=${message}`
-})
-
-onMounted(async () => {
-  try {
-    siteSettings.value = await client.fetch(SITE_SETTINGS_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch site settings:', e)
-  }
-})
+// Product name travels to the destination as utm_campaign (a pre-filled message is not possible via Linktree)
+const askAboutProduct = () =>
+  openChooser('product_hero', {
+    campaign: props.productSlug || undefined,
+    productName: props.productName,
+  })
 </script>
 
 <style scoped>
