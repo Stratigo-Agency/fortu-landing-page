@@ -869,6 +869,7 @@ export interface BlogPost extends BlogPostListItem {
   body: PortableTextContent[]
   seoTitle?: string
   seoDescription?: string
+  updatedAt?: string
 }
 
 export const BLOG_POSTS_QUERY = defineQuery(/* groq */ `
@@ -926,7 +927,8 @@ export const BLOG_POST_BY_SLUG_QUERY = defineQuery(/* groq */ `
       }
     },
     seoTitle,
-    seoDescription
+    seoDescription,
+    "updatedAt": _updatedAt
   }
 `)
 

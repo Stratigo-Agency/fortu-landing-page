@@ -132,6 +132,8 @@
 
 <script setup lang="ts">
 import { useSeo } from '@/composables/useSeo'
+import { useJsonLd } from '@/composables/useJsonLd'
+import { breadcrumbs, blogPostingSchema } from '@/utils/structuredData'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { client, urlFor } from '@/sanity/client'
@@ -246,6 +248,17 @@ useSeo(() => {
     noindex: !!error.value && !p,
   }
 })
+
+useJsonLd('blogposting', () => blogPostingSchema(post.value, coverImageUrl.value ?? undefined))
+useJsonLd('breadcrumb', () =>
+  post.value
+    ? breadcrumbs([
+        { name: 'Beranda', path: '/' },
+        { name: 'Blog', path: '/blog' },
+        { name: post.value.title, path: `/blog/${post.value.slug.current}` },
+      ])
+    : null,
+)
 </script>
 
 <style scoped>

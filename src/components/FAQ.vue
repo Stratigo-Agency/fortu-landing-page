@@ -73,10 +73,14 @@ import { ref, onMounted } from 'vue'
 import { client } from '@/sanity/client'
 import { FAQ_QUERY, type FAQ } from '@/sanity/queries'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
+import { useJsonLd } from '@/composables/useJsonLd'
+import { faqSchema } from '@/utils/structuredData'
 
 const faq = ref<FAQ | null>(null)
 const loading = ref(true)
 const openItems = ref<number[]>([])
+
+useJsonLd('faq', () => faqSchema(faq.value))
 
 const toggleItem = (index: number) => {
   const idx = openItems.value.indexOf(index)
