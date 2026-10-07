@@ -226,7 +226,7 @@ export interface Product {
   category?: string
   inStock?: boolean
   featured?: boolean
-  status?: 'active' | 'draft' | 'archived'
+  status?: 'active' | 'draft' | 'archived' | 'coming_soon'
   seoTitle?: string
   seoDescription?: string
   shareImage?: SanityImage
@@ -1054,5 +1054,24 @@ export const PAGE_SEO_QUERY = defineQuery(/* groq */ `
       crop
     },
     noIndex
+  }
+`)
+
+// Header menu: featured products, shown directly in the navigation
+export interface NavProduct {
+  _id: string
+  name: string
+  slug: string
+  status?: string
+  menuOrder?: number
+}
+
+export const NAV_PRODUCTS_QUERY = defineQuery(/* groq */ `
+  *[_type == "product" && showInMenu == true && status in ["active", "coming_soon"]] | order(menuOrder asc, name asc) {
+    _id,
+    name,
+    "slug": slug.current,
+    status,
+    menuOrder
   }
 `)
