@@ -9,6 +9,7 @@ export default defineType({
     {name: 'basic', title: 'Basic Info', default: true},
     {name: 'media', title: 'Media'},
     {name: 'content', title: 'Content'},
+    {name: 'source', title: 'Liputan Media'},
     {name: 'seo', title: 'SEO'},
   ],
   fields: [
@@ -184,6 +185,58 @@ export default defineType({
       rows: 2,
       description: 'Override the default meta description. Defaults to excerpt.',
       validation: (Rule) => Rule.max(160),
+    }),
+    defineField({
+      name: 'isMediaCoverage',
+      title: 'Liputan Media',
+      type: 'boolean',
+      group: 'source',
+      description:
+        'Aktifkan jika artikel ini ringkasan liputan media tentang Fortu. Tulis ringkasan dengan kata-kata sendiri (jangan menyalin artikel penuh) dan isi sumbernya di bawah.',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'sourceName',
+      title: 'Nama Media',
+      type: 'string',
+      group: 'source',
+      description: 'Contoh: CNBC Indonesia, Kompas TV, Bisnis.com',
+      hidden: ({document}) => !document?.isMediaCoverage,
+      validation: (Rule) =>
+        Rule.custom((value, ctx) =>
+          (ctx.document as {isMediaCoverage?: boolean})?.isMediaCoverage && !value
+            ? 'Nama media wajib diisi untuk liputan media'
+            : true,
+        ),
+    }),
+    defineField({
+      name: 'sourceUrl',
+      title: 'Link Artikel Asli',
+      type: 'url',
+      group: 'source',
+      description: 'Alamat lengkap artikel di situs media. Tombol "Baca artikel lengkap" akan membukanya di tab baru.',
+      hidden: ({document}) => !document?.isMediaCoverage,
+      validation: (Rule) =>
+        Rule.uri({scheme: ['http', 'https']}).custom((value, ctx) =>
+          (ctx.document as {isMediaCoverage?: boolean})?.isMediaCoverage && !value
+            ? 'Link artikel asli wajib diisi untuk liputan media'
+            : true,
+        ),
+    }),
+    defineField({
+      name: 'sourcePublishedAt',
+      title: 'Tanggal Terbit Asli',
+      type: 'datetime',
+      group: 'source',
+      description: 'Tanggal artikel terbit di media asal.',
+      hidden: ({document}) => !document?.isMediaCoverage,
+    }),
+    defineField({
+      name: 'sourceAuthor',
+      title: 'Penulis Asli (opsional)',
+      type: 'string',
+      group: 'source',
+      hidden: ({document}) => !document?.isMediaCoverage,
     }),
     ...seoFields({withTitleDescription: false}),
     defineField({
