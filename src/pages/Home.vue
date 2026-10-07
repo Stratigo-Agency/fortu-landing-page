@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 // Lazy load below-the-fold components
 import Hero from '@/components/Hero.vue'
 import ClientCarousel from '@/components/ClientCarousel.vue'
@@ -69,7 +69,7 @@ const Service = defineAsyncComponent({
   timeout: 3000,
 })
 
-useSeo({
+usePageSeo('home', {
   title: 'Digital Signage Indonesia | Fortu Digital',
   description:
     'Perangkat digital signage, interactive display, CMS cloud Marien, dan instalasi untuk bisnis dan institusi di Indonesia. Konsultasikan kebutuhan Anda.',

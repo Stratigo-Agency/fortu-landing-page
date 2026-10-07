@@ -116,10 +116,10 @@
 </template>
 
 <script setup lang="ts">
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 import PageHero from '@/components/PageHero.vue'
 
-useSeo({
+usePageSeo('privacy', {
   title: 'Kebijakan Privasi | Fortu Digital',
   description:
     'Kebijakan privasi Fortu Digital: data apa yang kami kumpulkan, bagaimana cookies digunakan, dan bagaimana Anda dapat mengatur pilihan privasi Anda.',
