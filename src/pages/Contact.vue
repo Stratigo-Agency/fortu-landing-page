@@ -39,9 +39,10 @@
 
             <!-- Contact Cards -->
             <div class="space-y-4">
-              <!-- Address -->
-              <div 
-                v-if="settings?.address" 
+              <!-- Offices -->
+              <div
+                v-for="(office, i) in offices"
+                :key="office._key || i"
                 class="contact-card p-6 bg-white rounded-lg"
               >
                 <div class="flex items-start gap-4">
@@ -52,8 +53,20 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm font-medium text-fortu-medium uppercase tracking-wider mb-1">Address</p>
-                    <p class="text-fortu-dark whitespace-pre-line">{{ settings.address }}</p>
+                    <p class="text-sm font-medium text-fortu-medium uppercase tracking-wider mb-1">
+                      {{ office.city ? `Kantor ${office.city}` : 'Address' }}
+                    </p>
+                    <p v-if="office.name && office.address" class="text-fortu-dark font-medium">{{ office.name }}</p>
+                    <p class="text-fortu-dark whitespace-pre-line">{{ office.address || officeLabel(office) }}</p>
+                    <a
+                      v-if="safeUrl(office.mapsUrl)"
+                      :href="safeUrl(office.mapsUrl)"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-block mt-2 text-sm text-fortu-dark underline"
+                    >
+                      Lihat di Google Maps
+                    </a>
                   </div>
                 </div>
               </div>
@@ -276,6 +289,7 @@
 </template>
 
 <script setup lang="ts">
+import { getOffices, safeUrl, officeLabel } from '@/utils/offices'
 import { usePageSeo } from '@/composables/usePageSeo'
 import { ref, computed, onMounted } from 'vue'
 import { client } from '@/sanity/client'
@@ -295,6 +309,8 @@ const whatsappLink = computed(() => {
   const cleanPhone = phone.startsWith('+') ? phone.slice(1) : phone
   return `https://wa.me/${cleanPhone}`
 })
+
+const offices = computed(() => getOffices(settings.value))
 
 const hasSocialMedia = computed(() => {
   const social = settings.value?.socialMedia

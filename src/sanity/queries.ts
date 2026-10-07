@@ -456,6 +456,26 @@ export interface SiteSettings {
   email?: string
   whatsapp?: string
   socialMedia?: SocialMedia
+  offices?: Office[]
+}
+
+export interface OfficeHours {
+  days?: string[]
+  opens?: string
+  closes?: string
+}
+
+export interface Office {
+  _key?: string
+  city: string
+  name?: string
+  address?: string
+  phone?: string
+  mapsUrl?: string
+  mapsEmbed?: string
+  latitude?: number
+  longitude?: number
+  openingHours?: OfficeHours[]
 }
 
 export const SITE_SETTINGS_QUERY = defineQuery(/* groq */ `
@@ -473,6 +493,18 @@ export const SITE_SETTINGS_QUERY = defineQuery(/* groq */ `
     phone,
     email,
     whatsapp,
+    offices[] {
+      _key,
+      city,
+      name,
+      address,
+      phone,
+      mapsUrl,
+      mapsEmbed,
+      latitude,
+      longitude,
+      openingHours[] { days, opens, closes }
+    },
     socialMedia {
       twitter,
       instagram,
