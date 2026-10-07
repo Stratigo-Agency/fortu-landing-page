@@ -1,7 +1,10 @@
 <template>
   <div>
-    <!-- Hero Section (includes ClientCarousel at bottom) -->
+    <!-- Hero Section -->
     <Hero />
+
+    <!-- Client logos (own section, white background) -->
+    <ClientCarousel />
 
     <!-- Product Slides -->
     <BannerSlides />
@@ -25,6 +28,7 @@
 <script setup lang="ts">
 // Lazy load below-the-fold components
 import Hero from '@/components/Hero.vue'
+import ClientCarousel from '@/components/ClientCarousel.vue'
 import { defineAsyncComponent } from 'vue'
 
 // Defer non-critical components until needed
