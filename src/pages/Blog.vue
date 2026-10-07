@@ -58,8 +58,14 @@
                 Featured
               </span>
               <span class="w-1 h-1 rounded-full bg-fortu-medium"></span>
+              <template v-if="featuredPost.isMediaCoverage">
+                <span class="w-1 h-1 rounded-full bg-fortu-medium"></span>
+                <span class="text-xs md:text-sm font-medium text-fortu-dark uppercase tracking-wider">
+                  {{ postLabel(featuredPost) }}
+                </span>
+              </template>
               <span class="text-xs md:text-sm text-fortu-medium">
-                {{ formatDate(featuredPost.publishedAt) }}
+                {{ formatDate(displayDate(featuredPost)) }}
               </span>
             </div>
             <h2 class="text-3xl md:text-5xl font-medium text-fortu-dark mb-4 tracking-tight group-hover:text-fortu-medium transition-colors">
@@ -97,12 +103,16 @@
             />
           </div>
           <div class="flex items-center gap-3 mb-3">
-            <span v-if="post.category" class="text-xs font-medium text-fortu-medium uppercase tracking-wider">
-              {{ categoryLabel(post.category) }}
+            <span
+              v-if="postLabel(post)"
+              class="text-xs font-medium uppercase tracking-wider"
+              :class="post.isMediaCoverage ? 'text-fortu-dark' : 'text-fortu-medium'"
+            >
+              {{ postLabel(post) }}
             </span>
-            <span v-if="post.category" class="w-1 h-1 rounded-full bg-fortu-medium"></span>
+            <span v-if="postLabel(post)" class="w-1 h-1 rounded-full bg-fortu-medium"></span>
             <span class="text-xs text-fortu-medium">
-              {{ formatDate(post.publishedAt) }}
+              {{ formatDate(displayDate(post)) }}
             </span>
           </div>
           <h3 class="text-xl md:text-2xl font-medium text-fortu-dark mb-2 tracking-tight group-hover:text-fortu-medium transition-colors">
@@ -164,6 +174,17 @@ const formatDate = (date: string) => {
   } catch {
     return ''
   }
+}
+
+/** Original publication date for media coverage, our own date otherwise. */
+const displayDate = (post: BlogPostListItem) =>
+  (post.isMediaCoverage && post.sourcePublishedAt) || post.publishedAt
+
+const postLabel = (post: BlogPostListItem) => {
+  if (post.isMediaCoverage) {
+    return post.sourceName ? `Liputan Media · ${post.sourceName}` : 'Liputan Media'
+  }
+  return post.category ? categoryLabel(post.category) : ''
 }
 
 const categoryLabel = (value: string) => {

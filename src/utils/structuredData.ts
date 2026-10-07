@@ -151,18 +151,29 @@ export function faqSchema(f: FAQ | null) {
 export function blogPostingSchema(p: BlogPost | null, imageUrl?: string) {
   if (!p) return null
   const url = abs(`/blog/${p.slug.current}`)
-  return {
+  const coverage = p.isMediaCoverage === true
+  const sourceUrl = coverage && p.sourceUrl && /^https?:\/\//i.test(p.sourceUrl) ? p.sourceUrl : undefined
+  return compact({
     '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
+    '@type': coverage ? 'NewsArticle' : 'BlogPosting',
     headline: p.title,
     description: p.seoDescription || p.excerpt || undefined,
     image: imageUrl ? [imageUrl] : undefined,
-    datePublished: p.publishedAt,
+    // media coverage: original publication date and publisher of the source article
+    datePublished: (coverage && p.sourcePublishedAt) || p.publishedAt,
     dateModified: p.updatedAt || p.publishedAt,
-    author: p.author ? { '@type': 'Person', name: p.author } : { '@id': ORG_ID },
+    author:
+      coverage && p.sourceAuthor
+        ? { '@type': 'Person', name: p.sourceAuthor }
+        : p.author
+          ? { '@type': 'Person', name: p.author }
+          : { '@id': ORG_ID },
     publisher: { '@id': ORG_ID },
+    sourceOrganization:
+      coverage && p.sourceName ? { '@type': 'Organization', name: p.sourceName } : undefined,
+    isBasedOn: sourceUrl,
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
     url,
     inLanguage: 'id-ID',
-  }
+  })
 }

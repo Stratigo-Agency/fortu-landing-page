@@ -40,12 +40,12 @@
 
       <div class="relative z-10 max-w-4xl mx-auto px-4 md:px-16 py-32 md:py-40 text-center">
         <div class="flex items-center justify-center gap-3 mb-6">
-          <span v-if="post.category" class="text-xs md:text-sm font-medium text-fortu-light uppercase tracking-wider">
-            {{ categoryLabel(post.category) }}
+          <span v-if="post.isMediaCoverage || post.category" class="text-xs md:text-sm font-medium text-fortu-light uppercase tracking-wider">
+            {{ post.isMediaCoverage ? 'Liputan Media' : categoryLabel(post.category!) }}
           </span>
-          <span v-if="post.category" class="w-1 h-1 rounded-full bg-fortu-light"></span>
+          <span v-if="post.isMediaCoverage || post.category" class="w-1 h-1 rounded-full bg-fortu-light"></span>
           <span class="text-xs md:text-sm text-fortu-light">
-            {{ formatDate(post.publishedAt) }}
+            {{ formatDate(post.isMediaCoverage && post.sourcePublishedAt ? post.sourcePublishedAt : post.publishedAt) }}
           </span>
         </div>
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-medium text-fortu-off-white mb-6 tracking-tight hero-title">
@@ -53,6 +53,19 @@
         </h1>
         <p v-if="post.excerpt" class="text-lg md:text-xl text-fortu-light max-w-2xl mx-auto hero-subtitle">
           {{ post.excerpt }}
+        </p>
+        <p v-if="sourceLink && post.sourceName" class="mt-6 text-sm text-fortu-light hero-subtitle">
+          Sumber:
+          <a
+            :href="sourceLink"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-fortu-off-white font-medium underline underline-offset-4"
+          >{{ post.sourceName }}</a>
+          <template v-if="post.sourceAuthor"> · {{ post.sourceAuthor }}</template>
+        </p>
+        <p v-else-if="post.isMediaCoverage && post.sourceName" class="mt-6 text-sm text-fortu-light hero-subtitle">
+          Sumber: <span class="text-fortu-off-white font-medium">{{ post.sourceName }}</span>
         </p>
         <div v-if="post.author" class="mt-8 text-sm text-fortu-light hero-subtitle">
           Oleh <span class="text-fortu-off-white font-medium">{{ post.author }}</span>
@@ -74,6 +87,28 @@
           #{{ tag }}
         </span>
       </div>
+
+      <!-- Source (media coverage): link to the original article -->
+      <aside
+        v-if="sourceLink"
+        class="mt-12 p-6 md:p-8 rounded-2xl bg-white border border-fortu-light text-center"
+      >
+        <p class="text-sm text-fortu-medium mb-4">
+          Ringkasan ini ditulis ulang oleh tim Fortu Digital berdasarkan liputan
+          <span class="font-medium text-fortu-dark">{{ post.sourceName || 'media' }}</span>.
+        </p>
+        <a
+          :href="sourceLink"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-fortu-dark text-fortu-off-white font-medium hover:opacity-90 transition-opacity"
+        >
+          Baca artikel lengkap di {{ post.sourceName || 'media asli' }}
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+        </a>
+      </aside>
 
       <!-- Back link -->
       <div class="mt-12 text-center">
@@ -163,6 +198,11 @@ const coverImageUrl = computed(() => {
   } catch {
     return null
   }
+})
+
+const sourceLink = computed(() => {
+  const u = post.value?.sourceUrl
+  return post.value?.isMediaCoverage && u && /^https?:\/\//i.test(u) ? u : null
 })
 
 const shareImageUrl = computed(() => {

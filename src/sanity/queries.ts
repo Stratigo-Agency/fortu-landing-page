@@ -872,6 +872,9 @@ export interface BlogPostListItem {
   tags?: string[]
   coverImage?: SanityImage
   featured?: boolean
+  isMediaCoverage?: boolean
+  sourceName?: string
+  sourcePublishedAt?: string
 }
 
 export interface PortableTextSpan {
@@ -919,6 +922,8 @@ export interface BlogPost extends BlogPostListItem {
   shareImage?: SanityImage
   noIndex?: boolean
   updatedAt?: string
+  sourceUrl?: string
+  sourceAuthor?: string
 }
 
 export const BLOG_POSTS_QUERY = defineQuery(/* groq */ `
@@ -940,6 +945,9 @@ export const BLOG_POSTS_QUERY = defineQuery(/* groq */ `
       crop,
       alt
     },
+    isMediaCoverage,
+    sourceName,
+    sourcePublishedAt,
     featured
   }
 `)
@@ -963,6 +971,11 @@ export const BLOG_POST_BY_SLUG_QUERY = defineQuery(/* groq */ `
       crop,
       alt
     },
+    isMediaCoverage,
+    sourceName,
+    sourcePublishedAt,
+    sourceUrl,
+    sourceAuthor,
     featured,
     body[] {
       ...,
@@ -999,6 +1012,9 @@ export const RELATED_BLOG_POSTS_QUERY = defineQuery(/* groq */ `
     author,
     publishedAt,
     category,
+    isMediaCoverage,
+    sourceName,
+    sourcePublishedAt,
     coverImage {
       asset-> {
         _id,
