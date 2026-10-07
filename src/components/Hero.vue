@@ -234,13 +234,16 @@ onMounted(async () => {
     padding-bottom: 0.5rem;
   }
 
-  .hero-carousel :deep(.carousel-card) {
-    height: 3.5rem;
-    padding: 0.5rem;
+  .hero-carousel :deep(.client-carousel-section) {
+    --logo-scale: 0.62;
   }
 
-  .hero-carousel :deep(.carousel-card img) {
-    height: 100%;
+  .hero-carousel :deep(.carousel-card) {
+    height: 3rem;
+  }
+
+  .hero-carousel :deep(.carousel-strip) {
+    padding: 0.5rem 0;
   }
 }
 </style>
