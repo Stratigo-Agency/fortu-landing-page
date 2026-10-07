@@ -2,6 +2,7 @@ import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { sitemapPlugin } from './scripts/sitemap-plugin'
 
 // Staging builds must never be indexed by Google (duplicate of fortu.co.id).
 // Railway injects RAILWAY_GIT_BRANCH at build time, so only builds of the
@@ -36,7 +37,7 @@ function noIndexPlugin(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [vue(), noIndexPlugin()],
+  plugins: [vue(), noIndexPlugin(), sitemapPlugin(isNoIndexBuild)],
   resolve: {
     alias: {
       '@': '/src'

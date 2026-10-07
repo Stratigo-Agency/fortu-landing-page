@@ -1,24 +1,6 @@
 # robots.txt for Fortu Digital
-
 User-agent: *
 Allow: /
-
-# Disallow admin/studio paths
 Disallow: /studio/
-Disallow: /admin/
-Disallow: /api/
 
-# Allow all main pages
-Allow: /
-Allow: /products
-Allow: /products/*
-Allow: /about
-Allow: /contact
-
-# Crawl-delay for aggressive bots (optional)
-Crawl-delay: 1
-
-# Sitemap location (update with your actual domain after deployment)
-# Example: Sitemap: https://fortu.up.railway.app/sitemap.xml
-# Sitemap: https://your-domain.com/sitemap.xml
-
+Sitemap: https://www.fortu.co.id/sitemap.xml
