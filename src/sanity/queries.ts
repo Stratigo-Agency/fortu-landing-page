@@ -227,6 +227,10 @@ export interface Product {
   inStock?: boolean
   featured?: boolean
   status?: 'active' | 'draft' | 'archived'
+  seoTitle?: string
+  seoDescription?: string
+  shareImage?: SanityImage
+  noIndex?: boolean
 }
 
 // Queries
@@ -631,6 +635,17 @@ export const PRODUCT_BY_SLUG_QUERY = defineQuery(/* groq */ `
     _id,
     name,
     slug,
+    seoTitle,
+    seoDescription,
+    shareImage {
+      asset-> {
+        _id,
+        url
+      },
+      hotspot,
+      crop
+    },
+    noIndex,
     sku,
     description,
     heroImage {
@@ -869,6 +884,8 @@ export interface BlogPost extends BlogPostListItem {
   body: PortableTextContent[]
   seoTitle?: string
   seoDescription?: string
+  shareImage?: SanityImage
+  noIndex?: boolean
   updatedAt?: string
 }
 
@@ -928,6 +945,15 @@ export const BLOG_POST_BY_SLUG_QUERY = defineQuery(/* groq */ `
     },
     seoTitle,
     seoDescription,
+    shareImage {
+      asset-> {
+        _id,
+        url
+      },
+      hotspot,
+      crop
+    },
+    noIndex,
     "updatedAt": _updatedAt
   }
 `)
@@ -950,5 +976,31 @@ export const RELATED_BLOG_POSTS_QUERY = defineQuery(/* groq */ `
       crop,
       alt
     }
+  }
+`)
+
+// Per-page SEO overrides (document type "pageSeo", one per page key)
+export interface PageSeo {
+  page: string
+  seoTitle?: string
+  seoDescription?: string
+  shareImage?: SanityImage
+  noIndex?: boolean
+}
+
+export const PAGE_SEO_QUERY = defineQuery(/* groq */ `
+  *[_type == "pageSeo" && page == $page][0] {
+    page,
+    seoTitle,
+    seoDescription,
+    shareImage {
+      asset-> {
+        _id,
+        url
+      },
+      hotspot,
+      crop
+    },
+    noIndex
   }
 `)

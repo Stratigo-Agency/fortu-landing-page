@@ -165,6 +165,16 @@ const coverImageUrl = computed(() => {
   }
 })
 
+const shareImageUrl = computed(() => {
+  const img = post.value?.shareImage
+  if (!img?.asset) return null
+  try {
+    return urlFor(img).width(1200).height(630).fit('crop').quality(80).url()
+  } catch {
+    return null
+  }
+})
+
 const relatedImageUrl = (related: BlogPostListItem) => {
   if (!related.coverImage?.asset) return null
   try {
@@ -243,9 +253,9 @@ useSeo(() => {
   return {
     title: p ? trimTo(`${p.seoTitle || p.title} | Fortu Digital`, 70) : 'Blog | Fortu Digital',
     description: p ? trimTo((p.seoDescription || p.excerpt || '').trim(), 155) || undefined : undefined,
-    image: coverImageUrl.value ?? undefined,
+    image: shareImageUrl.value ?? coverImageUrl.value ?? undefined,
     type: 'article',
-    noindex: !!error.value && !p,
+    noindex: p?.noIndex === true || (!!error.value && !p),
   }
 })
 

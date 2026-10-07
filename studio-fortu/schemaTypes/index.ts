@@ -11,6 +11,7 @@ import productCompare from './productCompare'
 import service from './service'
 import aboutPage from './aboutPage'
 import blogPost from './blogPost'
+import pageSeo from './pageSeo'
 
 export const schemaTypes = [
     hero,
@@ -26,4 +27,5 @@ export const schemaTypes = [
     faq,
     aboutPage,
     blogPost,
+    pageSeo,
 ]

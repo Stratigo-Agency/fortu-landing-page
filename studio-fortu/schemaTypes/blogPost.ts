@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {seoFields} from './seoFields'
 
 export default defineType({
   name: 'blogPost',
@@ -184,6 +185,7 @@ export default defineType({
       description: 'Override the default meta description. Defaults to excerpt.',
       validation: (Rule) => Rule.max(160),
     }),
+    ...seoFields({withTitleDescription: false}),
     defineField({
       name: 'featured',
       title: 'Featured Post',

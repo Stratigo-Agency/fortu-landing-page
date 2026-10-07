@@ -3,7 +3,13 @@ import { resolve } from 'node:path'
 import { loadEnv, type Plugin } from 'vite'
 
 const SITE_URL = 'https://www.fortu.co.id'
-const STATIC_PATHS = ['/', '/products', '/about', '/contact', '/blog']
+const STATIC_PATHS: Record<string, string> = {
+  home: '/',
+  products: '/products',
+  about: '/about',
+  contact: '/contact',
+  blog: '/blog',
+}
 
 const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -13,25 +19,35 @@ interface Entry {
   lastmod?: string
 }
 
-async function fetchSanityEntries(env: Record<string, string>): Promise<Entry[]> {
+async function fetchSanityEntries(
+  env: Record<string, string>,
+): Promise<{ entries: Entry[]; hiddenPages: string[] }> {
   const projectId = env.VITE_SANITY_PROJECT_ID
   const dataset = env.VITE_SANITY_DATASET
   const version = env.VITE_SANITY_API_VERSION || '2024-01-01'
   if (!projectId || !dataset) throw new Error('VITE_SANITY_PROJECT_ID / VITE_SANITY_DATASET not set')
   const query = `{
-    "products": *[_type == "product" && status == "active" && defined(slug.current)]{ "slug": slug.current, _updatedAt },
-    "posts": *[_type == "blogPost" && isActive == true && defined(slug.current)]{ "slug": slug.current, _updatedAt }
+    "products": *[_type == "product" && status == "active" && defined(slug.current) && noIndex != true]{ "slug": slug.current, _updatedAt },
+    "posts": *[_type == "blogPost" && isActive == true && defined(slug.current) && noIndex != true]{ "slug": slug.current, _updatedAt },
+    "hiddenPages": *[_type == "pageSeo" && noIndex == true].page
   }`
   const url = `https://${projectId}.apicdn.sanity.io/v${version}/data/query/${dataset}?query=${encodeURIComponent(query)}`
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Sanity responded ${res.status}`)
   const { result } = (await res.json()) as {
-    result: { products: { slug: string; _updatedAt: string }[]; posts: { slug: string; _updatedAt: string }[] }
+    result: {
+      products: { slug: string; _updatedAt: string }[]
+      posts: { slug: string; _updatedAt: string }[]
+      hiddenPages: string[]
+    }
   }
-  return [
-    ...result.products.map((p) => ({ loc: `/products/${encodeURIComponent(p.slug)}`, lastmod: p._updatedAt })),
-    ...result.posts.map((p) => ({ loc: `/blog/${encodeURIComponent(p.slug)}`, lastmod: p._updatedAt })),
-  ]
+  return {
+    entries: [
+      ...result.products.map((p) => ({ loc: `/products/${encodeURIComponent(p.slug)}`, lastmod: p._updatedAt })),
+      ...result.posts.map((p) => ({ loc: `/blog/${encodeURIComponent(p.slug)}`, lastmod: p._updatedAt })),
+    ],
+    hiddenPages: result.hiddenPages || [],
+  }
 }
 
 /**
@@ -52,12 +68,18 @@ export function sitemapPlugin(skip: boolean): Plugin {
     async closeBundle() {
       if (skip) return
       let dynamic: Entry[] = []
+      let hidden: string[] = []
       try {
-        dynamic = await fetchSanityEntries(env)
+        const r = await fetchSanityEntries(env)
+        dynamic = r.entries
+        hidden = r.hiddenPages
       } catch (e) {
         console.warn('[sitemap] could not read Sanity, writing static pages only:', (e as Error).message)
       }
-      const entries: Entry[] = [...STATIC_PATHS.map((loc) => ({ loc })), ...dynamic]
+      const statics = Object.entries(STATIC_PATHS)
+        .filter(([key]) => !hidden.includes(key))
+        .map(([, loc]) => ({ loc }))
+      const entries: Entry[] = [...statics, ...dynamic]
       const body = entries
         .map(
           (e) =>

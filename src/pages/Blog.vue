@@ -120,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { useSeo } from '@/composables/useSeo'
+import { usePageSeo } from '@/composables/usePageSeo'
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { client, urlFor } from '@/sanity/client'
@@ -187,7 +187,7 @@ onMounted(async () => {
   }
 })
 
-useSeo({
+usePageSeo('blog', {
   title: 'Blog & Berita Digital Signage | Fortu Digital',
   description:
     'Artikel, studi kasus, dan liputan media tentang digital signage, interactive display, dan solusi visual dari Fortu Digital.',

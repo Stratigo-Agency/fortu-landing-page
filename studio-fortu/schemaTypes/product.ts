@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {seoFields} from './seoFields'
 
 export default defineType({
   name: 'product',
@@ -11,6 +12,7 @@ export default defineType({
     {name: 'specs', title: 'Specifications'},
     {name: 'variants', title: 'Variants'},
     {name: 'inventory', title: 'Inventory'},
+    {name: 'seo', title: 'SEO'},
   ],
   fields: [
     defineField({
@@ -522,6 +524,7 @@ export default defineType({
       },
       initialValue: 'active',
     }),
+    ...seoFields(),
   ],
   preview: {
     select: {

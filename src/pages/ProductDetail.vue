@@ -247,7 +247,9 @@ onMounted(() => {
 })
 
 const productImageUrl = computed(() => {
-  const img = product.value?.heroImage || product.value?.images?.[0]
+  const img = product.value?.shareImage?.asset
+    ? product.value.shareImage
+    : product.value?.heroImage || product.value?.images?.[0]
   if (!img?.asset) return undefined
   try {
     return urlFor(img).width(1200).height(630).fit('crop').quality(80).url()
@@ -261,16 +263,20 @@ const trimTo = (text: string, max: number) =>
 
 useSeo(() => {
   const name = product.value?.name
-  const desc = product.value?.description?.replace(/\s+/g, ' ').trim()
+  const desc = (product.value?.seoDescription || product.value?.description)?.replace(/\s+/g, ' ').trim()
   return {
-    title: name ? trimTo(`${name} | Fortu Digital`, 60) : 'Produk | Fortu Digital',
+    title: product.value?.seoTitle?.trim()
+      ? product.value.seoTitle.trim()
+      : name
+        ? trimTo(`${name} | Fortu Digital`, 60)
+        : 'Produk | Fortu Digital',
     description: desc
       ? trimTo(desc, 155)
       : name
         ? `Spesifikasi, fitur, dan informasi pemesanan ${name} dari Fortu Digital.`
         : undefined,
     image: productImageUrl.value,
-    noindex: !!error.value && !product.value,
+    noindex: product.value?.noIndex === true || (!!error.value && !product.value),
   }
 })
 
