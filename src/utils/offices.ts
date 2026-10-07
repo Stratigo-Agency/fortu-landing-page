@@ -1,4 +1,4 @@
-import type { Office, SiteSettings } from '@/sanity/queries'
+import type { Office, OfficeHours, SiteSettings } from '@/sanity/queries'
 
 /**
  * Offices from Site Settings. Falls back to the legacy single `address` field so pages
@@ -16,3 +16,50 @@ export const safeUrl = (url?: string) => (url && /^https?:\/\//i.test(url) ? url
 
 /** First line of text to show for an office when no full address is known. */
 export const officeLabel = (o: Office) => [o.name, o.city].filter(Boolean).join(', ')
+
+/** An office is listed in the footer / contact cards only when it has something to show. */
+export const isListable = (o: Office) => !!(o.address || o.mapsUrl || o.name)
+
+/** Only Google Maps embed URLs are ever put in an iframe. */
+export const safeEmbedUrl = (url?: string) =>
+  url && /^https:\/\/www\.google\.com\/maps\/embed\?/i.test(url) ? url : undefined
+
+const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+const DAY_ID: Record<string, string> = {
+  Monday: 'Senin',
+  Tuesday: 'Selasa',
+  Wednesday: 'Rabu',
+  Thursday: 'Kamis',
+  Friday: 'Jumat',
+  Saturday: 'Sabtu',
+  Sunday: 'Minggu',
+}
+const time = (t?: string) => (t || '').replace(':', '.')
+
+/** "Senin–Sabtu 08.00–21.00" lines, plus "Minggu tutup" for days that are not listed. */
+export function formatHours(hours?: OfficeHours[]): string[] {
+  const rows = (hours || []).filter((h) => h.days?.length && h.opens && h.closes)
+  if (!rows.length) return []
+  const lines: string[] = []
+  const open = new Set<string>()
+  for (const row of rows) {
+    const idx = row
+      .days!.filter((d) => DAY_ORDER.includes(d))
+      .map((d) => DAY_ORDER.indexOf(d))
+      .sort((a, b) => a - b)
+    idx.forEach((i) => open.add(DAY_ORDER[i]))
+    // split into runs of consecutive days
+    let start = 0
+    for (let i = 1; i <= idx.length; i++) {
+      if (i === idx.length || idx[i] !== idx[i - 1] + 1) {
+        const a = DAY_ID[DAY_ORDER[idx[start]]]
+        const b = DAY_ID[DAY_ORDER[idx[i - 1]]]
+        lines.push(`${a === b ? a : `${a}–${b}`} ${time(row.opens)}–${time(row.closes)}`)
+        start = i
+      }
+    }
+  }
+  const closed = DAY_ORDER.filter((d) => !open.has(d)).map((d) => DAY_ID[d])
+  if (closed.length) lines.push(`${closed.join(', ')} tutup`)
+  return lines
+}
