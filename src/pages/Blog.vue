@@ -131,6 +131,7 @@
 
 <script setup lang="ts">
 import { usePageSeo } from '@/composables/usePageSeo'
+import { formatDate, displayDate, postLabel } from '@/utils/blog'
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { client, urlFor } from '@/sanity/client'
@@ -161,41 +162,6 @@ const coverImageUrl = (post: BlogPostListItem) => {
   } catch {
     return null
   }
-}
-
-const formatDate = (date: string) => {
-  if (!date) return ''
-  try {
-    return new Date(date).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  } catch {
-    return ''
-  }
-}
-
-/** Original publication date for media coverage, our own date otherwise. */
-const displayDate = (post: BlogPostListItem) =>
-  (post.isMediaCoverage && post.sourcePublishedAt) || post.publishedAt
-
-const postLabel = (post: BlogPostListItem) => {
-  if (post.isMediaCoverage) {
-    return post.sourceName ? `Liputan Media · ${post.sourceName}` : 'Liputan Media'
-  }
-  return post.category ? categoryLabel(post.category) : ''
-}
-
-const categoryLabel = (value: string) => {
-  const map: Record<string, string> = {
-    news: 'Berita',
-    tutorial: 'Tutorial',
-    product: 'Produk',
-    tips: 'Tips',
-    other: 'Lainnya',
-  }
-  return map[value] || value
 }
 
 onMounted(async () => {
