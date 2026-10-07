@@ -68,7 +68,7 @@
                   <div class="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-[green] animate-pulse"></div>
                   <span class="text-[10px] md:text-xs text-fortu-light uppercase tracking-wider">Perangkat Terhubung</span>
                 </div>
-                <h4 class="text-fortu-off-white font-medium text-xs md:text-base truncate">{{ getProductName('top-left') }}</h4>
+                <p class="text-fortu-off-white font-medium text-xs md:text-base truncate">{{ getProductName('top-left') }}</p>
               </div>
             </div>
           </div>
@@ -95,7 +95,7 @@
                   <div class="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-[green] animate-pulse"></div>
                   <span class="text-[10px] md:text-xs text-fortu-light uppercase tracking-wider">Perangkat Terhubung</span>
                 </div>
-                <h4 class="text-fortu-off-white font-medium text-xs md:text-base truncate">{{ getProductName('top-right') }}</h4>
+                <p class="text-fortu-off-white font-medium text-xs md:text-base truncate">{{ getProductName('top-right') }}</p>
               </div>
             </div>
           </div>
@@ -122,7 +122,7 @@
                   <div class="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-[green] animate-pulse"></div>
                   <span class="text-[10px] md:text-xs text-fortu-light uppercase tracking-wider">Perangkat Terhubung</span>
                 </div>
-                <h4 class="text-fortu-off-white font-medium text-xs md:text-base truncate">{{ getProductName('bottom-center') }}</h4>
+                <p class="text-fortu-off-white font-medium text-xs md:text-base truncate">{{ getProductName('bottom-center') }}</p>
               </div>
             </div>
           </div>
@@ -164,7 +164,7 @@
                     <!-- Header -->
                     <div class="flex items-center justify-between mb-4">
                       <div>
-                        <h3 class="text-fortu-off-white text-sm font-medium">Products</h3>
+                        <p class="text-fortu-off-white text-sm font-medium">Products</p>
                         <p class="text-fortu-medium text-xs">{{ cmsDemo.products.length }} perangkat terhubung</p>
                       </div>
                       <div class="flex items-center gap-2">

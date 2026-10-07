@@ -102,7 +102,7 @@
 
         <!-- Quick Links -->
         <div>
-          <h4 class="text-fortu-off-white font-medium mb-6">Tautan Cepat</h4>
+          <p class="text-fortu-off-white font-medium mb-6">Tautan Cepat</p>
           <ul class="space-y-3">
             <li>
               <RouterLink to="/" class="text-fortu-light hover:text-fortu-off-white transition-colors text-sm" @click="scrollToTop">
@@ -134,7 +134,7 @@
 
         <!-- Contact -->
         <div>
-          <h4 class="text-fortu-off-white font-medium mb-6">Kontak</h4>
+          <p class="text-fortu-off-white font-medium mb-6">Kontak</p>
           <ul class="space-y-4">
             <!-- Address -->
             <li v-if="settings?.address" class="flex gap-3">
