@@ -4,8 +4,8 @@ Build the transparent, full-colour client logos used by the marquee section.
 
 Input : scripts/sources/<slug>.webp   one tile per client, cropped from the CTO's
                                       logo sheet (6 Oct 2026); flat background
-        scripts/originals/<slug>.png  optional original logo (RGBA); used as-is
-                                      (scaled 4x) instead of the tile when present
+        scripts/originals/<slug>.png  original logo (RGBA, any size); used instead of the
+                                      tile crop when present (SVGs: rasterise to PNG first)
 Output: public/clients/<slug>.webp    colour logo + alpha, 4x upscaled, trimmed
         src/data/clientLogoSizes.ts   pixel sizes for optical size normalisation
 
@@ -32,6 +32,8 @@ SCALE = 4
 DARK_TILES = {"the-westin-jakarta", "trinland", "hariom-s", "7am-7pm", "sumak"}
 BRAND_DARK = (16, 17, 17)
 RECOLOR = {"sumak": (154, 123, 79)}
+# Originals that are white-on-solid-black: key the black out and recolour to brand dark.
+KEY_BLACK = {"7am-7pm"}
 
 
 def smoothstep(x, a, b):
@@ -79,11 +81,20 @@ def main():
         slug = os.path.splitext(os.path.basename(path))[0]
         orig = os.path.join(ORIGINALS, slug + ".png")
         if os.path.exists(orig):
-            src = Image.open(orig).convert("RGBA")
-            full = src.resize((src.width * SCALE, src.height * SCALE), Image.LANCZOS)
+            full = Image.open(orig).convert("RGBA")
+            if slug in KEY_BLACK:
+                lum = np.asarray(full.convert("L")).astype(np.float32) / 255
+                a = (smoothstep(lum, 0.2, 0.8) * 255).astype(np.uint8)
+                rgb = np.zeros((full.height, full.width, 3), np.uint8)
+                rgb[:] = BRAND_DARK
+                full = Image.fromarray(np.dstack([rgb, a]))
+            if max(full.size) > 1400:
+                full.thumbnail((1400, 1400), Image.LANCZOS)
         else:
             full = extract(Image.open(path), slug)
         logo = trim(full, 2 * SCALE)
+        if max(logo.size) > 900:
+            logo.thumbnail((900, 900), Image.LANCZOS)
         logo.save(os.path.join(OUT, slug + ".webp"), "WEBP", quality=95, method=6)
         sizes[slug] = logo.size
         print(f"{slug:24s} {logo.size[0]}x{logo.size[1]}")
