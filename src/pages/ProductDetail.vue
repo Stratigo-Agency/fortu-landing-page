@@ -96,6 +96,8 @@
 
 <script setup lang="ts">
 import { useSeo } from '@/composables/useSeo'
+import { useJsonLd } from '@/composables/useJsonLd'
+import { breadcrumbs, productSchema } from '@/utils/structuredData'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { client, urlFor } from '@/sanity/client'
@@ -270,9 +272,24 @@ useSeo(() => {
     noindex: !!error.value && !product.value,
   }
 })
+
+useJsonLd('product', () =>
+  productSchema(
+    product.value,
+    carouselImages.value.map((img) => img.url),
+  ),
+)
+useJsonLd('breadcrumb', () =>
+  product.value
+    ? breadcrumbs([
+        { name: 'Beranda', path: '/' },
+        { name: 'Produk', path: '/products' },
+        { name: product.value.name, path: `/products/${product.value.slug.current}` },
+      ])
+    : null,
+)
 </script>
 
 <style scoped>
 /* Product detail styles */
 </style>
-

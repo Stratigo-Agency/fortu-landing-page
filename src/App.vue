@@ -6,9 +6,13 @@ import CookieBanner from '@/components/CookieBanner.vue'
 import { client } from '@/sanity/client'
 import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
 import { useAnalytics } from '@/composables/useAnalytics'
+import { useJsonLd } from '@/composables/useJsonLd'
+import { organizationGraph } from '@/utils/structuredData'
 
 const siteSettings = ref<SiteSettings | null>(null)
 const { trackEvent } = useAnalytics()
+
+useJsonLd('organization', () => organizationGraph(siteSettings.value))
 
 // Format WhatsApp number for link (remove spaces, dashes, etc.)
 const whatsappLink = computed(() => {
