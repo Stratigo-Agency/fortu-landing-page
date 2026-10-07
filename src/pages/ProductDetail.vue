@@ -96,6 +96,7 @@
 
 <script setup lang="ts">
 import { useSeo } from '@/composables/useSeo'
+import { useAnalytics } from '@/composables/useAnalytics'
 import { useJsonLd } from '@/composables/useJsonLd'
 import { breadcrumbs, productSchema } from '@/utils/structuredData'
 import { ref, computed, onMounted, watch } from 'vue'
@@ -272,6 +273,20 @@ useSeo(() => {
     noindex: !!error.value && !product.value,
   }
 })
+
+const { trackEvent } = useAnalytics()
+watch(
+  () => product.value?._id,
+  (id) => {
+    if (id) {
+      trackEvent('view_product', {
+        product_name: product.value?.name,
+        product_slug: product.value?.slug.current,
+        page_path: route.path,
+      })
+    }
+  },
+)
 
 useJsonLd('product', () =>
   productSchema(

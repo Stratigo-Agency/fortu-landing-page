@@ -132,7 +132,7 @@
       </div>
 
       <!-- Buy Button -->
-      <div v-if="whatsappLink" class="mt-8">
+      <div v-if="whatsappLink" class="mt-8" data-track-source="product_hero">
         <Button
           :href="whatsappLink"
           variant="green"
@@ -270,7 +270,7 @@
       </div>
 
       <!-- Buy Button -->
-      <div v-if="whatsappLink" class="mt-8">
+      <div v-if="whatsappLink" class="mt-8" data-track-source="product_hero">
         <Button
           :href="whatsappLink"
           variant="green"
