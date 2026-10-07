@@ -36,10 +36,73 @@ export default defineType({
     }),
     defineField({
       name: 'address',
-      title: 'Address',
+      title: 'Address (legacy - use Offices)',
       type: 'text',
       group: 'contact',
       rows: 3,
+    }),
+    defineField({
+      name: 'offices',
+      title: 'Offices',
+      type: 'array',
+      group: 'contact',
+      description:
+        'Daftar kantor (Jakarta, Medan, Bali). Footer, halaman Kontak, dan data untuk Google membaca dari sini. Kantor tanpa link Google Maps tidak menampilkan link.',
+      of: [
+        defineField({
+          name: 'office',
+          title: 'Office',
+          type: 'object',
+          fields: [
+            defineField({name: 'city', title: 'City', type: 'string', validation: (Rule) => Rule.required()}),
+            defineField({name: 'name', title: 'Office / Building Name', type: 'string', description: 'Contoh: Fortu Digital Teknologi, Menara Electric'}),
+            defineField({name: 'address', title: 'Full Address', type: 'text', rows: 3}),
+            defineField({name: 'phone', title: 'Phone (optional)', type: 'string'}),
+            defineField({name: 'mapsUrl', title: 'Google Maps Link', type: 'url', description: 'Link "Bagikan" dari Google Maps (maps.app.goo.gl/...).'}),
+            defineField({
+              name: 'mapsEmbed',
+              title: 'Google Maps Embed URL',
+              type: 'url',
+              description: 'Dari Google Maps > Bagikan > Sematkan peta: salin isi src="..." dari iframe. Link pendek maps.app.goo.gl tidak bisa dipakai di sini.',
+            }),
+            defineField({name: 'latitude', title: 'Latitude', type: 'number'}),
+            defineField({name: 'longitude', title: 'Longitude', type: 'number'}),
+            defineField({
+              name: 'openingHours',
+              title: 'Opening Hours',
+              type: 'array',
+              description: 'Satu baris per rentang jam. Hari yang tidak dicantumkan dianggap tutup.',
+              of: [
+                defineField({
+                  name: 'hours',
+                  title: 'Hours',
+                  type: 'object',
+                  fields: [
+                    defineField({
+                      name: 'days',
+                      title: 'Days',
+                      type: 'array',
+                      of: [{type: 'string'}],
+                      options: {
+                        list: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                      },
+                    }),
+                    defineField({name: 'opens', title: 'Opens (HH:mm)', type: 'string', initialValue: '08:00'}),
+                    defineField({name: 'closes', title: 'Closes (HH:mm)', type: 'string', initialValue: '17:00'}),
+                  ],
+                  preview: {
+                    select: {days: 'days', opens: 'opens', closes: 'closes'},
+                    prepare: ({days, opens, closes}) => ({title: `${(days || []).join(', ')}`, subtitle: `${opens} - ${closes}`}),
+                  },
+                }),
+              ],
+            }),
+          ],
+          preview: {
+            select: {title: 'city', subtitle: 'name'},
+          },
+        }),
+      ],
     }),
     defineField({
       name: 'phone',

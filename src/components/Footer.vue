@@ -136,14 +136,24 @@
         <div>
           <p class="text-fortu-off-white font-medium mb-6">Kontak</p>
           <ul class="space-y-4">
-            <!-- Address -->
-            <li v-if="settings?.address" class="flex gap-3">
+            <!-- Offices -->
+            <li v-for="(office, i) in offices" :key="office._key || i" class="flex gap-3">
               <svg class="w-5 h-5 text-fortu-light flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
               <span class="text-fortu-light text-sm leading-relaxed">
-                {{ settings.address }}
+                <span v-if="office.city" class="block text-fortu-off-white font-medium">{{ office.city }}</span>
+                {{ office.address || officeLabel(office) }}
+                <a
+                  v-if="safeUrl(office.mapsUrl)"
+                  :href="safeUrl(office.mapsUrl)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="block mt-1 underline hover:text-fortu-off-white transition-colors"
+                >
+                  Lihat di Google Maps
+                </a>
               </span>
             </li>
             <!-- Phone -->
@@ -201,8 +211,11 @@ import { client } from '@/sanity/client'
 import { urlFor } from '@/sanity/client'
 import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
 import { IMAGE_CONFIG } from '@/config/image'
+import { getOffices, safeUrl, officeLabel } from '@/utils/offices'
 
 const settings = ref<SiteSettings | null>(null)
+
+const offices = computed(() => getOffices(settings.value))
 
 const currentYear = computed(() => new Date().getFullYear())
 

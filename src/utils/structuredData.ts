@@ -1,5 +1,6 @@
 import { SITE_URL, SITE_NAME } from '@/config/seo'
-import type { SiteSettings, Product, BlogPost, FAQ } from '@/sanity/queries'
+import type { SiteSettings, Product, BlogPost, FAQ, Office } from '@/sanity/queries'
+import { getOffices } from '@/utils/offices'
 
 const ORG_ID = `${SITE_URL}/#organization`
 
@@ -40,24 +41,55 @@ export function organizationGraph(s: SiteSettings | null) {
     publisher: { '@id': ORG_ID },
   }
   const graph: Record<string, unknown>[] = [organization, website]
-  if (s.address) {
-    graph.push(
-      compact({
-        '@type': 'LocalBusiness',
-        '@id': `${SITE_URL}/#localbusiness`,
-        name: s.companyName || SITE_NAME,
-        url: SITE_URL + '/',
-        image: logo,
-        telephone: phone,
-        email: s.email,
-        address: { '@type': 'PostalAddress', streetAddress: s.address, addressCountry: 'ID' },
-        areaServed: { '@type': 'Country', name: 'Indonesia' },
-        parentOrganization: { '@id': ORG_ID },
-        sameAs: sameAs.length ? sameAs : undefined,
-      }),
-    )
-  }
+  getOffices(s).forEach((office, i) => {
+    graph.push(localBusiness(office, i, s, { sameAs, logo, phone }))
+  })
   return { '@context': 'https://schema.org', '@graph': graph }
+}
+
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+function localBusiness(
+  office: Office,
+  index: number,
+  s: SiteSettings,
+  shared: { sameAs: string[]; logo?: string; phone?: string },
+) {
+  const slug = (office.city || `office-${index + 1}`).toLowerCase().replace(/[^a-z0-9]+/g, '-')
+  const hours = (office.openingHours || [])
+    .filter((h) => h.days?.length && h.opens && h.closes)
+    .map((h) => ({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: h.days!.filter((d) => DAYS.includes(d)),
+      opens: h.opens,
+      closes: h.closes,
+    }))
+  const hasGeo = typeof office.latitude === 'number' && typeof office.longitude === 'number'
+  return compact({
+    '@type': 'LocalBusiness',
+    '@id': `${SITE_URL}/#localbusiness-${slug}`,
+    name: office.name || s.companyName || SITE_NAME,
+    url: SITE_URL + '/',
+    image: shared.logo,
+    telephone: office.phone || shared.phone,
+    email: s.email,
+    address: office.address
+      ? compact({
+          '@type': 'PostalAddress',
+          streetAddress: office.address.replace(/\s+/g, ' ').trim(),
+          addressLocality: office.city || undefined,
+          addressCountry: 'ID',
+        })
+      : undefined,
+    geo: hasGeo
+      ? { '@type': 'GeoCoordinates', latitude: office.latitude, longitude: office.longitude }
+      : undefined,
+    hasMap: office.mapsUrl && /^https?:\/\//i.test(office.mapsUrl) ? office.mapsUrl : undefined,
+    openingHoursSpecification: hours.length ? hours : undefined,
+    areaServed: { '@type': 'Country', name: 'Indonesia' },
+    parentOrganization: { '@id': ORG_ID },
+    sameAs: shared.sameAs.length ? shared.sameAs : undefined,
+  })
 }
 
 export function breadcrumbs(items: { name: string; path: string }[]) {
