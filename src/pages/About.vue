@@ -24,9 +24,9 @@
           <!-- Vision -->
           <div class="vision-section">
             <div class="mb-6">
-              <h3 class="text-sm md:text-4xl font-medium text-fortu-medium uppercase tracking-wider mb-4">
+              <p class="text-sm md:text-4xl font-medium text-fortu-medium uppercase tracking-wider mb-4">
                 {{ aboutContent?.vision?.title || defaultContent.vision.title }}
-              </h3>
+              </p>
               <h2 class="text-3xl md:text-3xl font-medium text-fortu-dark mb-6 tracking-tight">
                 {{ aboutContent?.vision?.heading || defaultContent.vision.heading }}
               </h2>
@@ -39,9 +39,9 @@
           <!-- Mission -->
           <div class="mission-section">
             <div class="mb-6">
-              <h3 class="text-sm md:text-4xl font-medium text-fortu-medium uppercase tracking-wider mb-4">
+              <p class="text-sm md:text-4xl font-medium text-fortu-medium uppercase tracking-wider mb-4">
                 {{ aboutContent?.mission?.title || defaultContent.mission.title }}
-              </h3>
+              </p>
               <h2 class="text-3xl md:text-3xl font-medium text-fortu-dark mb-6 tracking-tight">
                 {{ aboutContent?.mission?.heading || defaultContent.mission.heading }}
               </h2>

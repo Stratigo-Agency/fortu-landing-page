@@ -66,9 +66,9 @@
     
       <!-- Product Variants -->
       <div v-if="hasVariants && variants && variants.length > 0" class="mt-8">
-        <h3 class="text-lg md:text-xl font-medium text-fortu-off-white mb-4">
+        <h2 class="text-lg md:text-xl font-medium text-fortu-off-white mb-4">
           Pilih Varian
-        </h3>
+        </h2>
         
         <div class="flex flex-wrap gap-3">
           <button
@@ -201,9 +201,9 @@
 
       <!-- Product Variants -->
       <div v-if="hasVariants && variants && variants.length > 0" class="mt-8">
-        <h3 class="text-lg md:text-xl font-medium text-fortu-off-white mb-4">
+        <h2 class="text-lg md:text-xl font-medium text-fortu-off-white mb-4">
           Pilih Varian
-        </h3>
+        </h2>
         
         <div class="flex flex-wrap gap-3">
           <button
