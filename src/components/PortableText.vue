@@ -49,6 +49,13 @@ const groups = computed<Group[]>(() => {
   return result
 })
 
+/** Natural size parsed from the Sanity asset id, so the browser can reserve space (no layout shift). */
+const imageSize = (image: PortableTextImage): [number, number] | undefined => {
+  const id = (image as { asset?: { _id?: string; _ref?: string } }).asset
+  const m = (id?._id || id?._ref || '').match(/-(\d+)x(\d+)-[a-z]+$/i)
+  return m ? [Number(m[1]), Number(m[2])] : undefined
+}
+
 const imageUrl = (image: PortableTextImage) => {
   if (!image.asset) return ''
   try {
@@ -127,6 +134,8 @@ const escapeAttr = (str: string) => escapeHtml(str).replace(/"/g, '&quot;')
         <img
           :src="imageUrl(group.node)"
           :alt="group.node.alt || ''"
+          :width="imageSize(group.node)?.[0]"
+          :height="imageSize(group.node)?.[1]"
           loading="lazy"
           decoding="async"
           class="w-full h-auto rounded-lg"

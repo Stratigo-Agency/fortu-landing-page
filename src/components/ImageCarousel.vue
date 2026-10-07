@@ -28,7 +28,7 @@
           <div class="aspect-[3/3.2] rounded-2xl overflow-hidden bg-black">
             <SkeletonImage
               :src="image.url"
-              :alt="image.alt || `Product image ${index + 1}`"
+              :alt="image.alt || `${props.heading || 'Produk Fortu Digital'} - gambar ${index + 1}`"
               :width="480"
               :height="512"
               tone="dark"

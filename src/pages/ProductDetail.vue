@@ -133,7 +133,7 @@ const carouselImages = computed(() => {
           if (url) {
             images.push({
               url,
-              alt: img.alt || `${product.value?.name} image ${index + 1}`
+              alt: img.alt || `${product.value?.name} - gambar ${index + 1}`
             })
           }
         } catch (e) {
