@@ -45,7 +45,7 @@
               <img
                 v-else-if="getMediaUrl(item)"
                 :src="getMediaUrl(item)"
-                :alt="item.alt || item.caption || 'Use case image'"
+                :alt="item.alt || item.caption || 'Contoh penerapan digital signage Fortu Digital'"
                 loading="lazy"
                 decoding="async"
                 width="600"

@@ -31,6 +31,8 @@
         <img
           :src="coverImageUrl"
           :alt="post.coverImage?.alt || post.title"
+          width="1920"
+          height="1080"
           fetchpriority="high"
           decoding="async"
           class="w-full h-full object-cover"
@@ -136,6 +138,8 @@
                 v-if="relatedImageUrl(related)"
                 :src="relatedImageUrl(related) as string"
                 :alt="related.coverImage?.alt || related.title"
+                width="800"
+                height="600"
                 loading="lazy"
                 decoding="async"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

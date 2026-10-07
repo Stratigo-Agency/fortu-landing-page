@@ -66,7 +66,8 @@ export default defineType({
               name: 'alt',
               title: 'Alt Text',
               type: 'string',
-              description: 'Alternative text for accessibility',
+              description: 'Wajib: jelaskan apa yang terlihat (bukan sekadar "gambar"). Dipakai Google dan pembaca layar.',
+              validation: (Rule) => Rule.required().warning('Isi alt text agar gambar dikenali Google.'),
             }),
             defineField({
               name: 'caption',
