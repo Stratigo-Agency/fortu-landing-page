@@ -211,11 +211,11 @@ import { client } from '@/sanity/client'
 import { urlFor } from '@/sanity/client'
 import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
 import { IMAGE_CONFIG } from '@/config/image'
-import { getOffices, safeUrl, officeLabel } from '@/utils/offices'
+import { getOffices, safeUrl, officeLabel, isListable } from '@/utils/offices'
 
 const settings = ref<SiteSettings | null>(null)
 
-const offices = computed(() => getOffices(settings.value))
+const offices = computed(() => getOffices(settings.value).filter(isListable))
 
 const currentYear = computed(() => new Date().getFullYear())
 

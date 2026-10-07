@@ -284,12 +284,15 @@
         </div>
       </div>
     </div>
+    <OfficeMap v-if="!loading && allOffices.length" :offices="allOffices" />
+
     <CTA />
   </div>
 </template>
 
 <script setup lang="ts">
-import { getOffices, safeUrl, officeLabel } from '@/utils/offices'
+import { getOffices, safeUrl, officeLabel, isListable } from '@/utils/offices'
+import OfficeMap from '@/components/OfficeMap.vue'
 import { usePageSeo } from '@/composables/usePageSeo'
 import { ref, computed, onMounted } from 'vue'
 import { client } from '@/sanity/client'
@@ -310,7 +313,8 @@ const whatsappLink = computed(() => {
   return `https://wa.me/${cleanPhone}`
 })
 
-const offices = computed(() => getOffices(settings.value))
+const allOffices = computed(() => getOffices(settings.value))
+const offices = computed(() => allOffices.value.filter(isListable))
 
 const hasSocialMedia = computed(() => {
   const social = settings.value?.socialMedia
