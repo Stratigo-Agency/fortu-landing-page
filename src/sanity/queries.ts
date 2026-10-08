@@ -787,6 +787,7 @@ export interface ServiceItem {
   title: string
   description: string
   icon?: string
+  illustration?: string
   backgroundImage?: {
     asset: {
       _ref: string
@@ -816,6 +817,7 @@ export const SERVICE_SECTION_QUERY = defineQuery(/* groq */ `
       title,
       description,
       icon,
+      illustration,
       backgroundImage {
         asset-> {
           _id,

@@ -63,6 +63,22 @@ export default defineType({
               },
             }),
             defineField({
+              name: 'illustration',
+              title: 'Ilustrasi',
+              type: 'string',
+              description:
+                'Ilustrasi garis bawaan Fortu untuk kartu ini. Jika dipilih, dipakai menggantikan foto latar. Tanpa ilustrasi dan tanpa foto, kartu tampil polos.',
+              options: {
+                list: [
+                  {title: 'Konsultasi', value: 'konsultasi'},
+                  {title: 'Delivery', value: 'delivery'},
+                  {title: 'Instalasi', value: 'instalasi'},
+                  {title: 'Maintenance', value: 'maintenance'},
+                  {title: 'After Sales Service', value: 'aftersales'},
+                ],
+              },
+            }),
+            defineField({
               name: 'backgroundImage',
               title: 'Background Image',
               type: 'image',
