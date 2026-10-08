@@ -2,12 +2,26 @@
 import { ref, onMounted, computed, watchEffect, onUnmounted } from 'vue'
 import { client } from '@/sanity/client'
 import { urlFor } from '@/sanity/client'
-import { HERO_QUERY, type Hero } from '@/sanity/queries'
+import { HERO_QUERY, SITE_SETTINGS_QUERY, type Hero, type Office } from '@/sanity/queries'
+import { getOffices, safeUrl } from '@/utils/offices'
 import { IMAGE_CONFIG } from '@/config/image'
 import Button from '@/reusables/Button.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const hero = ref<Hero | null>(null)
+const offices = ref<Office[]>([])
+
+// Office locations under the description: Medan, Jakarta, Bali (then any others), from Sanity
+const LOCATION_ORDER = ['medan', 'jakarta', 'bali']
+const locations = computed(() =>
+  offices.value
+    .filter((o) => o.city)
+    .sort((a, b) => {
+      const ia = LOCATION_ORDER.indexOf(a.city.toLowerCase())
+      const ib = LOCATION_ORDER.indexOf(b.city.toLowerCase())
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
+    }),
+)
 const loading = ref(true)
 
 const heroVideoUrl = computed(() => {
@@ -76,7 +90,12 @@ onUnmounted(() => {
 
 onMounted(async () => {
   try {
-    hero.value = await client.fetch(HERO_QUERY)
+    const [heroData, settings] = await Promise.all([
+      client.fetch(HERO_QUERY),
+      client.fetch(SITE_SETTINGS_QUERY).catch(() => null),
+    ])
+    hero.value = heroData
+    offices.value = [...getOffices(settings)]
   } catch (e) {
     console.error('Failed to fetch hero content:', e)
   } finally {
@@ -128,7 +147,34 @@ onMounted(async () => {
       <div class="w-full">
         <h1 class="text-5xl md:text-8xl font-medium mb-4 tracking-tight leading-tight hero-title">{{ hero.title }}</h1>
         <h2 v-if="hero.subtitle" class="text-xl md:text-3xl font-medium mb-4 text-fortu-light leading-snug hero-subtitle">{{ hero.subtitle }}</h2>
-        <p v-if="hero.description" class="text-lg md:text-xl leading-relaxed mb-8 text-[rgba(250,250,250,0.9)] hero-description">{{ hero.description }}</p>
+        <p v-if="hero.description" class="text-lg md:text-xl leading-relaxed mb-6 max-w-3xl text-[rgba(250,250,250,0.9)] hero-description"
+           :class="{ 'mx-auto': heroAlignment === 'center', 'ml-auto': heroAlignment === 'right' }">{{ hero.description }}</p>
+
+        <!-- Office locations: link to Google Maps when a link exists, plain text otherwise -->
+        <ul
+          v-if="locations.length"
+          class="hero-locations flex flex-wrap items-center gap-x-6 gap-y-2 mb-8 text-sm md:text-base text-fortu-off-white/85"
+          :class="{
+            'justify-center': heroAlignment === 'center',
+            'justify-end': heroAlignment === 'right'
+          }"
+          aria-label="Lokasi kantor Fortu Digital"
+        >
+          <li v-for="(office, i) in locations" :key="office._key || i" class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 flex-shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <a
+              v-if="safeUrl(office.mapsUrl)"
+              :href="safeUrl(office.mapsUrl)"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline underline-offset-4 decoration-white/40 hover:decoration-white transition-colors"
+            >{{ office.city }}<span class="sr-only"> (buka di Google Maps)</span></a>
+            <span v-else>{{ office.city }}</span>
+          </li>
+        </ul>
         <div 
           v-if="hero.ctaButtons && hero.ctaButtons.length > 0" 
           class="flex gap-4 flex-wrap flex-col md:flex-row hero-buttons"
@@ -141,7 +187,8 @@ onMounted(async () => {
           <Button
             v-for="(button, index) in hero.ctaButtons"
             :key="index"
-            :href="button.link"
+            :to="button.link?.startsWith('/') ? button.link : undefined"
+            :href="button.link?.startsWith('/') ? undefined : button.link"
             :variant="button.variant"
             size="md"
             class="w-full md:w-auto"
@@ -211,6 +258,11 @@ onMounted(async () => {
     font-size: clamp(0.85rem, 2.8vh, 1.125rem);
     line-height: 1.45;
     margin-bottom: 1rem;
+  }
+
+  .hero-locations {
+    margin-bottom: 0.75rem;
+    font-size: 0.8rem;
   }
 
   .hero-buttons {
