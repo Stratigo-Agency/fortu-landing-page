@@ -1075,3 +1075,54 @@ export const NAV_PRODUCTS_QUERY = defineQuery(/* groq */ `
     menuOrder
   }
 `)
+
+// About page: installation process showcase
+export interface InstallStep {
+  _key: string
+  title: string
+  caption?: string
+  image: SanityImage & { alt?: string }
+}
+
+export interface InstallShowcase {
+  eyebrow?: string
+  heading: string
+  description?: string
+  steps?: InstallStep[]
+  demoVideo?: {
+    title?: string
+    caption?: string
+    videoUrl?: string
+    poster?: SanityImage & { alt?: string }
+  }
+}
+
+export const INSTALL_SHOWCASE_QUERY = defineQuery(/* groq */ `
+  *[_type == "installShowcase" && isActive != false][0] {
+    eyebrow,
+    heading,
+    description,
+    steps[] {
+      _key,
+      title,
+      caption,
+      image {
+        asset-> { _id, url },
+        hotspot,
+        crop,
+        alt
+      }
+    },
+    demoVideo {
+      title,
+      caption,
+      "videoUrl": video.asset->url,
+      poster {
+        asset-> { _id, url },
+        hotspot,
+        crop,
+        alt
+      }
+    }
+  }
+`)

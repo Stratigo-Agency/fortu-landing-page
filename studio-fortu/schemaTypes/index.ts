@@ -12,6 +12,7 @@ import service from './service'
 import aboutPage from './aboutPage'
 import blogPost from './blogPost'
 import pageSeo from './pageSeo'
+import installShowcase from './installShowcase'
 
 export const schemaTypes = [
     hero,
@@ -28,4 +29,5 @@ export const schemaTypes = [
     aboutPage,
     blogPost,
     pageSeo,
+    installShowcase,
 ]
