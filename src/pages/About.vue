@@ -52,7 +52,9 @@
           </div>
         </div>
       </div>
-      <UseCaseSection class="mt-16" :show-title="false" :show-description="false" />
+      <!-- Installation process (Sanity: "Tentang: Showcase Proses Instalasi"); falls back to the old gallery -->
+      <InstallShowcase v-if="showcase" class="mt-16" :data="showcase" />
+      <UseCaseSection v-else class="mt-16" :show-title="false" :show-description="false" />
       <CTA variant="dark" />
     </div>
   </div>
@@ -62,13 +64,15 @@
 import { usePageSeo } from '@/composables/usePageSeo'
 import { ref, onMounted } from 'vue'
 import { client } from '@/sanity/client'
-import { ABOUT_PAGE_QUERY, type AboutPage } from '@/sanity/queries'
+import { ABOUT_PAGE_QUERY, INSTALL_SHOWCASE_QUERY, type AboutPage, type InstallShowcase as InstallShowcaseData } from '@/sanity/queries'
 import PageHero from '@/components/PageHero.vue'
 import UseCaseSection from '@/components/UseCaseSection.vue'
+import InstallShowcase from '@/components/InstallShowcase.vue'
 import CTA from '@/components/CTA.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const aboutContent = ref<AboutPage | null>(null)
+const showcase = ref<InstallShowcaseData | null>(null)
 const loading = ref(true)
 
 // Default content fallback
@@ -88,7 +92,12 @@ const defaultContent = {
 
 onMounted(async () => {
   try {
-    aboutContent.value = await client.fetch(ABOUT_PAGE_QUERY)
+    const [about, install] = await Promise.all([
+      client.fetch(ABOUT_PAGE_QUERY),
+      client.fetch(INSTALL_SHOWCASE_QUERY).catch(() => null),
+    ])
+    aboutContent.value = about
+    showcase.value = install?.steps?.length ? install : null
   } catch (e) {
     console.error('Failed to fetch about page content:', e)
   } finally {
