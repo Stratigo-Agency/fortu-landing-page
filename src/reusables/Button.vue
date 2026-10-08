@@ -35,6 +35,14 @@ const componentType = computed(() => {
   return 'button'
 })
 
+// Only pass the attributes that apply: an explicit `href: undefined` on a RouterLink
+// would override the href it renders itself, leaving links without a real URL.
+const linkAttrs = computed(() => {
+  if (props.to) return { to: props.to, target: props.target }
+  if (props.href) return { href: props.href, target: props.target }
+  return { type: props.type }
+})
+
 const buttonClasses = computed(() => {
   const baseClasses = 'inline-flex cursor-pointer items-center justify-center tracking-wide rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
   
@@ -65,10 +73,7 @@ const buttonClasses = computed(() => {
   <component
     :is="componentType"
     :class="buttonClasses"
-    :type="!href && !to ? type : undefined"
-    :href="href"
-    :to="to"
-    :target="href ? target : undefined"
+    v-bind="linkAttrs"
     :disabled="disabled"
     @click="handleClick"
   >
