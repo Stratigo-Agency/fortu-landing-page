@@ -26,6 +26,14 @@ export interface Hero {
       url?: string
     }
   }
+  backgroundVideoMobile?: {
+    asset: {
+      _ref: string
+      _type: string
+      url?: string
+    }
+  }
+  backgroundPoster?: SanityImage
   ctaButtons?: CTAButton[]
   alignment?: 'left' | 'center' | 'right'
   isActive?: boolean
@@ -259,6 +267,21 @@ export const HERO_QUERY = defineQuery(/* groq */ `
         url
       }
     },
+    backgroundVideoMobile {
+      asset-> {
+        _id,
+        url
+      }
+    },
+    backgroundPoster {
+      asset-> {
+        _id,
+        url
+      },
+      hotspot,
+      crop,
+      alt
+    },
     ctaButtons[] {
       label,
       link,
@@ -370,7 +393,8 @@ export const PRODUCT_SLIDES_QUERY = defineQuery(/* groq */ `
         url
       },
       hotspot,
-      crop
+      crop,
+      alt
     },
     features[] {
       _key,
@@ -582,7 +606,8 @@ export const PAGE_HERO_QUERY = defineQuery(/* groq */ `
         url
       },
       hotspot,
-      crop
+      crop,
+      alt
     },
     backgroundVideo {
       asset-> {

@@ -11,6 +11,7 @@
               :alt="settings?.companyName || 'FORTU DIGITAL'" 
               width="120"
               height="48"
+              loading="lazy"
               class="h-12 w-auto" 
             />
           </RouterLink>

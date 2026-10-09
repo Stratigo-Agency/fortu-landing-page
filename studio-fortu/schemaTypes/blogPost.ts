@@ -99,6 +99,8 @@ export default defineType({
           name: 'alt',
           type: 'string',
           title: 'Alternative Text',
+          validation: (Rule) =>
+            Rule.required().warning('Isi alt text: jelaskan apa yang terlihat (bukan sekadar "gambar").'),
         },
       ],
       validation: (Rule) => Rule.required(),

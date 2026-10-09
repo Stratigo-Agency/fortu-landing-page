@@ -31,7 +31,7 @@
           <span class="text-fortu-off-white">{{ study.clientName }}</span>
         </nav>
         <div v-if="logo" class="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-4 mb-6">
-          <img :src="logo" :alt="study.clientName" class="h-10 md:h-12 w-auto object-contain" />
+          <img :src="logo" :alt="study.clientName" width="240" height="96" decoding="async" class="h-10 md:h-12 w-auto object-contain" />
         </div>
         <h1 class="text-4xl md:text-6xl font-medium tracking-tight leading-tight">
           {{ study.projectType || 'Proyek digital signage' }}

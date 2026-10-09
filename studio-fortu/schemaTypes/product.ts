@@ -56,6 +56,16 @@ export default defineType({
       options: {
         hotspot: true,
       },
+      fields: [
+        {
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative Text',
+          description: 'Jelaskan apa yang terlihat dan sebut nama produk, bukan sekadar "gambar".',
+          validation: (Rule) =>
+            Rule.required().warning('Isi alt text: jelaskan apa yang terlihat dan sebut nama produk (bukan sekadar "gambar").'),
+        },
+      ],
     }),
     defineField({
       name: 'heroVideo',

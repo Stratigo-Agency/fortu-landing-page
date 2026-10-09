@@ -22,7 +22,7 @@
       :src="heroImage.src"
       :srcset="heroImage.srcset"
       sizes="100vw"
-      :alt="pageHero.title"
+      :alt="pageHero.backgroundImage?.alt || pageHero.title"
       fetchpriority="high"
       decoding="async"
       width="1920"
