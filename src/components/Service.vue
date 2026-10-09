@@ -21,7 +21,7 @@
         <li
           v-for="(service, index) in steps"
           :key="service._key || index"
-          class="service-card relative flex-shrink-0 w-[260px] md:w-[300px] lg:w-auto snap-start overflow-hidden rounded-2xl h-[460px] lg:h-[520px] text-fortu-off-white"
+          class="service-card relative flex-shrink-0 w-[260px] md:w-[300px] lg:w-auto snap-start overflow-hidden rounded-2xl h-[420px] lg:h-[460px] text-fortu-off-white"
           :class="cardBackground(service)"
         >
           <!-- Photo background (legacy cards), with readable overlay -->
@@ -44,7 +44,7 @@
             height="400"
             loading="lazy"
             decoding="async"
-            class="absolute left-1/2 top-10 -translate-x-1/2 w-[78%] max-w-[260px] opacity-95"
+            class="absolute left-1/2 top-14 lg:top-12 -translate-x-1/2 w-[92%] max-w-[300px] opacity-95"
           />
 
           <!-- Step number -->
