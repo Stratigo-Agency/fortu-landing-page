@@ -32,6 +32,27 @@ const heroVideoUrl = computed(() => {
   return null
 })
 
+const heroMobileVideoUrl = computed(() => hero.value?.backgroundVideoMobile?.asset?.url ?? null)
+
+// Poster shown while the video loads (and instead of it when the visitor prefers less motion or data)
+const heroPosterUrl = computed(() => {
+  const poster = hero.value?.backgroundPoster ?? hero.value?.backgroundImage
+  if (!poster?.asset) return null
+  try {
+    const b = urlFor(poster).width(1920).quality(IMAGE_CONFIG.quality)
+    return IMAGE_CONFIG.autoFormat ? b.auto('format').url() : b.url()
+  } catch {
+    return null
+  }
+})
+
+const reduceMotion =
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+const saveData =
+  typeof navigator !== 'undefined' &&
+  !!(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
+const playVideo = computed(() => !!heroVideoUrl.value && !reduceMotion && !saveData)
+
 const heroImageUrl = computed(() => {
   if (hero.value?.backgroundImage?.asset) {
     try {
@@ -54,26 +75,16 @@ const heroAlignment = computed(() => {
 let preloadLink: HTMLLinkElement | null = null
 
 watchEffect(() => {
-  const videoUrl = heroVideoUrl.value
-  const imageUrl = heroImageUrl.value
-  
-  // Remove existing preload link if any
+  // Preload the still (poster or image): it is the LCP element and is small.
+  // The video itself is never preloaded, so it cannot compete with the page for bandwidth.
+  const imageUrl = heroPosterUrl.value || heroImageUrl.value
+
   if (preloadLink && preloadLink.parentNode) {
     preloadLink.parentNode.removeChild(preloadLink)
     preloadLink = null
   }
-  
-  // Preload video if available (takes priority)
-  if (videoUrl) {
-    preloadLink = document.createElement('link')
-    preloadLink.rel = 'preload'
-    preloadLink.as = 'video'
-    preloadLink.href = videoUrl
-    preloadLink.setAttribute('fetchpriority', 'high')
-    document.head.appendChild(preloadLink)
-  } 
-  // Otherwise preload image
-  else if (imageUrl) {
+
+  if (imageUrl) {
     preloadLink = document.createElement('link')
     preloadLink.rel = 'preload'
     preloadLink.as = 'image'
@@ -112,21 +123,26 @@ onMounted(async () => {
   >
     <!-- Background Video -->
     <video
-      v-if="heroVideoUrl"
-      :src="heroVideoUrl"
+      v-if="playVideo"
+      :poster="heroPosterUrl || undefined"
       autoplay
       loop
       muted
       playsinline
-      fetchpriority="high"
+      preload="auto"
+      aria-hidden="true"
       class="absolute inset-0 w-full h-full object-cover z-0"
-    ></video>
-    
-    <!-- Background Image (fallback) -->
+      :style="focalStyle(hero?.backgroundPoster ?? hero?.backgroundImage)"
+    >
+      <source v-if="heroMobileVideoUrl" :src="heroMobileVideoUrl" media="(max-width: 767px)" type="video/mp4" />
+      <source :src="heroVideoUrl!" type="video/mp4" />
+    </video>
+
+    <!-- Still image: no video set, or the visitor prefers less motion / data -->
     <img
-      v-else-if="heroImageUrl"
-      :src="heroImageUrl"
-      :alt="hero.title"
+      v-else-if="heroPosterUrl || heroImageUrl"
+      :src="heroPosterUrl || heroImageUrl!"
+      :alt="hero.backgroundPoster?.alt || hero.backgroundImage?.alt || hero.title"
       fetchpriority="high"
       decoding="async"
       width="1920"

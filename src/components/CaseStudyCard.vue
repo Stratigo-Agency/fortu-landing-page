@@ -13,6 +13,8 @@
         v-if="logo"
         :src="logo"
         :alt="study.clientName"
+        width="240"
+        height="150"
         loading="lazy"
         decoding="async"
         class="max-h-[56%] max-w-[78%] w-auto object-contain"

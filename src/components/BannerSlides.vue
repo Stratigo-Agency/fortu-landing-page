@@ -87,7 +87,7 @@
             :src="image(product, index)!.src"
             :srcset="image(product, index)!.srcset"
             sizes="(min-width: 768px) 50vw, 100vw"
-            :alt="product.comingSoon ? `${product.name}, ilustrasi` : product.name"
+            :alt="product.slideImage?.alt || (product.comingSoon ? `${product.name}, ilustrasi` : product.name)"
             :fetchpriority="index === 0 ? 'high' : 'auto'"
             :loading="index === 0 ? 'eager' : 'lazy'"
             decoding="async"
@@ -105,6 +105,7 @@
               :alt="`${product.name}, segera hadir`"
               width="800"
               height="600"
+              loading="lazy"
               class="w-full max-w-[420px] h-auto"
             />
           </div>
