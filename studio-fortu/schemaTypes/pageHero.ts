@@ -18,6 +18,7 @@ export default defineType({
           {title: 'Services', value: 'services'},
           {title: 'Privacy', value: 'privacy'},
           {title: 'Blog', value: 'blog'},
+          {title: 'Studi Kasus', value: 'case-studies'},
         ],
       },
       validation: (Rule) => Rule.required(),

@@ -102,7 +102,7 @@ import { IMAGE_CONFIG } from '@/config/image'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const props = defineProps<{
-  pageName: 'products' | 'about' | 'contact' | 'services' | 'privacy' | 'blog'
+  pageName: 'products' | 'about' | 'contact' | 'services' | 'privacy' | 'blog' | 'case-studies'
   fallbackTitle?: string
   fallbackSubtitle?: string
 }>()

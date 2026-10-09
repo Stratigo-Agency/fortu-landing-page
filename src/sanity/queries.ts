@@ -558,7 +558,7 @@ export const FAQ_QUERY = defineQuery(/* groq */ `
 // Page Hero
 export interface PageHero {
   _id: string
-  pageName: 'products' | 'about' | 'contact' | 'services' | 'privacy' | 'blog'
+  pageName: 'products' | 'about' | 'contact' | 'services' | 'privacy' | 'blog' | 'case-studies'
   title: string
   subtitle?: string
   backgroundImage?: {
@@ -1130,5 +1130,94 @@ export const INSTALL_SHOWCASE_QUERY = defineQuery(/* groq */ `
         alt
       }
     }
+  }
+`)
+
+// Portfolio: client case studies
+export interface CaseStudyListItem {
+  _id: string
+  clientName: string
+  slug: { current: string }
+  status: 'published' | 'coming_soon'
+  logoKey?: string
+  industry?: string
+  projectType?: string
+  location?: string
+  productsUsed?: string[]
+  summary?: string
+  coverImage?: SanityImage & { alt?: string }
+}
+
+export interface CaseStudy extends CaseStudyListItem {
+  challenge?: string
+  solution?: string
+  result?: string
+  gallery?: Array<SanityImage & { alt?: string; caption?: string; _key?: string }>
+  seoTitle?: string
+  seoDescription?: string
+  shareImage?: SanityImage
+  noIndex?: boolean
+  updatedAt?: string
+}
+
+export const CASE_STUDIES_QUERY = defineQuery(/* groq */ `
+  *[_type == "caseStudy" && defined(slug.current)] | order(select(status == "published" => 0, 1) asc, order asc, clientName asc) {
+    _id,
+    clientName,
+    slug,
+    status,
+    logoKey,
+    industry,
+    projectType,
+    location,
+    productsUsed,
+    summary,
+    coverImage {
+      asset-> { _id, url },
+      hotspot,
+      crop,
+      alt
+    }
+  }
+`)
+
+export const CASE_STUDY_BY_SLUG_QUERY = defineQuery(/* groq */ `
+  *[_type == "caseStudy" && slug.current == $slug && status == "published"][0] {
+    _id,
+    clientName,
+    slug,
+    status,
+    logoKey,
+    industry,
+    projectType,
+    location,
+    productsUsed,
+    summary,
+    challenge,
+    solution,
+    result,
+    coverImage {
+      asset-> { _id, url },
+      hotspot,
+      crop,
+      alt
+    },
+    gallery[] {
+      _key,
+      asset-> { _id, url },
+      hotspot,
+      crop,
+      alt,
+      caption
+    },
+    seoTitle,
+    seoDescription,
+    shareImage {
+      asset-> { _id, url },
+      hotspot,
+      crop
+    },
+    noIndex,
+    "updatedAt": _updatedAt
   }
 `)
