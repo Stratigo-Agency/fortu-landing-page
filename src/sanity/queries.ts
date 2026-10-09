@@ -115,7 +115,8 @@ export interface ProductSlide {
   _id: string
   name: string
   tagline: string
-  slideImage: {
+  comingSoon?: boolean
+  slideImage?: {
     asset: {
       _ref: string
       _type: string
@@ -368,6 +369,7 @@ export const PRODUCT_SLIDES_QUERY = defineQuery(/* groq */ `
     _id,
     name,
     tagline,
+    comingSoon,
     slideImage {
       asset-> {
         _id,

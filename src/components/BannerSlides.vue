@@ -27,7 +27,7 @@
                       ? 'bg-fortu-off-white text-fortu-dark' 
                       : 'bg-fortu-dark text-fortu-off-white hover:bg-fortu-off-white/20'"
                   >
-                    {{ prod.name }}
+                    {{ prod.name }}<span v-if="prod.comingSoon" class="ml-1 text-[9px] uppercase tracking-wider opacity-60">Segera</span>
                   </button>
                 </div>
               </div>
@@ -49,8 +49,12 @@
               </div>
 
               <!-- Mobile CTA Button -->
+              <span
+                v-if="product.comingSoon"
+                class="inline-flex items-center px-4 py-2 rounded-full border border-fortu-dark/30 text-fortu-dark text-sm"
+              >Segera hadir</span>
               <Button
-                v-if="getProductLink(product)"
+                v-else-if="getProductLink(product)"
                 :to="getProductLink(product)!"
                 variant="primary"
                 size="sm"
@@ -76,6 +80,18 @@
                 height="1080"
                 class="w-full h-full object-cover px-4"
               />
+              <div
+                v-else-if="product.comingSoon"
+                class="w-full h-full min-h-[260px] flex items-center justify-center bg-gradient-to-b from-[#1b2433] to-[#0e1218] p-6"
+              >
+                <img
+                  src="/products/videotron.svg"
+                  :alt="`${product.name}, segera hadir`"
+                  width="800"
+                  height="600"
+                  class="w-full max-w-[420px] h-auto"
+                />
+              </div>
               <!-- Mobile Navigation Arrows -->
               <div class="absolute bottom-8 left-6 flex gap-2">
                 <button
@@ -120,7 +136,7 @@
                         ? 'bg-fortu-off-white text-fortu-dark' 
                         : 'bg-fortu-dark text-fortu-off-white hover:bg-fortu-off-white/20'"
                     >
-                      {{ prod.name }}
+                      {{ prod.name }}<span v-if="prod.comingSoon" class="ml-1.5 text-[10px] uppercase tracking-wider opacity-60">Segera</span>
                     </button>
                   </div>
                 </div>
@@ -144,8 +160,12 @@
                 </div>
 
                 <!-- Desktop CTA Button -->
+                <span
+                  v-if="product.comingSoon"
+                  class="inline-flex items-center px-5 py-2.5 rounded-full border border-fortu-dark/30 text-fortu-dark"
+                >Segera hadir</span>
                 <Button
-                  v-if="getProductLink(product)"
+                  v-else-if="getProductLink(product)"
                   :to="getProductLink(product)!"
                   variant="primary"
                   size="md"
@@ -209,9 +229,19 @@
                 height="1080"
                 class="w-full h-full object-cover"
               />
-              <div v-else class="w-full h-full bg-fortu-light/20 flex items-center justify-center text-fortu-medium">
-                No Image
+              <div
+                v-else-if="product.comingSoon"
+                class="w-full h-full flex items-center justify-center bg-gradient-to-b from-[#1b2433] to-[#0e1218] p-10"
+              >
+                <img
+                  src="/products/videotron.svg"
+                  :alt="`${product.name}, segera hadir`"
+                  width="800"
+                  height="600"
+                  class="w-full max-w-[640px] h-auto"
+                />
               </div>
+              <div v-else class="w-full h-full bg-fortu-light/20"></div>
             </div>
           </div>
         </div>
