@@ -9,6 +9,7 @@ const STATIC_PATHS: Record<string, string> = {
   about: '/about',
   contact: '/contact',
   blog: '/blog',
+  'case-studies': '/studi-kasus',
 }
 
 const esc = (s: string) =>
@@ -29,6 +30,7 @@ async function fetchSanityEntries(
   const query = `{
     "products": *[_type == "product" && status == "active" && defined(slug.current) && noIndex != true]{ "slug": slug.current, _updatedAt },
     "posts": *[_type == "blogPost" && isActive == true && defined(slug.current) && noIndex != true]{ "slug": slug.current, _updatedAt },
+    "studies": *[_type == "caseStudy" && status == "published" && defined(slug.current) && noIndex != true]{ "slug": slug.current, _updatedAt },
     "hiddenPages": *[_type == "pageSeo" && noIndex == true].page
   }`
   const url = `https://${projectId}.apicdn.sanity.io/v${version}/data/query/${dataset}?query=${encodeURIComponent(query)}`
@@ -38,6 +40,7 @@ async function fetchSanityEntries(
     result: {
       products: { slug: string; _updatedAt: string }[]
       posts: { slug: string; _updatedAt: string }[]
+      studies: { slug: string; _updatedAt: string }[]
       hiddenPages: string[]
     }
   }
@@ -45,6 +48,7 @@ async function fetchSanityEntries(
     entries: [
       ...result.products.map((p) => ({ loc: `/products/${encodeURIComponent(p.slug)}`, lastmod: p._updatedAt })),
       ...result.posts.map((p) => ({ loc: `/blog/${encodeURIComponent(p.slug)}`, lastmod: p._updatedAt })),
+      ...(result.studies || []).map((p) => ({ loc: `/studi-kasus/${encodeURIComponent(p.slug)}`, lastmod: p._updatedAt })),
     ],
     hiddenPages: result.hiddenPages || [],
   }

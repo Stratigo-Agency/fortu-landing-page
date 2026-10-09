@@ -9,6 +9,8 @@ const Contact = () => import('@/pages/Contact.vue')
 const Privacy = () => import('@/pages/Privacy.vue')
 const Blog = () => import('@/pages/Blog.vue')
 const BlogDetail = () => import('@/pages/BlogDetail.vue')
+const CaseStudies = () => import('@/pages/CaseStudies.vue')
+const CaseStudyDetail = () => import('@/pages/CaseStudyDetail.vue')
 const NotFound = () => import('@/pages/NotFound.vue')
 
 const router = createRouter({
@@ -53,6 +55,16 @@ const router = createRouter({
       path: '/blog/:slug',
       name: 'BlogDetail',
       component: BlogDetail,
+    },
+    {
+      path: '/studi-kasus',
+      name: 'CaseStudies',
+      component: CaseStudies,
+    },
+    {
+      path: '/studi-kasus/:slug',
+      name: 'CaseStudyDetail',
+      component: CaseStudyDetail,
     },
     {
       path: '/:pathMatch(.*)*',

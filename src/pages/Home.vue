@@ -17,7 +17,7 @@
     <Service />
 
     <!-- Use Case Section -->
-    <UseCaseSection />
+    <ClientPortfolio />
 
     <!-- Latest articles & media coverage -->
     <LatestArticles />
@@ -38,8 +38,8 @@ const MarienFlow = defineAsyncComponent({
   delay: 200, // Delay loading by 200ms
   timeout: 3000,
 })
-const UseCaseSection = defineAsyncComponent({
-  loader: () => import('@/components/UseCaseSection.vue'),
+const ClientPortfolio = defineAsyncComponent({
+  loader: () => import('@/components/ClientPortfolio.vue'),
   delay: 200,
   timeout: 3000,
 })

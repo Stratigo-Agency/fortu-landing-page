@@ -13,6 +13,7 @@ import aboutPage from './aboutPage'
 import blogPost from './blogPost'
 import pageSeo from './pageSeo'
 import installShowcase from './installShowcase'
+import caseStudy from './caseStudy'
 
 export const schemaTypes = [
     hero,
@@ -30,4 +31,5 @@ export const schemaTypes = [
     blogPost,
     pageSeo,
     installShowcase,
+    caseStudy,
 ]

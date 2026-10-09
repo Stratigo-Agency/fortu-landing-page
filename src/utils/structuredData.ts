@@ -1,5 +1,5 @@
 import { SITE_URL, SITE_NAME } from '@/config/seo'
-import type { SiteSettings, Product, BlogPost, FAQ, Office } from '@/sanity/queries'
+import type { SiteSettings, Product, BlogPost, FAQ, Office, CaseStudy } from '@/sanity/queries'
 import { getOffices } from '@/utils/offices'
 
 const ORG_ID = `${SITE_URL}/#organization`
@@ -172,6 +172,26 @@ export function blogPostingSchema(p: BlogPost | null, imageUrl?: string) {
     sourceOrganization:
       coverage && p.sourceName ? { '@type': 'Organization', name: p.sourceName } : undefined,
     isBasedOn: sourceUrl,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    url,
+    inLanguage: 'id-ID',
+  })
+}
+
+/** Case study as an Article about the client project (only facts present in Sanity). */
+export function caseStudySchema(c: CaseStudy | null, imageUrl?: string) {
+  if (!c) return null
+  const url = abs(`/studi-kasus/${c.slug.current}`)
+  return compact({
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: `Studi kasus ${c.clientName}${c.projectType ? ': ' + c.projectType : ''}`,
+    description: c.seoDescription || c.summary || undefined,
+    image: imageUrl ? [imageUrl] : undefined,
+    about: { '@type': 'Organization', name: c.clientName },
+    dateModified: c.updatedAt,
+    author: { '@id': ORG_ID },
+    publisher: { '@id': ORG_ID },
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
     url,
     inLanguage: 'id-ID',

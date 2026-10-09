@@ -7,6 +7,7 @@ export const PAGE_OPTIONS = [
   {title: 'Tentang', value: 'about'},
   {title: 'Kontak', value: 'contact'},
   {title: 'Blog (daftar)', value: 'blog'},
+  {title: 'Studi kasus (daftar)', value: 'case-studies'},
   {title: 'Privacy', value: 'privacy'},
 ]
 
