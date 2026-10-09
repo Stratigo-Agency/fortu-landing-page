@@ -36,7 +36,8 @@
           fetchpriority="high"
           decoding="async"
           class="w-full h-full object-cover"
-        />
+        :style="focalStyle(post?.coverImage)"
+      />
         <div class="absolute inset-0 bg-fortu-dark/70"></div>
       </div>
 
@@ -143,7 +144,8 @@
                 loading="lazy"
                 decoding="async"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
+        :style="focalStyle(related.coverImage)"
+      />
             </div>
             <div class="flex items-center gap-3 mb-3">
               <span v-if="related.category" class="text-xs font-medium text-fortu-medium uppercase tracking-wider">
@@ -170,6 +172,7 @@
 </template>
 
 <script setup lang="ts">
+import { focalStyle } from '@/utils/focal'
 import { useSeo } from '@/composables/useSeo'
 import { useJsonLd } from '@/composables/useJsonLd'
 import { breadcrumbs, blogPostingSchema } from '@/utils/structuredData'

@@ -51,7 +51,8 @@
                 width="600"
                 :height="item.size === 'tall' ? 800 : item.size === 'short' ? 400 : 600"
                 class="w-full h-full object-cover"
-              />
+        :style="focalStyle(item.image)"
+      />
               
               <!-- Caption overlay -->
               <div v-if="item.caption" class="absolute inset-0 bg-gradient-to-t from-fortu-dark/60 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
@@ -68,6 +69,7 @@
 </template>
 
 <script setup lang="ts">
+import { focalStyle } from '@/utils/focal'
 import { ref, onMounted, computed } from 'vue'
 import { client } from '@/sanity/client'
 import { urlFor } from '@/sanity/client'

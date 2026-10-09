@@ -116,13 +116,7 @@ export interface ProductSlide {
   name: string
   tagline: string
   comingSoon?: boolean
-  slideImage?: {
-    asset: {
-      _ref: string
-      _type: string
-      url?: string
-    }
-  }
+  slideImage?: SanityImage
   features?: ProductSlideFeature[]
   product?: {
     _id: string
@@ -374,7 +368,9 @@ export const PRODUCT_SLIDES_QUERY = defineQuery(/* groq */ `
       asset-> {
         _id,
         url
-      }
+      },
+      hotspot,
+      crop
     },
     features[] {
       _key,
@@ -561,13 +557,7 @@ export interface PageHero {
   pageName: 'products' | 'about' | 'contact' | 'services' | 'privacy' | 'blog' | 'case-studies'
   title: string
   subtitle?: string
-  backgroundImage?: {
-    asset: {
-      _ref: string
-      _type: string
-      url?: string
-    }
-  }
+  backgroundImage?: SanityImage
   backgroundVideo?: {
     asset: {
       _ref: string
@@ -590,7 +580,9 @@ export const PAGE_HERO_QUERY = defineQuery(/* groq */ `
       asset-> {
         _id,
         url
-      }
+      },
+      hotspot,
+      crop
     },
     backgroundVideo {
       asset-> {
@@ -609,13 +601,7 @@ export interface ProductCompareItem {
   _key?: string
   product: Product  // Full product with specs
   ctaLabel?: string
-  compareImage?: {
-    asset: {
-      _ref: string
-      _type: string
-      url?: string
-    }
-  }
+  compareImage?: SanityImage
 }
 
 export interface ProductCompare {
@@ -661,7 +647,9 @@ export const PRODUCT_COMPARE_QUERY = defineQuery(/* groq */ `
         asset-> {
           _id,
           url
-        }
+        },
+        hotspot,
+        crop
       }
     },
     backgroundColor,
@@ -792,13 +780,7 @@ export interface ServiceItem {
   description: string
   icon?: string
   illustration?: string
-  backgroundImage?: {
-    asset: {
-      _ref: string
-      _type: string
-      url?: string
-    }
-  }
+  backgroundImage?: SanityImage
   darkOverlay?: boolean
 }
 
@@ -826,7 +808,9 @@ export const SERVICE_SECTION_QUERY = defineQuery(/* groq */ `
         asset-> {
           _id,
           url
-        }
+        },
+        hotspot,
+        crop
       },
       darkOverlay
     },
