@@ -13,7 +13,7 @@
     <Compare />
 
     <!-- CMS Demo Section -->
-    <CMSDemo />
+    <MarienFlow />
     <Service />
 
     <!-- Use Case Section -->
@@ -33,8 +33,8 @@ import ClientCarousel from '@/components/ClientCarousel.vue'
 import { defineAsyncComponent } from 'vue'
 
 // Defer non-critical components until needed
-const CMSDemo = defineAsyncComponent({
-  loader: () => import('@/components/CMSDemo.vue'),
+const MarienFlow = defineAsyncComponent({
+  loader: () => import('@/components/MarienFlow.vue'),
   delay: 200, // Delay loading by 200ms
   timeout: 3000,
 })

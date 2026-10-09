@@ -62,6 +62,7 @@ export interface CMSDemoProduct {
 export interface CMSDemo {
   _id: string
   badge: string
+  flowProducts?: string[]
   heading: {
     line1: string
     line2: string
@@ -282,6 +283,7 @@ export const CMS_DEMO_QUERY = defineQuery(/* groq */ `
       line2
     },
     description,
+    flowProducts,
     products[] {
       _key,
       position,
