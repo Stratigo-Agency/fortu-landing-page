@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { focalStyle } from '@/utils/focal'
 import { ref, onMounted, computed, watchEffect, onUnmounted } from 'vue'
 import { client } from '@/sanity/client'
 import { urlFor } from '@/sanity/client'
@@ -131,7 +132,8 @@ onMounted(async () => {
       width="1920"
       height="1080"
       class="absolute inset-0 w-full h-full object-cover z-0"
-    />
+        :style="focalStyle(hero?.backgroundImage)"
+      />
     
     <div class="absolute inset-0 bg-black/50 z-[1]"></div>
     

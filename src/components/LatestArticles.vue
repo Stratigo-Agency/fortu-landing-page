@@ -39,7 +39,8 @@
               loading="lazy"
               decoding="async"
               class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
+        :style="focalStyle(post.coverImage)"
+      />
           </div>
           <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mb-3">
             <span
@@ -67,6 +68,7 @@
 </template>
 
 <script setup lang="ts">
+import { focalStyle } from '@/utils/focal'
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { client } from '@/sanity/client'

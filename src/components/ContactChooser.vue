@@ -7,14 +7,14 @@
         @keydown.esc.prevent="closeChooser"
         @keydown.tab="trapFocus"
       >
-        <div class="absolute inset-0 bg-fortu-dark/60 backdrop-blur-sm" @click="closeChooser"></div>
+        <div class="absolute inset-0 bg-fortu-dark/70" @click="closeChooser"></div>
 
         <div
           ref="dialogEl"
           role="dialog"
           aria-modal="true"
           aria-labelledby="contact-chooser-title"
-          class="chooser-panel relative w-full max-w-lg rounded-3xl bg-white p-6 sm:p-8 shadow-2xl"
+          class="chooser-panel relative w-full max-w-lg rounded-2xl bg-fortu-off-white p-6 sm:p-8"
         >
           <button
             ref="closeBtn"

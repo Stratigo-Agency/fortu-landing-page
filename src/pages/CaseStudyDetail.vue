@@ -21,6 +21,7 @@
         fetchpriority="high"
         decoding="async"
         class="absolute inset-0 w-full h-full object-cover"
+        :style="focalStyle(study.coverImage)"
       />
       <div class="absolute inset-0 bg-fortu-dark/70"></div>
       <div class="relative z-10 mx-auto max-w-5xl px-4 md:px-16 pt-36 pb-16 md:pt-44 md:pb-24">
@@ -80,6 +81,7 @@
 </template>
 
 <script setup lang="ts">
+import { focalStyle } from '@/utils/focal'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { client } from '@/sanity/client'

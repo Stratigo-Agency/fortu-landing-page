@@ -18,14 +18,17 @@
     
     <!-- Background Image (fallback) -->
     <img
-      v-else-if="heroImageUrl"
-      :src="heroImageUrl"
+      v-else-if="heroImage"
+      :src="heroImage.src"
+      :srcset="heroImage.srcset"
+      sizes="100vw"
       :alt="pageHero.title"
       fetchpriority="high"
       decoding="async"
       width="1920"
       height="1080"
       class="absolute inset-0 w-full h-full object-cover"
+      :style="focalStyle(pageHero.backgroundImage)"
     />
     
     <!-- Overlay -->
@@ -96,9 +99,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect, onUnmounted } from 'vue'
 import { client } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
 import { PAGE_HERO_QUERY, type PageHero } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
+import { focalStyle, responsiveImage } from '@/utils/focal'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const props = defineProps<{
@@ -117,17 +119,12 @@ const heroVideoUrl = computed(() => {
   return null
 })
 
-const heroImageUrl = computed(() => {
-  if (pageHero.value?.backgroundImage?.asset) {
-    try {
-      const builder = urlFor(pageHero.value.backgroundImage.asset).width(1920).quality(IMAGE_CONFIG.quality)
-      return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
-    } catch {
-      return null
-    }
-  }
-  return null
-})
+const heroImage = computed(() =>
+  pageHero.value?.backgroundImage?.asset
+    ? responsiveImage(pageHero.value.backgroundImage, [640, 1024, 1536, 2048])
+    : null,
+)
+const heroImageUrl = computed(() => heroImage.value?.src ?? null)
 
 // Add preload link for LCP optimization
 let preloadLink: HTMLLinkElement | null = null

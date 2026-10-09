@@ -2,8 +2,8 @@
   <component
     :is="clickable ? RouterLink : 'div'"
     :to="clickable ? `/studi-kasus/${study.slug.current}` : undefined"
-    class="case-card group relative block overflow-hidden rounded-2xl bg-white border border-fortu-light/50 aspect-[4/3] transition-shadow duration-300"
-    :class="clickable ? 'hover:shadow-xl focus-visible:shadow-xl cursor-pointer' : ''"
+    class="case-card group relative block overflow-hidden rounded-2xl bg-white border border-fortu-light/50 aspect-[4/3] transition-colors duration-300"
+    :class="clickable ? 'cursor-pointer hover:border-fortu-dark focus-visible:border-fortu-dark' : ''"
     :aria-label="clickable ? `Lihat studi kasus ${study.clientName}` : undefined"
     @click="onClick"
   >
@@ -36,8 +36,9 @@
           width="800"
           height="600"
           class="absolute inset-0 w-full h-full object-cover"
-        />
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+        :style="focalStyle(study.coverImage)"
+      />
+        <div class="absolute inset-0 bg-gradient-to-t from-fortu-dark/85 via-fortu-dark/30 to-transparent"></div>
         <div class="absolute bottom-0 left-0 right-0 p-5 text-fortu-off-white">
           <p class="text-lg font-medium tracking-tight">{{ study.clientName }}</p>
           <p v-if="meta" class="text-sm text-fortu-light mt-0.5">{{ meta }}</p>
@@ -54,6 +55,7 @@
 </template>
 
 <script setup lang="ts">
+import { focalStyle } from '@/utils/focal'
 import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import type { CaseStudyListItem } from '@/sanity/queries'

@@ -35,6 +35,23 @@
 
     <!-- Posts -->
     <div v-else class="max-w-7xl mx-auto px-4 md:px-16 py-16 md:py-24">
+      <!-- Filter -->
+      <div v-if="hasBothKinds" class="flex flex-wrap gap-2 mb-10 md:mb-14" role="group" aria-label="Filter artikel">
+        <button
+          v-for="opt in filters"
+          :key="opt.value"
+          type="button"
+          :aria-pressed="filter === opt.value ? 'true' : 'false'"
+          class="rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-fortu-dark focus-visible:ring-offset-2"
+          :class="filter === opt.value
+            ? 'bg-fortu-dark text-fortu-off-white border-fortu-dark'
+            : 'border-fortu-light text-fortu-dark hover:border-fortu-dark'"
+          @click="filter = opt.value"
+        >
+          {{ opt.label }}
+        </button>
+      </div>
+
       <!-- Featured Post -->
       <RouterLink
         v-if="featuredPost"
@@ -52,20 +69,21 @@
               loading="lazy"
               decoding="async"
               class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
+        :style="focalStyle(featuredPost.coverImage)"
+      />
           </div>
           <div>
-            <div class="flex items-center gap-3 mb-4">
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
               <span class="text-xs md:text-sm font-medium text-fortu-medium uppercase tracking-wider">
                 Featured
               </span>
-              <span class="w-1 h-1 rounded-full bg-fortu-medium"></span>
               <template v-if="featuredPost.isMediaCoverage">
-                <span class="w-1 h-1 rounded-full bg-fortu-medium"></span>
+                <span class="w-1 h-1 rounded-full bg-fortu-medium" aria-hidden="true"></span>
                 <span class="text-xs md:text-sm font-medium text-fortu-dark uppercase tracking-wider">
                   {{ postLabel(featuredPost) }}
                 </span>
               </template>
+              <span class="w-1 h-1 rounded-full bg-fortu-medium" aria-hidden="true"></span>
               <span class="text-xs md:text-sm text-fortu-medium">
                 {{ formatDate(displayDate(featuredPost)) }}
               </span>
@@ -104,7 +122,8 @@
               loading="lazy"
               decoding="async"
               class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
+        :style="focalStyle(post.coverImage)"
+      />
           </div>
           <div class="flex items-center gap-3 mb-3">
             <span
@@ -134,6 +153,7 @@
 </template>
 
 <script setup lang="ts">
+import { focalStyle } from '@/utils/focal'
 import { usePageSeo } from '@/composables/usePageSeo'
 import { formatDate, displayDate, postLabel } from '@/utils/blog'
 import { ref, computed, onMounted } from 'vue'
@@ -148,13 +168,29 @@ import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 const posts = ref<BlogPostListItem[]>([])
 const loading = ref(true)
 
+type PostFilter = 'all' | 'media' | 'own'
+const filter = ref<PostFilter>('all')
+const filters: { value: PostFilter; label: string }[] = [
+  { value: 'all', label: 'Semua' },
+  { value: 'own', label: 'Artikel Fortu' },
+  { value: 'media', label: 'Liputan Media' },
+]
+const hasBothKinds = computed(
+  () => posts.value.some((p) => p.isMediaCoverage) && posts.value.some((p) => !p.isMediaCoverage),
+)
+const visiblePosts = computed(() =>
+  filter.value === 'all'
+    ? posts.value
+    : posts.value.filter((p) => (filter.value === 'media' ? !!p.isMediaCoverage : !p.isMediaCoverage)),
+)
+
 const featuredPost = computed(() =>
-  posts.value.find((p) => p.featured) || posts.value[0] || null,
+  visiblePosts.value.find((p) => p.featured) || visiblePosts.value[0] || null,
 )
 
 const otherPosts = computed(() =>
   featuredPost.value
-    ? posts.value.filter((p) => p._id !== featuredPost.value!._id)
+    ? visiblePosts.value.filter((p) => p._id !== featuredPost.value!._id)
     : [],
 )
 

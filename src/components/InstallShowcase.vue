@@ -35,9 +35,10 @@
                   loading="lazy"
                   decoding="async"
                   class="w-full h-full object-cover"
+                  :style="focalStyle(step.image)"
                 />
                 <span
-                  class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-fortu-dark/80 text-fortu-off-white text-xs font-medium tracking-wider backdrop-blur-sm"
+                  class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-fortu-dark text-fortu-off-white text-xs font-medium tracking-wider"
                 >
                   {{ pad(i + 1) }}
                 </span>
@@ -69,7 +70,7 @@
           <button
             v-if="!reduceMotion"
             type="button"
-            class="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-fortu-dark/70 text-fortu-off-white flex items-center justify-center backdrop-blur-sm hover:bg-fortu-dark transition-colors"
+            class="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-fortu-dark text-fortu-off-white flex items-center justify-center hover:bg-fortu-medium transition-colors"
             :aria-label="playing ? 'Jeda video' : 'Putar video'"
             @click="togglePlay"
           >
@@ -96,6 +97,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { urlFor } from '@/sanity/client'
 import { IMAGE_CONFIG } from '@/config/image'
+import { focalStyle } from '@/utils/focal'
 import type { InstallShowcase, InstallStep } from '@/sanity/queries'
 
 const props = defineProps<{ data: InstallShowcase }>()

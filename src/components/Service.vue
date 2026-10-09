@@ -21,18 +21,24 @@
         <li
           v-for="(service, index) in steps"
           :key="service._key || index"
-          class="service-card relative flex-shrink-0 w-[260px] md:w-[300px] lg:w-auto snap-start overflow-hidden rounded-2xl h-[420px] lg:h-[460px] text-fortu-off-white"
-          :class="cardBackground(service)"
+          class="service-card relative flex-shrink-0 w-[260px] md:w-[300px] lg:w-auto snap-start overflow-hidden rounded-2xl h-[420px] lg:h-[460px] bg-fortu-dark text-fortu-off-white"
+         
         >
           <!-- Photo background (legacy cards), with readable overlay -->
-          <div
+          <img
             v-if="!illustrationUrl(service) && getBackgroundImage(service)"
-            class="absolute inset-0 bg-cover bg-center"
-            :style="{ backgroundImage: `url(${getBackgroundImage(service)})` }"
-          ></div>
+            :src="getBackgroundImage(service) as string"
+            alt=""
+            width="600"
+            height="800"
+            loading="lazy"
+            decoding="async"
+            class="absolute inset-0 w-full h-full object-cover"
+            :style="focalStyle(service.backgroundImage)"
+          />
           <div
             v-if="!illustrationUrl(service) && getBackgroundImage(service) && service.darkOverlay !== false"
-            class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20"
+            class="absolute inset-0 bg-gradient-to-t from-fortu-dark/90 via-fortu-dark/50 to-fortu-dark/20"
           ></div>
 
           <!-- Brand illustration -->
@@ -85,6 +91,7 @@ import { client } from '@/sanity/client'
 import { urlFor } from '@/sanity/client'
 import { SERVICE_SECTION_QUERY, type ServiceSection, type ServiceItem } from '@/sanity/queries'
 import { IMAGE_CONFIG } from '@/config/image'
+import { focalStyle } from '@/utils/focal'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const serviceSection = ref<ServiceSection | null>(null)
@@ -109,18 +116,12 @@ const illustrationUrl = (service: ServiceItem) =>
 const getBackgroundImage = (service: ServiceItem): string | null => {
   if (!service.backgroundImage?.asset) return null
   try {
-    const builder = urlFor(service.backgroundImage.asset).width(600).height(800).quality(IMAGE_CONFIG.quality)
+    const builder = urlFor(service.backgroundImage).width(600).height(800).fit('crop').quality(IMAGE_CONFIG.quality)
     return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
   } catch {
     return null
   }
 }
-
-// Brand navy tones for illustrated cards (final colour codes pending from design)
-const cardBackground = (service: ServiceItem) =>
-  illustrationUrl(service) || !getBackgroundImage(service)
-    ? 'bg-gradient-to-b from-[#1b2433] to-[#0e1218]'
-    : 'bg-fortu-dark'
 
 const handleScroll = () => {
   const el = carouselRef.value
@@ -158,25 +159,5 @@ onMounted(async () => {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
-}
-
-.service-card {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  transition: box-shadow 0.4s ease, transform 0.4s ease;
-}
-
-@media (hover: hover) {
-  .service-card:hover {
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
-    transform: translateY(-4px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .service-card,
-  .service-card:hover {
-    transition: none;
-    transform: none;
-  }
 }
 </style>
