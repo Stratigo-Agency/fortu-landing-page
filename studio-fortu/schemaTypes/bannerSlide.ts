@@ -20,14 +20,26 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'comingSoon',
+      title: 'Segera hadir',
+      type: 'boolean',
+      description:
+        'Aktifkan jika foto produk belum ada. Tab tampil dengan label "Segera" dan tombol "Segera hadir" (tanpa link). Matikan setelah foto dan halaman produk siap.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'slideImage',
       title: 'Slide Image',
       type: 'image',
       options: {
         hotspot: true,
       },
-      description: 'Full-screen background image for this product slide',
-      validation: (Rule) => Rule.required(),
+      description:
+        'Foto produk yang menonjolkan produknya (boleh ada manusia kecil sebagai konteks). Wajib kecuali "Segera hadir".',
+      validation: (Rule) =>
+        Rule.custom((value, ctx) =>
+          !value && !(ctx.document as {comingSoon?: boolean})?.comingSoon ? 'Foto wajib diisi' : true,
+        ),
     }),
     defineField({
       name: 'features',
