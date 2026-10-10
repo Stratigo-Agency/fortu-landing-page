@@ -15,13 +15,12 @@
       <!-- Images Wrapper -->
       <div 
         ref="carouselRef"
-        class="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory px-4 md:px-16 pb-4 scrollbar-hide"
-        @scroll="handleScroll"
+        class="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-px-4 md:scroll-px-16 px-4 md:px-16 pb-4 scrollbar-hide"
       >
         <div
           v-for="(image, index) in images"
           :key="index"
-          class="flex-shrink-0 w-[220px] md:w-[300px] lg:w-[380px] font-medium snap-center"
+          class="flex-shrink-0 w-[220px] md:w-[300px] lg:w-[380px] font-medium snap-start"
           :class="clickable ? 'cursor-pointer' : ''"
           @click="clickable && $emit('image-click', index)"
         >
@@ -55,69 +54,21 @@
         </div>
       </div>
 
-      <!-- Mobile Indicators -->
-      <div class="flex md:hidden justify-center gap-2 mt-4 px-4 pb-16">
-        <button
-          v-for="(_, index) in images"
-          :key="index"
-          @click="scrollToImage(index)"
-          :aria-label="`Go to image ${index + 1} of ${images.length}`"
-          :aria-current="currentIndex === index ? 'true' : 'false'"
-          class="w-2 h-2 rounded-full transition-all"
-          :class="currentIndex === index 
-            ? (mode === 'light' ? 'bg-fortu-off-white w-6' : 'bg-fortu-dark w-6')
-            : (mode === 'light' ? 'bg-fortu-off-white/50' : 'bg-fortu-light/50')"
-        ></button>
-      </div>
     </div>
 
-    <!-- Navigation Arrows (Centered Below) - Show only when content exceeds width -->
-    <div 
-      v-if="canScroll" 
-      class="flex items-center justify-center gap-3 mt-6 pb-4"
-    >
-      <button
-        @click="scrollCarousel('left')"
-        :disabled="isAtStart"
-        aria-label="Scroll carousel left"
-        class="w-10 h-10 rounded-full border flex items-center justify-center transition-all"
-        :class="[
-          mode === 'light' 
-            ? 'border-fortu-dark/30 hover:bg-fortu-dark/10 text-fortu-dark' 
-            : 'border-fortu-light/30 hover:bg-fortu-light/10 text-fortu-off-white',
-          isAtStart ? 'opacity-30 cursor-not-allowed' : 'hover:scale-110'
-        ]"
-      >
-        <svg 
-          class="w-5 h-5" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"/>
-        </svg>
-      </button>
-      <button
-        @click="scrollCarousel('right')"
-        :disabled="isAtEnd"
-        aria-label="Scroll carousel right"
-        class="w-10 h-10 rounded-full border flex items-center justify-center transition-all"
-        :class="[
-          mode === 'light' 
-            ? 'border-fortu-dark/30 hover:bg-fortu-dark/10 text-fortu-dark' 
-            : 'border-fortu-light/30 hover:bg-fortu-light/10 text-fortu-off-white',
-          isAtEnd ? 'opacity-30 cursor-not-allowed' : 'hover:scale-110'
-        ]"
-      >
-        <svg 
-          class="w-5 h-5" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"/>
-        </svg>
-      </button>
+    <!-- Same slider controls as every other slider; only when the images do not all fit -->
+    <div v-if="canScroll" class="px-4 md:px-16 mt-4 md:mt-6 pb-8 md:pb-4">
+      <SliderControls
+        :index="currentIndex"
+        :count="images.length"
+        :mode="mode"
+        :can-prev="!isAtStart"
+        :can-next="!isAtEnd"
+        prev-label="Gambar sebelumnya"
+        next-label="Gambar berikutnya"
+        @prev="prev"
+        @next="next"
+      />
     </div>
 
     <!-- Variant Selector -->
@@ -148,9 +99,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import Button from '@/reusables/Button.vue'
 import SkeletonImage from '@/reusables/SkeletonImage.vue'
+import SliderControls from '@/reusables/SliderControls.vue'
+import { useScrollSlider } from '@/composables/useScrollSlider'
 
 interface CarouselImage {
   url: string
@@ -185,80 +138,7 @@ defineEmits<{
 }>()
 
 const carouselRef = ref<HTMLElement | null>(null)
-const isAtStart = ref(true)
-const isAtEnd = ref(false)
-const currentIndex = ref(0)
-const canScroll = ref(false)
-
-// Get item width based on breakpoint
-const getItemWidth = () => {
-  const width = window.innerWidth
-  if (width >= 1024) {
-    // lg: w-[380px] + gap-6 (24px)
-    return 380 + 24
-  } else if (width >= 768) {
-    // md: w-[300px] + gap-6 (24px)
-    return 300 + 24
-  } else {
-    // mobile: w-[220px] + gap-4 (16px)
-    return 220 + 16
-  }
-}
-
-const scrollCarousel = (direction: 'left' | 'right') => {
-  if (!carouselRef.value) return
-  
-  const itemWidth = getItemWidth()
-  const scrollAmount = itemWidth
-  
-  const newScrollLeft = direction === 'left' 
-    ? carouselRef.value.scrollLeft - scrollAmount 
-    : carouselRef.value.scrollLeft + scrollAmount
-  
-  carouselRef.value.scrollTo({
-    left: newScrollLeft,
-    behavior: 'smooth'
-  })
-}
-
-const scrollToImage = (index: number) => {
-  if (!carouselRef.value) return
-  
-  const itemWidth = getItemWidth()
-  
-  carouselRef.value.scrollTo({
-    left: index * itemWidth,
-    behavior: 'smooth'
-  })
-}
-
-const handleScroll = () => {
-  if (!carouselRef.value) return
-  
-  const { scrollLeft, scrollWidth, clientWidth } = carouselRef.value
-  isAtStart.value = scrollLeft <= 10
-  isAtEnd.value = scrollLeft + clientWidth >= scrollWidth - 10
-  
-  // Check if content exceeds width (with small threshold to account for rounding)
-  canScroll.value = scrollWidth > clientWidth + 5
-  
-  // Calculate current index based on actual item width
-  const itemWidth = getItemWidth()
-  currentIndex.value = Math.round(scrollLeft / itemWidth)
-  
-  // Clamp index to valid range
-  if (currentIndex.value < 0) currentIndex.value = 0
-  if (currentIndex.value >= props.images.length) currentIndex.value = props.images.length - 1
-}
-
-onMounted(() => {
-  handleScroll()
-  window.addEventListener('resize', handleScroll)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleScroll)
-})
+const { index: currentIndex, canScroll, isAtStart, isAtEnd, prev, next } = useScrollSlider(carouselRef)
 </script>
 
 <style scoped>

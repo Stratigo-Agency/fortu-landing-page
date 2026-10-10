@@ -113,40 +113,17 @@
       </article>
     </div>
 
-    <!-- Controls -->
-    <div class="relative z-10 px-6 pb-10 md:absolute md:left-0 md:bottom-0 md:w-1/2 md:px-10 lg:px-16 md:pb-12 flex items-center justify-center md:justify-between gap-6">
-      <div class="flex gap-2">
-        <button
-          type="button"
-          class="control"
-          aria-label="Produk sebelumnya"
-          @click="prevSlide"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-          </svg>
-        </button>
-        <button
-          type="button"
-          class="control"
-          aria-label="Produk berikutnya"
-          @click="nextSlide"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-          </svg>
-        </button>
-      </div>
-      <div class="flex items-center gap-4 text-fortu-dark" aria-hidden="true">
-        <span class="text-sm font-medium tabular-nums">{{ String(currentIndex + 1).padStart(2, '0') }}</span>
-        <div class="w-24 sm:w-32 h-0.5 bg-fortu-dark/15 rounded-full overflow-hidden">
-          <div
-            class="h-full bg-fortu-dark transition-all duration-300"
-            :style="{ width: `${((currentIndex + 1) / productSlides.length) * 100}%` }"
-          ></div>
-        </div>
-        <span class="text-sm text-fortu-medium tabular-nums">{{ String(productSlides.length).padStart(2, '0') }}</span>
-      </div>
+    <!-- Controls (shared with every other slider on the site) -->
+    <div class="relative z-10 px-6 pb-10 md:absolute md:left-0 md:bottom-0 md:w-1/2 md:px-10 lg:px-16 md:pb-12">
+      <SliderControls
+        :index="currentIndex"
+        :count="productSlides.length"
+        align="center-mobile"
+        prev-label="Produk sebelumnya"
+        next-label="Produk berikutnya"
+        @prev="prevSlide"
+        @next="nextSlide"
+      />
     </div>
   </section>
   <SectionSkeleton v-else-if="loading" min-height="min-h-screen" :cards="1" />
@@ -159,6 +136,7 @@ import { PRODUCT_SLIDES_QUERY, type ProductSlide } from '@/sanity/queries'
 import { focalStyle, responsiveImage } from '@/utils/focal'
 import Button from '@/reusables/Button.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
+import SliderControls from '@/reusables/SliderControls.vue'
 
 const productSlides = ref<ProductSlide[]>([])
 const loading = ref(true)
@@ -261,27 +239,6 @@ onUnmounted(() => {
   opacity: 1;
   visibility: visible;
   transition: opacity 0.6s ease, visibility 0s;
-}
-
-.control {
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  border: 1px solid rgba(16, 17, 17, 0.2);
-  color: #101111;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-}
-.control:hover {
-  background-color: #101111;
-  border-color: #101111;
-  color: #f9f9f9;
-}
-.control:focus-visible {
-  outline: 2px solid #101111;
-  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

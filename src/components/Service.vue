@@ -11,18 +11,17 @@
         </p>
       </div>
 
-      <!-- One row of numbered steps on desktop; swipeable on phones and tablets -->
+      <!-- One row of numbered steps on desktop; below that a swipeable rail with arrows and a counter.
+           scroll-px matches the rail padding, so a snapped card keeps its margin on phones. -->
       <ol
         ref="carouselRef"
-        class="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 -mx-6 px-6 md:-mx-10 md:px-10 lg:mx-0 lg:px-0 lg:pb-0 lg:overflow-visible lg:grid lg:gap-5 list-none"
+        class="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-px-6 md:scroll-px-10 scrollbar-hide pb-2 -mx-6 px-6 md:-mx-10 md:px-10 lg:mx-0 lg:px-0 lg:pb-0 lg:scroll-px-0 lg:overflow-visible lg:grid lg:gap-5 list-none"
         :class="gridCols"
-        @scroll="handleScroll"
       >
         <li
           v-for="(service, index) in steps"
           :key="service._key || index"
-          class="service-card relative flex-shrink-0 w-[260px] md:w-[300px] lg:w-auto snap-start overflow-hidden rounded-2xl h-[420px] lg:h-[460px] bg-fortu-dark text-fortu-off-white"
-         
+          class="service-card relative flex flex-col flex-shrink-0 w-[260px] md:w-[300px] lg:w-auto snap-start overflow-hidden rounded-2xl min-h-[440px] lg:min-h-[460px] bg-fortu-dark text-fortu-off-white"
         >
           <!-- Photo background (legacy cards), with readable overlay -->
           <img
@@ -41,44 +40,46 @@
             class="absolute inset-0 bg-gradient-to-t from-fortu-dark/90 via-fortu-dark/50 to-fortu-dark/20"
           ></div>
 
-          <!-- Brand illustration -->
-          <img
-            v-if="illustrationUrl(service)"
-            :src="illustrationUrl(service) as string"
-            alt=""
-            width="400"
-            height="400"
-            loading="lazy"
-            decoding="async"
-            class="absolute left-1/2 top-14 lg:top-12 -translate-x-1/2 w-[92%] max-w-[300px] opacity-95"
-          />
-
           <!-- Step number -->
-          <span class="absolute top-5 left-5 text-sm font-medium tracking-[0.2em] text-fortu-light">
+          <span class="absolute top-5 left-5 text-sm font-medium tracking-[0.2em] text-fortu-light z-10">
             {{ String(index + 1).padStart(2, '0') }}
           </span>
 
-          <!-- Content -->
-          <div class="relative h-full flex flex-col justify-end p-6 z-10">
-            <h3 class="text-2xl md:text-[26px] font-medium tracking-tight mb-2">{{ service.title }}</h3>
-            <p class="text-sm leading-relaxed text-fortu-light">{{ service.description }}</p>
+          <!-- Brand illustration: a zone of the same height on every card, so each title
+               (and each description) starts on the same line across the row -->
+          <div v-if="illustrationUrl(service)" class="relative flex-shrink-0 h-[200px] lg:h-[190px] mt-9">
+            <img
+              :src="illustrationUrl(service) as string"
+              alt=""
+              width="400"
+              height="400"
+              loading="lazy"
+              decoding="async"
+              class="absolute left-1/2 top-0 -translate-x-1/2 h-full w-auto max-w-none opacity-95"
+            />
+          </div>
+
+          <!-- Content (photo cards keep their text at the bottom) -->
+          <div class="relative z-10 flex flex-col px-6 pb-6" :class="illustrationUrl(service) ? 'pt-2' : 'mt-auto pt-6'">
+            <h3 class="text-2xl md:text-[26px] font-medium tracking-tight leading-tight min-h-[2.5em]">{{ service.title }}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-fortu-light">{{ service.description }}</p>
           </div>
         </li>
       </ol>
 
-      <!-- Scroll indicators (below desktop) -->
-      <div class="flex justify-center gap-2 mt-4 lg:hidden">
-        <button
-          v-for="(_, index) in steps"
-          :key="index"
-          type="button"
-          :aria-label="`Ke langkah ${index + 1} dari ${steps.length}`"
-          :aria-current="currentSlide === index ? 'true' : 'false'"
-          class="h-2 rounded-full transition-all duration-300"
-          :class="currentSlide === index ? 'bg-fortu-dark w-6' : 'bg-fortu-medium/40 w-2'"
-          @click="scrollToSlide(index)"
-        ></button>
-      </div>
+      <!-- Same slider controls as every other slider (below desktop) -->
+      <SliderControls
+        v-if="steps.length > 1"
+        class="lg:hidden mt-6 md:mt-8"
+        :index="currentSlide"
+        :count="steps.length"
+        :can-prev="!isAtStart"
+        :can-next="!isAtEnd"
+        prev-label="Langkah sebelumnya"
+        next-label="Langkah berikutnya"
+        @prev="prev"
+        @next="next"
+      />
     </div>
   </section>
 
@@ -92,12 +93,14 @@ import { urlFor } from '@/sanity/client'
 import { SERVICE_SECTION_QUERY, type ServiceSection, type ServiceItem } from '@/sanity/queries'
 import { IMAGE_CONFIG } from '@/config/image'
 import { focalStyle } from '@/utils/focal'
+import { useScrollSlider } from '@/composables/useScrollSlider'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
+import SliderControls from '@/reusables/SliderControls.vue'
 
 const serviceSection = ref<ServiceSection | null>(null)
 const loading = ref(true)
-const currentSlide = ref(0)
 const carouselRef = ref<HTMLElement | null>(null)
+const { index: currentSlide, isAtStart, isAtEnd, prev, next } = useScrollSlider(carouselRef)
 
 const steps = computed<ServiceItem[]>(() => serviceSection.value?.services || [])
 
@@ -121,22 +124,6 @@ const getBackgroundImage = (service: ServiceItem): string | null => {
   } catch {
     return null
   }
-}
-
-const handleScroll = () => {
-  const el = carouselRef.value
-  if (!el) return
-  const first = el.firstElementChild as HTMLElement | null
-  const step = first ? first.offsetWidth + 16 : 276
-  currentSlide.value = Math.round(el.scrollLeft / step)
-}
-
-const scrollToSlide = (index: number) => {
-  const el = carouselRef.value
-  if (!el) return
-  const first = el.firstElementChild as HTMLElement | null
-  const step = first ? first.offsetWidth + 16 : 276
-  el.scrollTo({ left: index * step, behavior: 'smooth' })
 }
 
 onMounted(async () => {
