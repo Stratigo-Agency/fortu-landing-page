@@ -652,6 +652,7 @@ export const PRODUCT_COMPARE_QUERY = defineQuery(/* groq */ `
         _id,
         name,
         slug,
+        status,
         description,
         images[] {
           asset-> {
