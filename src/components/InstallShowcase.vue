@@ -4,52 +4,68 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
         <!-- Intro cell -->
         <div class="lg:pr-6 lg:sticky lg:top-28 self-start">
-          <p v-if="data.eyebrow" class="text-[11px] md:text-xs uppercase tracking-[0.24em] text-fortu-medium mb-3">
+          <p v-if="data.eyebrow" class="text-sm uppercase tracking-[0.2em] text-fortu-medium mb-3">
             {{ data.eyebrow }}
           </p>
           <h2 id="install-showcase-title" class="text-3xl md:text-5xl font-medium text-fortu-dark tracking-tight">
             {{ data.heading }}
           </h2>
-          <p v-if="data.description" class="mt-4 text-fortu-medium text-base md:text-lg leading-relaxed">
+          <p v-if="data.description" class="mt-4 text-fortu-medium text-lg md:text-xl leading-relaxed">
             {{ data.description }}
           </p>
         </div>
 
-        <!-- Steps: swipeable row on phones, grid from md -->
-        <ol
-          class="lg:col-span-2 flex md:grid md:grid-cols-2 gap-5 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0 list-none"
-        >
-          <li
-            v-for="(step, i) in steps"
-            :key="step._key"
-            class="snap-start flex-shrink-0 w-[78%] sm:w-[46%] md:w-auto"
+        <!-- Steps: swipeable rail (with the shared slider controls) on phones, grid from md -->
+        <div class="lg:col-span-2 min-w-0">
+          <ol
+            ref="railRef"
+            class="rail flex md:grid md:grid-cols-2 gap-5 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory scroll-px-4 md:scroll-px-0 -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0 list-none"
           >
-            <figure>
-              <div class="relative overflow-hidden rounded-2xl bg-fortu-off-white aspect-[4/5]">
-                <img
-                  v-if="stepImage(step)"
-                  :src="stepImage(step) as string"
-                  :alt="step.image?.alt || step.title"
-                  width="800"
-                  height="1000"
-                  loading="lazy"
-                  decoding="async"
-                  class="w-full h-full object-cover"
-                  :style="focalStyle(step.image)"
-                />
-                <span
-                  class="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-fortu-dark text-fortu-off-white text-xs font-medium tracking-wider"
-                >
-                  {{ pad(i + 1) }}
-                </span>
-              </div>
-              <figcaption class="mt-4">
-                <p class="text-lg font-medium text-fortu-dark tracking-tight">{{ step.title }}</p>
-                <p v-if="step.caption" class="mt-1 text-sm text-fortu-medium leading-relaxed">{{ step.caption }}</p>
-              </figcaption>
-            </figure>
-          </li>
-        </ol>
+            <li
+              v-for="(step, i) in steps"
+              :key="step._key"
+              class="snap-start flex-shrink-0 w-[78%] sm:w-[46%] md:w-auto"
+            >
+              <figure>
+                <div class="relative overflow-hidden rounded-2xl bg-fortu-off-white aspect-[4/5]">
+                  <img
+                    v-if="stepImage(step)"
+                    :src="stepImage(step) as string"
+                    :alt="step.image?.alt || step.title"
+                    width="800"
+                    height="1000"
+                    loading="lazy"
+                    decoding="async"
+                    class="w-full h-full object-cover"
+                    :style="focalStyle(step.image)"
+                  />
+                  <span
+                    class="absolute top-3 left-3 px-3 py-1 rounded-full bg-fortu-dark text-fortu-off-white text-sm font-medium tracking-wider"
+                  >
+                    {{ pad(i + 1) }}
+                  </span>
+                </div>
+                <figcaption class="mt-4">
+                  <p class="text-xl md:text-2xl font-medium text-fortu-dark tracking-tight">{{ step.title }}</p>
+                  <p v-if="step.caption" class="mt-2 text-base md:text-lg text-fortu-medium leading-relaxed">{{ step.caption }}</p>
+                </figcaption>
+              </figure>
+            </li>
+          </ol>
+
+          <SliderControls
+            v-if="steps.length > 1"
+            class="md:hidden mt-6"
+            :index="currentStep"
+            :count="steps.length"
+            :can-prev="!isAtStart"
+            :can-next="!isAtEnd"
+            prev-label="Langkah sebelumnya"
+            next-label="Langkah berikutnya"
+            @prev="prev"
+            @next="next"
+          />
+        </div>
       </div>
 
       <!-- Demo video -->
@@ -83,10 +99,10 @@
           </button>
         </div>
         <figcaption class="mt-4 md:flex md:items-baseline md:gap-4">
-          <p class="text-lg font-medium text-fortu-dark tracking-tight">
+          <p class="text-xl md:text-2xl font-medium text-fortu-dark tracking-tight">
             {{ pad(steps.length + 1) }} · {{ data.demoVideo.title || 'Demo' }}
           </p>
-          <p v-if="data.demoVideo.caption" class="mt-1 md:mt-0 text-sm text-fortu-medium">{{ data.demoVideo.caption }}</p>
+          <p v-if="data.demoVideo.caption" class="mt-1 md:mt-0 text-base md:text-lg text-fortu-medium">{{ data.demoVideo.caption }}</p>
         </figcaption>
       </figure>
     </div>
@@ -98,9 +114,14 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { urlFor } from '@/sanity/client'
 import { IMAGE_CONFIG } from '@/config/image'
 import { focalStyle } from '@/utils/focal'
+import { useScrollSlider } from '@/composables/useScrollSlider'
+import SliderControls from '@/reusables/SliderControls.vue'
 import type { InstallShowcase, InstallStep } from '@/sanity/queries'
 
 const props = defineProps<{ data: InstallShowcase }>()
+
+const railRef = ref<HTMLElement | null>(null)
+const { index: currentStep, isAtStart, isAtEnd, prev, next } = useScrollSlider(railRef)
 
 const steps = computed<InstallStep[]>(() => (props.data.steps || []).filter((s) => s.image?.asset))
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -160,3 +181,14 @@ onMounted(() => {
 
 onBeforeUnmount(() => observer?.disconnect())
 </script>
+
+<style scoped>
+/* The slider controls replace the scrollbar */
+.rail {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.rail::-webkit-scrollbar {
+  display: none;
+}
+</style>
