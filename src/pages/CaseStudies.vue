@@ -9,7 +9,7 @@
     <SectionSkeleton v-if="loading" min-height="min-h-[60vh]" :cards="3" />
 
     <div v-else class="mx-auto px-4 md:px-16 py-16 md:py-24">
-      <ul v-if="studies.length" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 list-none">
+      <ul v-if="studies.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10 list-none">
         <li v-for="s in studies" :key="s._id">
           <CaseStudyCard :study="s" />
         </li>
