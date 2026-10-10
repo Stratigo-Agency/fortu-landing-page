@@ -497,6 +497,8 @@ export interface Office {
   name?: string
   address?: string
   phone?: string
+  /** 'whatsapp' = a WhatsApp-registered number, 'phone' (default) = a regular call. Not guessable from the number. */
+  phoneType?: 'whatsapp' | 'phone'
   mapsUrl?: string
   mapsEmbed?: string
   latitude?: number
@@ -527,6 +529,7 @@ export const SITE_SETTINGS_QUERY = defineQuery(/* groq */ `
       name,
       address,
       phone,
+      phoneType,
       mapsUrl,
       mapsEmbed,
       latitude,
