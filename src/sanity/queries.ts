@@ -497,6 +497,8 @@ export interface Office {
   name?: string
   address?: string
   phone?: string
+  /** 'whatsapp' = a WhatsApp-registered number, 'phone' (default) = a regular call. Not guessable from the number. */
+  phoneType?: 'whatsapp' | 'phone'
   mapsUrl?: string
   mapsEmbed?: string
   latitude?: number
@@ -527,6 +529,7 @@ export const SITE_SETTINGS_QUERY = defineQuery(/* groq */ `
       name,
       address,
       phone,
+      phoneType,
       mapsUrl,
       mapsEmbed,
       latitude,
@@ -649,6 +652,7 @@ export const PRODUCT_COMPARE_QUERY = defineQuery(/* groq */ `
         _id,
         name,
         slug,
+        status,
         description,
         images[] {
           asset-> {
@@ -1154,10 +1158,18 @@ export interface CaseStudyListItem {
   location?: string
   productsUsed?: string[]
   summary?: string
+  /** One sentence naming the result: the caption under a card and the page title. */
+  headline?: string
+  /** Shown in the home slider (at most 8); when none is flagged the first 8 are shown. */
+  featured?: boolean
   coverImage?: SanityImage & { alt?: string }
 }
 
 export interface CaseStudy extends CaseStudyListItem {
+  background?: string
+  spokespersonName?: string
+  spokespersonRole?: string
+  tags?: string[]
   challenge?: string
   solution?: string
   result?: string
@@ -1181,6 +1193,8 @@ export const CASE_STUDIES_QUERY = defineQuery(/* groq */ `
     location,
     productsUsed,
     summary,
+    headline,
+    featured,
     coverImage {
       asset-> { _id, url },
       hotspot,
@@ -1202,9 +1216,14 @@ export const CASE_STUDY_BY_SLUG_QUERY = defineQuery(/* groq */ `
     location,
     productsUsed,
     summary,
+    headline,
+    tags,
+    background,
     challenge,
     solution,
     result,
+    spokespersonName,
+    spokespersonRole,
     coverImage {
       asset-> { _id, url },
       hotspot,

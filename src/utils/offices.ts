@@ -20,9 +20,38 @@ export const officeLabel = (o: Office) => [o.name, o.city].filter(Boolean).join(
 /** An office is listed in the footer / contact cards only when it has something to show. */
 export const isListable = (o: Office) => !!(o.address || o.mapsUrl || o.name)
 
-/** Only Google Maps embed URLs are ever put in an iframe. */
+/**
+ * Only Google Maps embed URLs are ever put in an iframe, and always as the standard road map.
+ * "Share > Embed a map" copies whatever view was on screen, and a satellite view (!5e1) is
+ * hard to read for most visitors, so the map type in the URL is reset to the default (!5e0).
+ */
 export const safeEmbedUrl = (url?: string) =>
-  url && /^https:\/\/www\.google\.com\/maps\/embed\?/i.test(url) ? url : undefined
+  url && /^https:\/\/www\.google\.com\/maps\/embed\?/i.test(url) ? url.replace(/!5e\d/, '!5e0') : undefined
+
+export type OfficePhoneKind = 'whatsapp' | 'phone'
+
+/** 0896-8407-3110 or +62 896... -> 6289684073110 (digits only, as wa.me expects). */
+const toInternationalDigits = (phone: string, country = '62') => {
+  const digits = phone.replace(/\D/g, '')
+  if (phone.trim().startsWith('+')) return digits
+  if (digits.startsWith('00')) return digits.slice(2)
+  if (digits.startsWith('0')) return country + digits.slice(1)
+  return digits.startsWith(country) ? digits : country + digits
+}
+
+/**
+ * How an office number is shown and opened. Whether it is a WhatsApp number comes from
+ * Sanity (`phoneType`); it cannot be guessed from the digits, so anything not marked
+ * 'whatsapp' is a regular phone call.
+ */
+export function officePhone(o: Office): { kind: OfficePhoneKind; display: string; href: string } | null {
+  const display = o.phone?.trim()
+  if (!display) return null
+  if (o.phoneType === 'whatsapp') {
+    return { kind: 'whatsapp', display, href: `https://wa.me/${toInternationalDigits(display)}` }
+  }
+  return { kind: 'phone', display, href: `tel:${display.replace(/[^+\d]/g, '')}` }
+}
 
 const DAY_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const DAY_ID: Record<string, string> = {

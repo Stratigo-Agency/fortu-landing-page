@@ -185,7 +185,7 @@ export function caseStudySchema(c: CaseStudy | null, imageUrl?: string) {
   return compact({
     '@context': 'https://schema.org',
     '@type': 'Article',
-    headline: `Studi kasus ${c.clientName}${c.projectType ? ': ' + c.projectType : ''}`,
+    headline: c.headline || `Studi kasus ${c.clientName}${c.projectType ? ': ' + c.projectType : ''}`,
     description: c.seoDescription || c.summary || undefined,
     image: imageUrl ? [imageUrl] : undefined,
     about: { '@type': 'Organization', name: c.clientName },

@@ -22,7 +22,8 @@ export default defineType({
       name: 'products',
       title: 'Products to Compare',
       type: 'array',
-      description: 'Select products to compare. Specs will be pulled from each product. If more than 3 products are added, users can select which 3 to display using dropdowns.',
+      description:
+        'Pilih produk yang dibandingkan (maksimal 4). Spesifikasi diambil dari tiap produk: spesifikasi yang dimiliki minimal dua produk menjadi baris sejajar, sisanya masuk baris "Fitur lain". Di desktop semua produk tampil sejajar; di HP pengunjung membandingkan 2 produk lewat dropdown. Produk berstatus "Segera hadir" tampil tanpa tombol.',
       of: [
         {
           type: 'object',
@@ -67,7 +68,7 @@ export default defineType({
           },
         },
       ],
-      validation: (Rule) => Rule.min(1).error('At least 1 product is required'),
+      validation: (Rule) => Rule.min(1).max(4).error('Pilih 1 sampai 4 produk'),
     }),
     defineField({
       name: 'backgroundColor',

@@ -1,322 +1,146 @@
 <template>
-  <section 
-    v-if="compare && !loading" 
+  <section
+    v-if="compare && !loading"
     class="compare-section py-16 md:py-24"
-    :class="compare.backgroundColor === 'light' ? 'bg-fortu-off-white' : 'bg-fortu-dark'"
+    :class="isLight ? 'bg-fortu-off-white' : 'bg-fortu-dark'"
   >
     <div class="mx-auto px-4 md:px-16">
       <!-- Section Header -->
       <div v-if="compare.heading || compare.subheading" class="text-center mb-8 md:mb-16">
-        <h2 
-          v-if="compare.heading" 
-          class="text-3xl md:text-7xl font-medium mb-4 tracking-tight"
-          :class="compare.backgroundColor === 'light' ? 'text-fortu-dark' : 'text-fortu-off-white'"
-        >
+        <h2 v-if="compare.heading" class="text-3xl md:text-7xl font-medium mb-4 tracking-tight" :class="th.title">
           {{ compare.heading }}
         </h2>
-        <p 
-          v-if="compare.subheading" 
-          class="text-lg"
-          :class="compare.backgroundColor === 'light' ? 'text-fortu-medium' : 'text-fortu-light'"
-        >
+        <p v-if="compare.subheading" class="text-lg" :class="th.sub">
           {{ compare.subheading }}
         </p>
       </div>
 
-      <!-- Mobile Product Selectors -->
-      <div v-if="compare.products.length > 2" class="md:hidden flex gap-4 mb-8">
-        <div class="flex-1">
-          <select
-            v-model="mobileSelection[0]"
-            class="w-full px-4 py-3 rounded-lg text-sm font-medium appearance-none cursor-pointer"
-            :class="compare.backgroundColor === 'light' 
-              ? 'bg-white border border-fortu-light/50 text-fortu-dark' 
-              : 'bg-fortu-medium/20 border border-fortu-medium/30 text-fortu-off-white'"
-          >
-            <option 
-              v-for="(item, idx) in compare.products" 
-              :key="idx" 
-              :label="item.product.name"
-              :value="idx"
-              :disabled="idx === mobileSelection[1]"
+      <!-- Phones and tablets: two products side by side -->
+      <div class="cmp-fade lg:hidden">
+        <div v-if="columns.length > 2" class="flex flex-col gap-3 mb-8 max-w-md mx-auto">
+          <p class="text-center text-base" :class="th.sub">Bandingkan dua produk</p>
+          <div v-for="slot in [0, 1]" :key="slot" class="select-wrap">
+            <select
+              v-model.number="mobileSelection[slot]"
+              :aria-label="`Produk ${slot + 1}`"
+              class="w-full h-[52px] pl-4 pr-10 rounded-xl text-base font-medium appearance-none cursor-pointer"
+              :class="th.select"
             >
-              {{ item.product.name }}
-            </option>
-          </select>
-        </div>
-        <div class="flex-1">
-          <select
-            v-model="mobileSelection[1]"
-            class="w-full px-4 py-3 rounded-lg text-sm font-medium appearance-none cursor-pointer"
-            :class="compare.backgroundColor === 'light' 
-              ? 'bg-white border border-fortu-light/50 text-fortu-dark' 
-              : 'bg-fortu-medium/20 border border-fortu-medium/30 text-fortu-off-white'"
-          >
-            <option 
-              v-for="(item, idx) in compare.products" 
-              :key="idx" 
-              :value="idx"
-              :disabled="idx === mobileSelection[0]"
-            >
-              {{ item.product.name }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Desktop Product Selectors (when more than 3 products) -->
-      <div v-if="compare.products.length > 3" class="hidden md:flex gap-4 mb-8 justify-center">
-        <div class="w-64">
-          <select
-            v-model="desktopSelection[0]"
-            class="w-full px-4 py-3 rounded-lg text-sm font-medium appearance-none cursor-pointer"
-            :class="compare.backgroundColor === 'light' 
-              ? 'bg-white border border-fortu-light/50 text-fortu-dark' 
-              : 'bg-fortu-medium/20 border border-fortu-medium/30 text-fortu-off-white'"
-          >
-            <option 
-              v-for="(item, idx) in compare.products" 
-              :key="idx" 
-              :value="idx"
-              :disabled="idx === desktopSelection[1] || idx === desktopSelection[2]"
-            >
-              {{ item.product.name }}
-            </option>
-          </select>
-        </div>
-        <div class="w-64">
-          <select
-            v-model="desktopSelection[1]"
-            class="w-full px-4 py-3 rounded-lg text-sm font-medium appearance-none cursor-pointer"
-            :class="compare.backgroundColor === 'light' 
-              ? 'bg-white border border-fortu-light/50 text-fortu-dark' 
-              : 'bg-fortu-medium/20 border border-fortu-medium/30 text-fortu-off-white'"
-          >
-            <option 
-              v-for="(item, idx) in compare.products" 
-              :key="idx" 
-              :value="idx"
-              :disabled="idx === desktopSelection[0] || idx === desktopSelection[2]"
-            >
-              {{ item.product.name }}
-            </option>
-          </select>
-        </div>
-        <div class="w-64">
-          <select
-            v-model="desktopSelection[2]"
-            class="w-full px-4 py-3 rounded-lg text-sm font-medium appearance-none cursor-pointer"
-            :class="compare.backgroundColor === 'light' 
-              ? 'bg-white border border-fortu-light/50 text-fortu-dark' 
-              : 'bg-fortu-medium/20 border border-fortu-medium/30 text-fortu-off-white'"
-          >
-            <option 
-              v-for="(item, idx) in compare.products" 
-              :key="idx" 
-              :value="idx"
-              :disabled="idx === desktopSelection[0] || idx === desktopSelection[1]"
-            >
-              {{ item.product.name }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Product Comparison Grid - Desktop -->
-      <div class="hidden md:grid gap-8" :class="gridColsDesktop">
-        <div 
-          v-for="selectedIdx in desktopProductsToShow" 
-          :key="selectedIdx"
-          class="product-column text-center"
-        >
-          <template v-if="compare.products[selectedIdx]">
-          <!-- Product Image -->
-          <div class="relative mb-6">
-            <div class="relative max-w-[280px] mx-auto mb-4 aspect-square">
-              <img
-                  v-if="getProductImage(compare.products[selectedIdx])"
-                  :src="getProductImage(compare.products[selectedIdx]) ?? undefined"
-                  :alt="compare.products[selectedIdx].product.name"
-                loading="lazy"
-                decoding="async"
-                width="560"
-                height="560"
-                class="w-full h-full object-contain rounded-lg"
-              />
-            </div>
+              <option
+                v-for="(c, idx) in columns"
+                :key="c.id"
+                :value="idx"
+                :disabled="idx === mobileSelection[slot === 0 ? 1 : 0]"
+              >
+                {{ c.name }}{{ c.soon ? ' (segera)' : '' }}
+              </option>
+            </select>
           </div>
+        </div>
 
-          <!-- Product Info -->
-          <div class="mb-6">
-            <h3 
-              class="text-2xl font-medium mb-2"
-              :class="compare.backgroundColor === 'light' ? 'text-fortu-dark' : 'text-fortu-off-white'"
-            >
-                {{ compare.products[selectedIdx].product.name }}
-            </h3>
-            <p 
-                v-if="compare.products[selectedIdx].product.description" 
-              class="text-sm mb-4 line-clamp-2 max-w-[20rem] mx-auto"
-              :class="compare.backgroundColor === 'light' ? 'text-fortu-medium' : 'text-fortu-light'"
-            >
-                {{ compare.products[selectedIdx].product.description }}
-            </p>
-            
-              <div class="flex justify-center gap-3">
-                <Button
-                  v-if="compare.products[selectedIdx].product.slug?.current"
-                  :to="`/products/${compare.products[selectedIdx].product.slug.current}`"
-                  :variant="compare.backgroundColor === 'light' ? 'primary' : 'secondary'"
-                  size="sm"
-                >
-                  {{ compare.products[selectedIdx].ctaLabel || 'Pelajari Lebih Lanjut' }}
-                </Button>
-              </div>
-          </div>
-
-          <!-- Specs Divider -->
-          <div 
-            class="border-t my-8"
-            :class="compare.backgroundColor === 'light' ? 'border-fortu-light/50' : 'border-fortu-medium/30'"
-          />
-
-          <!-- Specifications (from product) -->
-            <div v-if="compare.products[selectedIdx].product.specs && compare.products[selectedIdx].product.specs.length > 0" class="space-y-6">
-            <div 
-                v-for="(spec, specIndex) in compare.products[selectedIdx].product.specs" 
-              :key="spec._key || specIndex"
-              class="spec-item"
-            >
-              <div class="flex justify-center mb-2">
-                <div 
-                  class="w-12 h-12 rounded-full flex items-center justify-center"
-                  :class="compare.backgroundColor === 'light' ? 'bg-fortu-light/30' : 'bg-fortu-medium/20'"
-                >
-                  <CompareIcon 
-                    :icon="spec.icon || 'check'" 
-                    :class="compare.backgroundColor === 'light' ? 'text-fortu-dark' : 'text-fortu-off-white'"
-                  />
+        <table class="w-full table-fixed border-collapse">
+          <caption class="sr-only">Perbandingan dua produk Fortu</caption>
+          <thead>
+            <tr>
+              <th v-for="c in mobileCols" :key="c.id" scope="col" class="px-1.5 pb-6 align-top font-normal">
+                <div class="pimg h-[150px] mb-3" :class="[th.panel, { 'is-soon': c.soon }]">
+                  <img v-if="c.image" :src="c.image" :alt="c.name" loading="lazy" decoding="async" width="320" height="320" />
+                  <img v-else-if="c.soon" src="/products/videotron.svg" :alt="`${c.name}, segera hadir`" loading="lazy" width="320" height="240" class="soon-art" />
                 </div>
-              </div>
-              
-              <p 
-                class="font-medium text-md"
-                :class="compare.backgroundColor === 'light' ? 'text-fortu-dark' : 'text-fortu-off-white'"
-              >
-                {{ spec.label }}
-              </p>
-              <p 
-                v-if="spec.value" 
-                class="text-sm mt-1"
-                :class="compare.backgroundColor === 'light' ? 'text-fortu-medium' : 'text-fortu-light'"
-              >
-                {{ spec.value }}
-              </p>
-            </div>
-          </div>
-          </template>
-        </div>
-      </div>
-
-      <!-- Product Comparison Grid - Mobile (2 columns) -->
-      <div class="md:hidden grid grid-cols-2 gap-4 items-start">
-        <div 
-          v-for="selectedIdx in mobileProductsToShow" 
-          :key="selectedIdx"
-          class="product-column text-center flex flex-col"
-        >
-          <template v-if="compare.products[selectedIdx]">
-            <!-- Product Image -->
-            <div class="relative mb-4">
-              <div class="relative max-w-[140px] mx-auto mb-2 aspect-square">
-                <img
-                  v-if="getProductImage(compare.products[selectedIdx])"
-                  :src="getProductImage(compare.products[selectedIdx]) ?? undefined"
-                  :alt="compare.products[selectedIdx].product.name"
-                  loading="lazy"
-                  decoding="async"
-                  width="280"
-                  height="280"
-                  class="w-full h-full object-contain rounded-lg"
-                />
-              </div>
-            </div>
-
-            <!-- Product Info -->
-            <div class="mb-4 flex flex-col">
-              <h3 
-                class="text-base font-medium mb-1 min-h-[3rem] flex items-start justify-center text-center"
-                :class="compare.backgroundColor === 'light' ? 'text-fortu-dark' : 'text-fortu-off-white'"
-              >
-                {{ compare.products[selectedIdx].product.name }}
-              </h3>
-              
-              <div class="flex justify-center mt-auto">
-                <Button
-                  v-if="compare.products[selectedIdx].product.slug?.current"
-                  :to="`/products/${compare.products[selectedIdx].product.slug.current}`"
-                  :variant="compare.backgroundColor === 'light' ? 'primary' : 'inverted'"
-                  size="sm"
-                >
-                  {{ compare.products[selectedIdx].ctaLabel || 'Pelajari Lebih Lanjut' }}
-                </Button>
-              </div>
-            </div>
-
-            <!-- Specs Divider -->
-            <div 
-              class="border-t my-4"
-              :class="compare.backgroundColor === 'light' ? 'border-fortu-light/50' : 'border-fortu-medium/30'"
-            />
-
-            <!-- Specifications (from product) -->
-            <div v-if="compare.products[selectedIdx].product.specs && compare.products[selectedIdx].product.specs.length > 0" class="space-y-4">
-              <div 
-                v-for="(spec, specIndex) in compare.products[selectedIdx].product.specs" 
-                :key="spec._key || specIndex"
-                class="spec-item"
-              >
-                <div class="flex justify-center mb-1">
-                  <div 
-                    class="w-8 h-8 rounded-full flex items-center justify-center"
-                    :class="compare.backgroundColor === 'light' ? 'bg-fortu-light/30' : 'bg-fortu-medium/20'"
-                  >
-                    <CompareIcon 
-                      :icon="spec.icon || 'check'" 
-                      class="w-4 h-4"
-                      :class="compare.backgroundColor === 'light' ? 'text-fortu-dark' : 'text-fortu-off-white'"
-                    />
-                  </div>
+                <p class="text-center text-[17px] font-medium leading-tight min-h-[2.6rem]" :class="th.title">{{ c.name }}</p>
+                <div class="mt-3 text-center">
+                  <Button v-if="!c.soon && c.slug" :to="`/products/${c.slug}`" :variant="th.cta" size="md" class="!px-4 !py-3 !text-sm">
+                    {{ c.cta }}
+                  </Button>
+                  <span v-else class="soon-pill !h-11 !px-4 !text-sm" :class="th.pill">Segera hadir</span>
                 </div>
-                
-                <p 
-                  class="font-medium text-xs"
-                  :class="compare.backgroundColor === 'light' ? 'text-fortu-dark' : 'text-fortu-off-white'"
-                >
-                  {{ spec.label }}
-                </p>
-                <p 
-                  v-if="spec.value" 
-                  class="text-xs mt-0.5"
-                  :class="compare.backgroundColor === 'light' ? 'text-fortu-medium' : 'text-fortu-light'"
-                >
-                  {{ spec.value }}
-                </p>
-              </div>
-            </div>
-          </template>
-        </div>
-        
+              </th>
+            </tr>
+          </thead>
+          <tbody v-for="r in mobileRows" :key="r.key">
+            <tr>
+              <th scope="rowgroup" colspan="2" class="border-t pt-4 pb-2 text-center text-xs font-normal uppercase tracking-[0.14em]" :class="[th.line, th.rowLabel]">
+                {{ r.label }}
+              </th>
+            </tr>
+            <tr>
+              <td v-for="i in mobileIdx" :key="i" class="px-1.5 pb-4 text-center text-base leading-snug" :class="r.cells[i] ? th.value : th.na">
+                <template v-if="r.cells[i]">{{ r.cells[i] }}</template>
+                <template v-else><span aria-hidden="true">—</span><span class="sr-only">Tidak tersedia</span></template>
+              </td>
+            </tr>
+          </tbody>
+          <tbody v-if="mobileExtras">
+            <tr>
+              <th scope="rowgroup" colspan="2" class="border-t pt-4 pb-2 text-center text-xs font-normal uppercase tracking-[0.14em]" :class="[th.line, th.rowLabel]">
+                Fitur lain
+              </th>
+            </tr>
+            <tr>
+              <td v-for="i in mobileIdx" :key="i" class="px-1.5 pb-4 text-center text-[15px] leading-snug" :class="extraCells[i].length ? th.value : th.na">
+                <template v-if="extraCells[i].length">{{ extraCells[i].join(', ') }}</template>
+                <template v-else><span aria-hidden="true">—</span><span class="sr-only">Tidak tersedia</span></template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+
+      <!-- Desktop: every product in one table, spec rows lined up across the columns -->
+      <table class="cmp-fade hidden lg:table w-full table-fixed border-collapse">
+        <caption class="sr-only">Perbandingan produk Fortu</caption>
+        <colgroup>
+          <col class="w-[150px] xl:w-[188px]" />
+          <col v-for="c in columns" :key="c.id" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col" class="p-0"><span class="sr-only">Spesifikasi</span></th>
+            <th v-for="c in columns" :key="c.id" scope="col" class="px-2.5 pb-7 align-top font-normal">
+              <div class="pimg h-[190px] xl:h-[210px] mb-5" :class="[th.panel, { 'is-soon': c.soon }]">
+                <img v-if="c.image" :src="c.image" :alt="c.name" loading="lazy" decoding="async" width="560" height="560" />
+                <img v-else-if="c.soon" src="/products/videotron.svg" :alt="`${c.name}, segera hadir`" loading="lazy" width="560" height="420" class="soon-art" />
+              </div>
+              <p class="text-center text-xl xl:text-[22px] font-medium leading-tight tracking-tight min-h-[3.1rem]" :class="th.title">
+                {{ c.name }}
+              </p>
+              <div class="mt-3.5 text-center">
+                <Button v-if="!c.soon && c.slug" :to="`/products/${c.slug}`" :variant="th.cta" size="md">
+                  {{ c.cta }}
+                </Button>
+                <span v-else class="soon-pill" :class="th.pill">Segera hadir</span>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="r in rows" :key="r.key">
+            <th scope="row" class="border-t py-5 pr-3 text-left text-base xl:text-lg font-normal" :class="[th.line, th.rowLabel]">
+              {{ r.label }}
+            </th>
+            <td v-for="(cell, i) in r.cells" :key="i" class="border-t px-3 py-5 text-center text-base xl:text-lg leading-snug" :class="[th.line, cell ? th.value : th.na]">
+              <template v-if="cell">{{ cell }}</template>
+              <template v-else><span aria-hidden="true">—</span><span class="sr-only">Tidak tersedia</span></template>
+            </td>
+          </tr>
+          <tr v-if="hasExtras">
+            <th scope="row" class="border-t py-5 pr-3 text-left text-base xl:text-lg font-normal" :class="[th.line, th.rowLabel]">Fitur lain</th>
+            <td v-for="(list, i) in extraCells" :key="i" class="border-t px-3 py-5 text-center text-[15px] xl:text-base leading-snug" :class="[th.line, list.length ? th.value : th.na]">
+              <template v-if="list.length">{{ list.join(', ') }}</template>
+              <template v-else><span aria-hidden="true">—</span><span class="sr-only">Tidak tersedia</span></template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
       <RouterLink
-          to="/products"
-          class="inline-block mx-auto mt-24 w-full text-center text-sm font-medium underline underline-offset-4 transition-opacity hover:opacity-70"
-          :class="compare.backgroundColor === 'light' ? 'text-fortu-dark' : 'text-fortu-off-white'"
-        >
-          Lihat Semua Produk
-        </RouterLink>
+        to="/products"
+        class="inline-block mx-auto mt-14 md:mt-20 w-full text-center text-base font-medium underline underline-offset-4 transition-opacity hover:opacity-70"
+        :class="th.link"
+      >
+        Lihat Semua Produk
+      </RouterLink>
     </div>
-    
   </section>
 
   <!-- Loading State -->
@@ -325,106 +149,144 @@
       <div class="w-8 h-8 border-2 border-fortu-off-white border-t-transparent rounded-full animate-spin"></div>
     </div>
   </section>
-
-  <SectionSkeleton v-else-if="loading" min-height="min-h-[70vh]" :cards="2" />
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { client, urlFor } from '@/sanity/client'
-import { PRODUCT_COMPARE_QUERY, type ProductCompare, type ProductCompareItem } from '@/sanity/queries'
+import { PRODUCT_COMPARE_QUERY, type ProductCompare, type ProductCompareItem, type ProductSpec } from '@/sanity/queries'
 import { IMAGE_CONFIG } from '@/config/image'
-import CompareIcon from '@/components/CompareIcon.vue'
 import Button from '@/reusables/Button.vue'
-import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const compare = ref<ProductCompare | null>(null)
 const loading = ref(true)
-const mobileSelection = ref<number[]>([0, 1])
-const desktopSelection = ref<number[]>([0, 1, 2])
 
-// Initialize desktop selection based on product count
-const initializeDesktopSelection = () => {
-  const count = compare.value?.products?.length || 0
-  if (count === 0) {
-    desktopSelection.value = []
-  } else if (count === 1) {
-    desktopSelection.value = [0]
-  } else if (count === 2) {
-    desktopSelection.value = [0, 1]
-  } else {
-    // For 3+ products, default to first 3
-    desktopSelection.value = [0, 1, 2].filter(i => i < count)
-  }
+// Four products fit side by side from 1280px; phones compare two at a time
+const MAX_COLUMNS = 4
+const mobileSelection = ref<number[]>([0, 1])
+
+const isLight = computed(() => compare.value?.backgroundColor === 'light')
+
+// Colour classes for the light and dark section backgrounds
+const th = computed(() =>
+  isLight.value
+    ? {
+        title: 'text-fortu-dark',
+        sub: 'text-fortu-medium',
+        rowLabel: 'text-fortu-medium',
+        value: 'text-fortu-dark',
+        na: 'text-fortu-medium',
+        line: 'border-fortu-dark/15',
+        cta: 'primary' as const,
+        pill: 'border-fortu-dark/30 text-fortu-medium',
+        select: 'bg-white border border-fortu-light/50 text-fortu-dark',
+        panel: 'pimg-light',
+        link: 'text-fortu-dark',
+      }
+    : {
+        title: 'text-fortu-off-white',
+        sub: 'text-fortu-light',
+        rowLabel: 'text-fortu-light',
+        value: 'text-fortu-off-white',
+        na: 'text-fortu-medium',
+        line: 'border-fortu-light/20',
+        cta: 'inverted' as const,
+        pill: 'border-fortu-light/45 text-fortu-light',
+        select: 'bg-fortu-medium/20 border border-fortu-medium/30 text-fortu-off-white',
+        panel: 'pimg-dark',
+        link: 'text-fortu-off-white',
+      },
+)
+
+interface Column {
+  id: string
+  name: string
+  slug: string | null
+  soon: boolean
+  image: string | null
+  cta: string
+  all: ProductSpec[]
+  specs: Map<string, ProductSpec>
 }
 
-const desktopProductsToShow = computed(() => {
-  const count = compare.value?.products?.length || 0
-  if (count === 0) return []
-  if (count <= 3) {
-    // Show all products if 3 or fewer
-    return Array.from({ length: count }, (_, i) => i)
-  }
-  // Show selected products (up to 3)
-  return desktopSelection.value.filter(idx => idx < count && idx >= 0)
-})
+const norm = (s: string) => s.trim().toLowerCase()
 
-const gridColsDesktop = computed(() => {
-  const count = desktopProductsToShow.value.length
-  if (count === 1) return 'grid-cols-1 max-w-md mx-auto'
-  if (count === 2) return 'grid-cols-2 max-w-4xl mx-auto'
-  return 'grid-cols-3'
-})
-
-const mobileProductsToShow = computed(() => {
-  const count = compare.value?.products?.length || 0
-  if (count <= 2) {
-    return [0, 1].filter(i => i < count)
-  }
-  return mobileSelection.value
-})
-
-const getProductImage = (item: ProductCompareItem): string | null => {
-  // Priority 1: Use compareImage if available
-  if (item.compareImage?.asset) {
-    if (item.compareImage.asset.url) {
-      return item.compareImage.asset.url
-    }
-    try {
-      const builder = urlFor(item.compareImage.asset).width(560).height(560).quality(IMAGE_CONFIG.quality)
-      return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
-    } catch {
-      // Fall through to product images
-    }
-  }
-  
-  // Priority 2: Fallback to first product image
-  const images = item.product?.images
-  if (!images || images.length === 0) return null
-  
-  // Always use the first image (index 0)
-  const image = images[0]
-  
-  if (!image?.asset) return null
-  
-  if (image.asset.url) {
-    return image.asset.url
-  }
-  
+const imageOf = (item: ProductCompareItem): string | null => {
+  // Priority 1: the image picked for the comparison; priority 2: the first product image
+  const source = item.compareImage?.asset ? item.compareImage.asset : item.product?.images?.[0]?.asset
+  if (!source) return null
   try {
-    const builder = urlFor(image.asset).width(560).height(560).quality(IMAGE_CONFIG.quality)
+    const builder = urlFor(source).width(640).quality(IMAGE_CONFIG.quality)
     return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
   } catch {
-    return null
+    return source.url || null
   }
 }
 
+const columns = computed<Column[]>(() =>
+  (compare.value?.products || [])
+    .filter((item) => item.product)
+    .slice(0, MAX_COLUMNS)
+    .map((item) => {
+      const all = item.product.specs || []
+      return {
+        id: item.product._id,
+        name: item.product.name,
+        slug: item.product.slug?.current || null,
+        soon: item.product.status === 'coming_soon',
+        image: imageOf(item),
+        cta: item.ctaLabel || 'Pelajari Lebih Lanjut',
+        all,
+        specs: new Map(all.map((s) => [norm(s.label), s])),
+      }
+    }),
+)
+
+// A spec that has a label but no value (e.g. "Audio Stereo") is simply "yes"
+const cellOf = (spec?: ProductSpec): string | null => (spec ? spec.value?.trim() || '✓' : null)
+
+/**
+ * Rows of the comparison: the specs that at least two products have (in the order they first
+ * appear), so every row lines up across the columns. Everything else goes into "Fitur lain".
+ */
+const rows = computed(() => {
+  const cols = columns.value
+  const need = Math.min(2, cols.filter((c) => c.all.length).length)
+  if (!need) return []
+  const seen = new Map<string, { label: string; count: number }>()
+  for (const c of cols) {
+    for (const s of c.all) {
+      const key = norm(s.label)
+      const entry = seen.get(key) || { label: s.label, count: 0 }
+      entry.count++
+      seen.set(key, entry)
+    }
+  }
+  return [...seen.entries()]
+    .filter(([, entry]) => entry.count >= need)
+    .map(([key, entry]) => ({ key, label: entry.label, cells: cols.map((c) => cellOf(c.specs.get(key))) }))
+})
+
+const extraCells = computed(() => {
+  const common = new Set(rows.value.map((r) => r.key))
+  return columns.value.map((c) =>
+    c.all.filter((s) => !common.has(norm(s.label))).map((s) => (s.value ? `${s.label}: ${s.value}` : s.label)),
+  )
+})
+const hasExtras = computed(() => extraCells.value.some((list) => list.length))
+
+// Phones: the two chosen products (or all of them when there are only two)
+const mobileIdx = computed(() =>
+  columns.value.length <= 2 ? columns.value.map((_, i) => i) : mobileSelection.value.filter((i) => columns.value[i]),
+)
+const mobileCols = computed(() => mobileIdx.value.map((i) => columns.value[i]))
+const mobileRows = computed(() => rows.value.filter((r) => mobileIdx.value.some((i) => r.cells[i])))
+const mobileExtras = computed(() => mobileIdx.value.some((i) => extraCells.value[i]?.length))
 
 onMounted(async () => {
   try {
     compare.value = await client.fetch(PRODUCT_COMPARE_QUERY)
-    initializeDesktopSelection()
   } catch (e) {
     console.error('Failed to fetch product comparison:', e)
   } finally {
@@ -434,23 +296,9 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.cmp-fade {
+  animation: fadeIn 0.6s ease-out both;
 }
-
-.product-column {
-  animation: fadeIn 0.6s ease-out forwards;
-  opacity: 0;
-}
-
-.product-column:nth-child(1) { animation-delay: 0s; }
-.product-column:nth-child(2) { animation-delay: 0.15s; }
-.product-column:nth-child(3) { animation-delay: 0.3s; }
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -458,16 +306,66 @@ onMounted(async () => {
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
-/* Custom select arrow */
-select {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%237D7D7D' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 0.75rem center;
-  background-repeat: no-repeat;
-  background-size: 1.25em 1.25em;
-  padding-right: 2.5rem;
+.pimg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 22px;
+}
+.pimg img {
+  max-width: 84%;
+  max-height: 84%;
+  object-fit: contain;
+}
+.pimg-dark {
+  background: radial-gradient(circle at 50% 38%, rgba(249, 249, 249, 0.12), rgba(249, 249, 249, 0.03));
+}
+.pimg-light {
+  background: radial-gradient(circle at 50% 38%, rgba(16, 17, 17, 0.07), rgba(16, 17, 17, 0.02));
+}
+.pimg.is-soon {
+  border: 1px dashed rgba(125, 125, 125, 0.55);
+}
+.pimg .soon-art {
+  max-width: 78%;
+}
+
+.soon-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 9999px;
+  border-width: 1px;
+  border-style: solid;
+  font-size: 1rem;
+}
+
+.select-wrap {
+  position: relative;
+}
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -6px;
+  border-right: 2px solid #bfbfbf;
+  border-bottom: 2px solid #bfbfbf;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmp-fade {
+    animation: none;
+  }
 }
 </style>

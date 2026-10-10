@@ -61,17 +61,58 @@ export default defineType({
       group: 'basic',
       description: 'Angka kecil tampil lebih dulu. Studi kasus yang tayang selalu tampil sebelum yang "segera hadir".',
     }),
-    defineField({name: 'summary', title: 'Ringkasan (1-2 kalimat)', type: 'text', rows: 3, group: 'story', validation: (Rule) => Rule.max(280)}),
-    defineField({name: 'challenge', title: 'Tantangan', type: 'text', rows: 4, group: 'story', description: 'Latar belakang dan kebutuhan klien.'}),
+    defineField({
+      name: 'featured',
+      title: 'Tampilkan di slider beranda',
+      type: 'boolean',
+      group: 'basic',
+      initialValue: false,
+      description:
+        'Slider "Kreativitas tanpa Batas" di beranda menampilkan maksimal 8 studi kasus unggulan, berurutan sesuai "Urutan di beranda". Jika belum ada yang dicentang, beranda menampilkan 8 pertama. Studi kasus lain tetap ada di halaman Studi Kasus.',
+      validation: (Rule) =>
+        Rule.custom(async (value, context) => {
+          if (!value) return true
+          const client = context.getClient({apiVersion: '2024-01-01'})
+          const id = (context.document?._id || '').replace(/^drafts\./, '')
+          const others = await client.fetch(
+            'count(*[_type == "caseStudy" && featured == true && !(_id in [$id, "drafts." + $id])])',
+            {id},
+          )
+          return others >= 8 ? 'Sudah ada 8 studi kasus di slider beranda. Matikan salah satunya dulu.' : true
+        }),
+    }),
+    defineField({
+      name: 'tags',
+      title: 'Label topik',
+      type: 'array',
+      group: 'basic',
+      of: [{type: 'string'}],
+      options: {layout: 'tags'},
+      description: 'Opsional. Tampil sebagai label kecil di halaman studi kasus, mis. Informasi pasien, Antrean.',
+    }),
+    defineField({
+      name: 'headline',
+      title: 'Judul cerita',
+      type: 'string',
+      group: 'story',
+      description:
+        'Satu kalimat yang menyebut hasilnya, mis. "San Medical Center menampilkan jadwal dokter di lobi lift". Jadi keterangan di bawah kartu dan judul halaman. Kosongkan untuk memakai jenis proyek dan nama klien.',
+      validation: (Rule) => Rule.max(110),
+    }),
+    defineField({name: 'summary', title: 'Ringkasan (1-2 kalimat)', type: 'text', rows: 3, group: 'story', description: 'Tampil sebagai paragraf pembuka halaman studi kasus.', validation: (Rule) => Rule.max(280)}),
+    defineField({name: 'background', title: 'Latar belakang klien', type: 'text', rows: 4, group: 'story', description: 'Siapa klien ini dan apa yang mereka kerjakan.'}),
+    defineField({name: 'challenge', title: 'Tantangan', type: 'text', rows: 4, group: 'story', description: 'Kebutuhan klien dan masalah yang ingin diselesaikan.'}),
     defineField({name: 'solution', title: 'Solusi Fortu', type: 'text', rows: 4, group: 'story'}),
     defineField({name: 'result', title: 'Hasil', type: 'text', rows: 4, group: 'story', description: 'Tulis hanya hasil yang benar dan boleh dipublikasikan.'}),
+    defineField({name: 'spokespersonName', title: 'Narasumber: nama (opsional)', type: 'string', group: 'story', description: 'Hanya jika klien mengizinkan nama dan jabatannya ditampilkan.'}),
+    defineField({name: 'spokespersonRole', title: 'Narasumber: jabatan (opsional)', type: 'string', group: 'story'}),
     defineField({
       name: 'coverImage',
       title: 'Foto utama',
       type: 'image',
       group: 'media',
       options: {hotspot: true},
-      description: 'Muncul saat kartu di-hover dan di bagian atas halaman studi kasus.',
+      description: 'Foto di kartu slider beranda, halaman daftar, dan bagian atas halaman studi kasus. Disarankan foto landscape berukuran minimal 1600 px.',
       fields: [
         defineField({
           name: 'alt',
@@ -102,10 +143,10 @@ export default defineType({
   ],
   orderings: [{title: 'Urutan', name: 'orderAsc', by: [{field: 'order', direction: 'asc'}]}],
   preview: {
-    select: {title: 'clientName', status: 'status', media: 'coverImage', industry: 'industry'},
-    prepare: ({title, status, media, industry}) => ({
+    select: {title: 'clientName', status: 'status', media: 'coverImage', industry: 'industry', featured: 'featured'},
+    prepare: ({title, status, media, industry, featured}) => ({
       title,
-      subtitle: `${status === 'published' ? 'Tayang' : 'Segera hadir'}${industry ? ' · ' + industry : ''}`,
+      subtitle: `${status === 'published' ? 'Tayang' : 'Segera hadir'}${industry ? ' · ' + industry : ''}${featured ? ' · Slider beranda' : ''}`,
       media,
     }),
   },

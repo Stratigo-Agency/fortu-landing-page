@@ -58,12 +58,28 @@ export default defineType({
             defineField({name: 'name', title: 'Office / Building Name', type: 'string', description: 'Contoh: Fortu Digital Teknologi, Menara Electric'}),
             defineField({name: 'address', title: 'Full Address', type: 'text', rows: 3}),
             defineField({name: 'phone', title: 'Phone (optional)', type: 'string'}),
+            defineField({
+              name: 'phoneType',
+              title: 'Phone Type (jenis nomor)',
+              type: 'string',
+              description:
+                'WhatsApp = nomor kantor ini terdaftar di WhatsApp: tampil logo WhatsApp dan membuka WhatsApp. Telepon biasa = tampil ikon telepon dan membuka panggilan. Jenisnya tidak bisa ditebak dari nomornya, jadi pilih sesuai kenyataan.',
+              options: {
+                list: [
+                  {title: 'WhatsApp', value: 'whatsapp'},
+                  {title: 'Telepon biasa', value: 'phone'},
+                ],
+                layout: 'radio',
+              },
+              initialValue: 'phone',
+            }),
             defineField({name: 'mapsUrl', title: 'Google Maps Link', type: 'url', description: 'Link "Bagikan" dari Google Maps (maps.app.goo.gl/...).'}),
             defineField({
               name: 'mapsEmbed',
               title: 'Google Maps Embed URL',
               type: 'url',
-              description: 'Dari Google Maps > Bagikan > Sematkan peta: salin isi src="..." dari iframe. Link pendek maps.app.goo.gl tidak bisa dipakai di sini.',
+              description:
+                'Dari Google Maps > Bagikan > Sematkan peta: salin isi src="..." dari iframe. Link pendek maps.app.goo.gl tidak bisa dipakai di sini. Website selalu menampilkan peta biasa (bukan satelit), apa pun tampilan saat disalin.',
             }),
             defineField({name: 'latitude', title: 'Latitude', type: 'number'}),
             defineField({name: 'longitude', title: 'Longitude', type: 'number'}),
