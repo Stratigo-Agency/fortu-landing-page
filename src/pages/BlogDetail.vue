@@ -175,6 +175,7 @@
 import { focalStyle, ogImageUrl } from '@/utils/image'
 import { postCoverUrl } from '@/utils/blog'
 import { useSeo } from '@/composables/useSeo'
+import { fitTitle, trimTo } from '@/utils/seo'
 import { useJsonLd } from '@/composables/useJsonLd'
 import { breadcrumbs, blogPostingSchema } from '@/utils/structuredData'
 import { ref, computed, onMounted, watch } from 'vue'
@@ -271,13 +272,11 @@ watch(
   },
 )
 
-const trimTo = (text: string, max: number) =>
-  text.length <= max ? text : text.slice(0, max - 1).replace(/\s+\S*$/, '') + '…'
 
 useSeo(() => {
   const p = post.value
   return {
-    title: p ? trimTo(`${p.seoTitle || p.title} | Fortu Digital`, 70) : 'Blog | Fortu Digital',
+    title: p ? (p.seoTitle?.trim() || fitTitle(p.title)) : 'Blog | Fortu Digital',
     description: p ? trimTo((p.seoDescription || p.excerpt || '').trim(), 155) || undefined : undefined,
     image: shareImageUrl.value ?? coverImageUrl.value ?? undefined,
     type: 'article',

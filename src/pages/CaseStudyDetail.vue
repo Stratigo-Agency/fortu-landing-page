@@ -125,6 +125,7 @@ import { fetchSanity } from '@/sanity/fetch'
 import { CASE_STUDY_BY_SLUG_QUERY, CASE_STUDIES_QUERY, type CaseStudy, type CaseStudyListItem } from '@/sanity/queries'
 import { logoSrc, imageUrl } from '@/utils/caseStudy'
 import { useSeo } from '@/composables/useSeo'
+import { fitTitle, trimTo } from '@/utils/seo'
 import { useJsonLd } from '@/composables/useJsonLd'
 import { useContactChooser } from '@/composables/useContactChooser'
 import { breadcrumbs, caseStudySchema } from '@/utils/structuredData'
@@ -177,13 +178,12 @@ const gallery = computed(() =>
     .filter((g): g is { _key: string | undefined; url: string; alt: string; caption: string | undefined } => !!g.url),
 )
 
-const trimTo = (t: string, max: number) => (t.length <= max ? t : t.slice(0, max - 1).replace(/\s+\S*$/, '') + '…')
 
 useSeo(() => {
   const s = study.value
   return {
     title: s
-      ? trimTo(s.seoTitle?.trim() || `Studi Kasus ${s.clientName} | Fortu Digital`, 70)
+      ? (s.seoTitle?.trim() || fitTitle(`Studi Kasus ${s.clientName}`))
       : 'Studi Kasus | Fortu Digital',
     description: s ? trimTo((s.seoDescription || [s.projectType ? `${s.projectType} untuk ${s.clientName}.` : '', s.summary || ''].join(' ')).trim(), 155) || undefined : undefined,
     image: imageUrl(s?.shareImage as never, 1200, 630) || cover.value || undefined,

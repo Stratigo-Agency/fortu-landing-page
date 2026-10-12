@@ -13,7 +13,7 @@ export const seoFields = (opts: {withTitleDescription?: boolean} = {withTitleDes
           description:
             'Judul di tab browser dan hasil Google. Maksimal ~60 karakter, sertakan kata kunci utama halaman. Kosongkan untuk memakai judul bawaan.',
           validation: (Rule) =>
-            Rule.max(70).warning('Lebih dari ~60 karakter akan terpotong di hasil Google.'),
+            Rule.max(60).warning('Lebih dari 60 karakter akan terpotong di hasil Google, dan pengecekan SEO otomatis akan gagal.'),
         }),
         defineField({
           name: 'seoDescription',
