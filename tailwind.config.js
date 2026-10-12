@@ -7,14 +7,15 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        sans: ['var(--font-sans)'],
       },
       colors: {
         fortu: {
-          dark: '#101111',
-          medium: '#7D7D7D',
-          light: '#BFBFBF',
-          'off-white': '#F9F9F9',
+          dark: 'rgb(var(--fortu-dark) / <alpha-value>)',
+          'dark-raised': 'rgb(var(--fortu-dark-raised) / <alpha-value>)',
+          medium: 'rgb(var(--fortu-medium) / <alpha-value>)',
+          light: 'rgb(var(--fortu-light) / <alpha-value>)',
+          'off-white': 'rgb(var(--fortu-off-white) / <alpha-value>)',
         },
       },
     },

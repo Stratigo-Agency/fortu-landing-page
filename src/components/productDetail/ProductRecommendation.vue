@@ -23,11 +23,11 @@
 </template>
 
 <script setup lang="ts">
+import { buildImageUrl } from '@/utils/image'
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { client, urlFor } from '@/sanity/client'
+import { client } from '@/sanity/client'
 import { PRODUCTS_QUERY, type Product } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import ImageCarousel from '@/components/ImageCarousel.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
@@ -69,8 +69,7 @@ const getProductImage = (product: Product): string | undefined => {
       return firstImage.asset.url
     }
     try {
-      const builder = urlFor(firstImage.asset).width(600).height(600).quality(IMAGE_CONFIG.quality)
-      return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+      return buildImageUrl(firstImage, { width: 600, height: 600 }) ?? undefined
     } catch {
       return undefined
     }

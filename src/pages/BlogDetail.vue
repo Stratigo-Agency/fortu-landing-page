@@ -172,20 +172,20 @@
 </template>
 
 <script setup lang="ts">
-import { focalStyle } from '@/utils/focal'
+import { focalStyle, ogImageUrl } from '@/utils/image'
+import { postCoverUrl } from '@/utils/blog'
 import { useSeo } from '@/composables/useSeo'
 import { useJsonLd } from '@/composables/useJsonLd'
 import { breadcrumbs, blogPostingSchema } from '@/utils/structuredData'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
-import { client, urlFor } from '@/sanity/client'
+import { client } from '@/sanity/client'
 import {
   BLOG_POST_BY_SLUG_QUERY,
   RELATED_BLOG_POSTS_QUERY,
   type BlogPost,
   type BlogPostListItem,
 } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import Button from '@/reusables/Button.vue'
 import CTA from '@/components/CTA.vue'
 import PortableText from '@/components/PortableText.vue'
@@ -197,15 +197,7 @@ const relatedPosts = ref<BlogPostListItem[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 
-const coverImageUrl = computed(() => {
-  if (!post.value?.coverImage?.asset) return null
-  try {
-    const builder = urlFor(post.value.coverImage).width(1920).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
-  } catch {
-    return null
-  }
-})
+const coverImageUrl = computed(() => (post.value ? postCoverUrl(post.value, 1920) : null))
 
 const sourceLink = computed(() => {
   const u = post.value?.sourceUrl
@@ -214,23 +206,10 @@ const sourceLink = computed(() => {
 
 const shareImageUrl = computed(() => {
   const img = post.value?.shareImage
-  if (!img?.asset) return null
-  try {
-    return urlFor(img).width(1200).height(630).fit('crop').quality(80).url()
-  } catch {
-    return null
-  }
+  return img?.asset ? ogImageUrl(img) : null
 })
 
-const relatedImageUrl = (related: BlogPostListItem) => {
-  if (!related.coverImage?.asset) return null
-  try {
-    const builder = urlFor(related.coverImage).width(800).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
-  } catch {
-    return null
-  }
-}
+const relatedImageUrl = (related: BlogPostListItem) => postCoverUrl(related, 800)
 
 const formatDate = (date: string) => {
   if (!date) return ''

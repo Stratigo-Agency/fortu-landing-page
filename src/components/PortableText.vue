@@ -1,7 +1,6 @@
 <script setup lang="ts">
+import { buildImageUrl } from '@/utils/image'
 import { computed } from 'vue'
-import { urlFor } from '@/sanity/client'
-import { IMAGE_CONFIG } from '@/config/image'
 import type {
   PortableTextContent,
   PortableTextBlock,
@@ -58,12 +57,7 @@ const imageSize = (image: PortableTextImage): [number, number] | undefined => {
 
 const imageUrl = (image: PortableTextImage) => {
   if (!image.asset) return ''
-  try {
-    const builder = urlFor(image).width(1200).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
-  } catch {
-    return image.asset.url || ''
-  }
+  return buildImageUrl(image, { width: 1200 }) ?? image.asset.url ?? ''
 }
 
 const renderSpan = (block: PortableTextBlock, span: PortableTextSpan) => {

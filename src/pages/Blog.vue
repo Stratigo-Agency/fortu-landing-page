@@ -153,14 +153,13 @@
 </template>
 
 <script setup lang="ts">
-import { focalStyle } from '@/utils/focal'
+import { focalStyle } from '@/utils/image'
 import { usePageSeo } from '@/composables/usePageSeo'
-import { formatDate, displayDate, postLabel } from '@/utils/blog'
+import { formatDate, displayDate, postLabel, postCoverUrl } from '@/utils/blog'
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { client, urlFor } from '@/sanity/client'
+import { client } from '@/sanity/client'
 import { BLOG_POSTS_QUERY, type BlogPostListItem } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import PageHero from '@/components/PageHero.vue'
 import CTA from '@/components/CTA.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
@@ -194,15 +193,7 @@ const otherPosts = computed(() =>
     : [],
 )
 
-const coverImageUrl = (post: BlogPostListItem) => {
-  if (!post.coverImage?.asset) return null
-  try {
-    const builder = urlFor(post.coverImage).width(1200).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
-  } catch {
-    return null
-  }
-}
+const coverImageUrl = (post: BlogPostListItem) => postCoverUrl(post, 1200)
 
 onMounted(async () => {
   try {

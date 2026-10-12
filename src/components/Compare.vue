@@ -152,11 +152,11 @@
 </template>
 
 <script setup lang="ts">
+import { buildImageUrl } from '@/utils/image'
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { client, urlFor } from '@/sanity/client'
+import { client } from '@/sanity/client'
 import { PRODUCT_COMPARE_QUERY, type ProductCompare, type ProductCompareItem, type ProductSpec } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import Button from '@/reusables/Button.vue'
 
 const compare = ref<ProductCompare | null>(null)
@@ -217,8 +217,7 @@ const imageOf = (item: ProductCompareItem): string | null => {
   const source = item.compareImage?.asset ? item.compareImage.asset : item.product?.images?.[0]?.asset
   if (!source) return null
   try {
-    const builder = urlFor(source).width(640).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+    return buildImageUrl(source, { width: 640 })
   } catch {
     return source.url || null
   }
@@ -322,13 +321,13 @@ onMounted(async () => {
   object-fit: contain;
 }
 .pimg-dark {
-  background: radial-gradient(circle at 50% 38%, rgba(249, 249, 249, 0.12), rgba(249, 249, 249, 0.03));
+  background: radial-gradient(circle at 50% 38%, rgb(var(--fortu-off-white) / 0.12), rgb(var(--fortu-off-white) / 0.03));
 }
 .pimg-light {
-  background: radial-gradient(circle at 50% 38%, rgba(16, 17, 17, 0.07), rgba(16, 17, 17, 0.02));
+  background: radial-gradient(circle at 50% 38%, rgb(var(--fortu-dark) / 0.07), rgb(var(--fortu-dark) / 0.02));
 }
 .pimg.is-soon {
-  border: 1px dashed rgba(125, 125, 125, 0.55);
+  border: 1px dashed rgb(var(--fortu-medium) / 0.55);
 }
 .pimg .soon-art {
   max-width: 78%;
@@ -357,8 +356,8 @@ onMounted(async () => {
   width: 8px;
   height: 8px;
   margin-top: -6px;
-  border-right: 2px solid #bfbfbf;
-  border-bottom: 2px solid #bfbfbf;
+  border-right: 2px solid rgb(var(--fortu-light));
+  border-bottom: 2px solid rgb(var(--fortu-light));
   transform: rotate(45deg);
   pointer-events: none;
 }

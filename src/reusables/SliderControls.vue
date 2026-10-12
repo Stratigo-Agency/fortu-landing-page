@@ -71,19 +71,19 @@ const alignClass = computed(
 
 <style scoped>
 .slider-controls {
-  --ink: #101111;
-  --ink-soft: #7d7d7d;
-  --on-ink: #f9f9f9;
-  --edge: rgba(16, 17, 17, 0.2);
-  --track: rgba(16, 17, 17, 0.15);
+  --ink: rgb(var(--fortu-dark));
+  --ink-soft: rgb(var(--fortu-medium));
+  --on-ink: rgb(var(--fortu-off-white));
+  --edge: rgb(var(--fortu-dark) / 0.2);
+  --track: rgb(var(--fortu-dark) / 0.15);
   color: var(--ink);
 }
 .slider-controls.is-dark {
-  --ink: #f9f9f9;
-  --ink-soft: #bfbfbf;
-  --on-ink: #101111;
-  --edge: rgba(249, 249, 249, 0.3);
-  --track: rgba(249, 249, 249, 0.2);
+  --ink: rgb(var(--fortu-off-white));
+  --ink-soft: rgb(var(--fortu-light));
+  --on-ink: rgb(var(--fortu-dark));
+  --edge: rgb(var(--fortu-off-white) / 0.3);
+  --track: rgb(var(--fortu-off-white) / 0.2);
 }
 
 .slider-control {

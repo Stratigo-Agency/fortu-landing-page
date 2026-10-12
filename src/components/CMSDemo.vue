@@ -29,19 +29,18 @@
             <path
               :d="conn.d"
               fill="none"
-              stroke="rgba(191, 191, 191, 0.4)"
+              class="stroke-fortu-light/40"
               stroke-width="2"
               stroke-dasharray="6 6"
               stroke-linecap="round"
               stroke-linejoin="round"
             />
             <circle
-              class="conn-dot"
+              class="conn-dot fill-fortu-off-white"
               :cx="conn.dotX"
               :cy="conn.dotY"
               :r="dotRadius"
               :opacity="conn.dotOpacity"
-              fill="#F9F9F9"
             />
           </g>
         </svg>
@@ -230,11 +229,10 @@
 </template>
 
 <script setup lang="ts">
+import { buildImageUrl } from '@/utils/image'
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { client } from '@/sanity/client'
 import { CMS_DEMO_QUERY, type CMSDemo, type CMSDemoProduct } from '@/sanity/queries'
-import { urlFor } from '@/sanity/client'
-import { IMAGE_CONFIG } from '@/config/image'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const cmsDemo = ref<CMSDemo | null>(null)
@@ -464,8 +462,7 @@ const getProductImage = (position: 'top-left' | 'top-right' | 'bottom-center'): 
   if (!data?.image?.asset) return undefined
   
   try {
-    const builder = urlFor(data.image.asset).width(400).height(400).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+    return buildImageUrl(data.image, { width: 400, height: 400 }) ?? undefined
   } catch {
     return undefined
   }
@@ -493,8 +490,7 @@ const getProductImageForCMS = (product: CMSDemoProduct): string | undefined => {
   if (!imageAsset) return undefined
   
   try {
-    const builder = urlFor(imageAsset).width(80).height(80).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+    return buildImageUrl(imageAsset, { width: 80, height: 80 }) ?? undefined
   } catch {
     return undefined
   }
@@ -570,7 +566,7 @@ onBeforeUnmount(() => {
 }
 
 .conn-dot {
-  filter: drop-shadow(0 0 6px rgba(249, 249, 249, 0.8));
+  filter: drop-shadow(0 0 6px rgb(var(--fortu-off-white) / 0.8));
 }
 
 /* CMS product rows animation */
@@ -587,13 +583,13 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Particles - using brand colors (#F9F9F9 off-white, #BFBFBF light, #7D7D7D medium) */
+/* Particles - using brand colors (rgb(var(--fortu-off-white)) off-white, rgb(var(--fortu-light)) light, rgb(var(--fortu-medium)) medium) */
 .particle {
   position: absolute;
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #F9F9F9;
+  background: rgb(var(--fortu-off-white));
   opacity: 0;
   animation: particleFlow 4s ease-in-out infinite;
 }
@@ -601,42 +597,42 @@ onBeforeUnmount(() => {
 .particle-1 {
   top: 10%;
   left: 20%;
-  background: #F9F9F9;
+  background: rgb(var(--fortu-off-white));
   animation-delay: 0s;
 }
 
 .particle-2 {
   top: 15%;
   right: 22%;
-  background: #BFBFBF;
+  background: rgb(var(--fortu-light));
   animation-delay: 0.8s;
 }
 
 .particle-3 {
   bottom: 18%;
   left: 50%;
-  background: #F9F9F9;
+  background: rgb(var(--fortu-off-white));
   animation-delay: 1.6s;
 }
 
 .particle-4 {
   top: 25%;
   left: 30%;
-  background: #BFBFBF;
+  background: rgb(var(--fortu-light));
   animation-delay: 2.4s;
 }
 
 .particle-5 {
   top: 20%;
   right: 30%;
-  background: #F9F9F9;
+  background: rgb(var(--fortu-off-white));
   animation-delay: 3.2s;
 }
 
 .particle-6 {
   bottom: 25%;
   left: 48%;
-  background: #BFBFBF;
+  background: rgb(var(--fortu-light));
   animation-delay: 4s;
 }
 
@@ -665,13 +661,13 @@ onBeforeUnmount(() => {
 
 @keyframes laptopGlow {
   0% {
-    filter: drop-shadow(0 0 30px rgba(191, 191, 191, 0.15));
+    filter: drop-shadow(0 0 30px rgb(var(--fortu-light) / 0.15));
   }
   50% {
-    filter: drop-shadow(0 0 50px rgba(249, 249, 249, 0.2));
+    filter: drop-shadow(0 0 50px rgb(var(--fortu-off-white) / 0.2));
   }
   100% {
-    filter: drop-shadow(0 0 30px rgba(191, 191, 191, 0.15));
+    filter: drop-shadow(0 0 30px rgb(var(--fortu-light) / 0.15));
   }
 }
 

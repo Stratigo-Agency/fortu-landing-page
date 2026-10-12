@@ -133,7 +133,7 @@
 import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
 import { client } from '@/sanity/client'
 import { PRODUCT_SLIDES_QUERY, type ProductSlide } from '@/sanity/queries'
-import { focalStyle, responsiveImage } from '@/utils/focal'
+import { focalStyle, responsiveImage } from '@/utils/image'
 import Button from '@/reusables/Button.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 import SliderControls from '@/reusables/SliderControls.vue'

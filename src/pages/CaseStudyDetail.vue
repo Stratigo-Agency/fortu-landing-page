@@ -117,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { focalStyle } from '@/utils/focal'
+import { focalStyle } from '@/utils/image'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { client } from '@/sanity/client'

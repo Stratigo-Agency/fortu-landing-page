@@ -351,7 +351,7 @@ usePageSeo('contact', {
 
 <style scoped>
 .faq-item:first-child {
-  border-top: 1px solid rgba(191, 191, 191, 0.3);
+  border-top: 1px solid rgb(var(--fortu-light) / 0.3);
 }
 
 .faq-answer {

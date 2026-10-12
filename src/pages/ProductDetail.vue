@@ -96,15 +96,15 @@
 </template>
 
 <script setup lang="ts">
+import { buildImageUrl, ogImageUrl } from '@/utils/image'
 import { useSeo } from '@/composables/useSeo'
 import { useAnalytics } from '@/composables/useAnalytics'
 import { useJsonLd } from '@/composables/useJsonLd'
 import { breadcrumbs, productSchema } from '@/utils/structuredData'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { client, urlFor } from '@/sanity/client'
+import { client } from '@/sanity/client'
 import { PRODUCT_BY_SLUG_QUERY, type Product, type ProductVariant } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import Button from '@/reusables/Button.vue'
 import CompareIcon from '@/components/CompareIcon.vue'
 import ImageCarousel from '@/components/ImageCarousel.vue'
@@ -127,10 +127,9 @@ const carouselImages = computed(() => {
     product.value.images.forEach((img, index) => {
       if (img.asset) {
         try {
-          // Always use urlFor to apply crop/hotspot settings
+          // Whole image object is passed so crop/hotspot are honoured
           // Pass the full image object (not just asset) to preserve hotspot and crop
-          const builder = urlFor(img).width(960).quality(IMAGE_CONFIG.quality)
-          const url = IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+          const url = buildImageUrl(img, { width: 960 })
           if (url) {
             images.push({
               url,
@@ -149,9 +148,8 @@ const carouselImages = computed(() => {
     product.value.variants.forEach(variant => {
       if (variant.image?.asset) {
         try {
-          // Always use urlFor to apply crop/hotspot settings
-          const builder = urlFor(variant.image).width(960).quality(IMAGE_CONFIG.quality)
-          const url = IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+          // Whole image object is passed so crop/hotspot are honoured
+          const url = buildImageUrl(variant.image, { width: 960 })
           if (url && !images.some(img => img.url === url)) {
             images.push({
               url,
@@ -167,9 +165,8 @@ const carouselImages = computed(() => {
         variant.images.forEach(variantImg => {
           if (variantImg.asset) {
             try {
-              // Always use urlFor to apply crop/hotspot settings
-              const builder = urlFor(variantImg).width(960).quality(IMAGE_CONFIG.quality)
-              const url = IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+              // Whole image object is passed so crop/hotspot are honoured
+              const url = buildImageUrl(variantImg, { width: 960 })
               if (url && !images.some(img => img.url === url)) {
                 images.push({
                   url,
@@ -251,12 +248,7 @@ const productImageUrl = computed(() => {
   const img = product.value?.shareImage?.asset
     ? product.value.shareImage
     : product.value?.heroImage || product.value?.images?.[0]
-  if (!img?.asset) return undefined
-  try {
-    return urlFor(img).width(1200).height(630).fit('crop').quality(80).url()
-  } catch {
-    return undefined
-  }
+  return img?.asset ? ogImageUrl(img) ?? undefined : undefined
 })
 
 const trimTo = (text: string, max: number) =>

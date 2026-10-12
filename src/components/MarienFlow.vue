@@ -246,7 +246,7 @@ onMounted(async () => {
 .diagram {
   position: relative;
   transform-origin: 0 0;
-  color: #f9f9f9;
+  color: rgb(var(--fortu-off-white));
 }
 .diagram > * {
   position: absolute;
@@ -254,7 +254,7 @@ onMounted(async () => {
 
 .grid-bg {
   inset: 0;
-  background-image: radial-gradient(rgba(249, 249, 249, 0.12) 1.2px, transparent 1.5px);
+  background-image: radial-gradient(rgb(var(--fortu-off-white) / 0.12) 1.2px, transparent 1.5px);
   background-size: 28px 28px;
   -webkit-mask-image: radial-gradient(ellipse at 45% 50%, #000 35%, transparent 80%);
   mask-image: radial-gradient(ellipse at 45% 50%, #000 35%, transparent 80%);
@@ -268,21 +268,21 @@ onMounted(async () => {
 .hl {
   height: 2px;
   transform-origin: 0 50%;
-  background-image: repeating-linear-gradient(90deg, #f9f9f9 0 5px, transparent 5px 15px),
-    linear-gradient(rgba(191, 191, 191, 0.28), rgba(191, 191, 191, 0.28));
+  background-image: repeating-linear-gradient(90deg, rgb(var(--fortu-off-white)) 0 5px, transparent 5px 15px),
+    linear-gradient(rgb(var(--fortu-light) / 0.28), rgb(var(--fortu-light) / 0.28));
   background-size: 15px 2px, 100% 100%;
   animation: flow-x 1.2s linear infinite;
 }
 .vl {
   width: 2px;
-  background-image: repeating-linear-gradient(180deg, #f9f9f9 0 5px, transparent 5px 15px),
-    linear-gradient(rgba(191, 191, 191, 0.28), rgba(191, 191, 191, 0.28));
+  background-image: repeating-linear-gradient(180deg, rgb(var(--fortu-off-white)) 0 5px, transparent 5px 15px),
+    linear-gradient(rgb(var(--fortu-light) / 0.28), rgb(var(--fortu-light) / 0.28));
   background-size: 2px 15px, 100% 100%;
   background-repeat: repeat-y, no-repeat;
   animation: flow-y 1.2s linear infinite;
 }
 .cr {
-  border: 0 solid rgba(191, 191, 191, 0.28);
+  border: 0 solid rgb(var(--fortu-light) / 0.28);
 }
 .cr-top {
   border-left-width: 2px;
@@ -298,7 +298,7 @@ onMounted(async () => {
   width: 10px;
   height: 10px;
   border-radius: 9999px;
-  background: #f9f9f9;
+  background: rgb(var(--fortu-off-white));
 }
 
 .user {
@@ -306,23 +306,23 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  border: 1.5px solid rgba(191, 191, 191, 0.45);
-  background: rgba(249, 249, 249, 0.05);
+  border: 1.5px solid rgb(var(--fortu-light) / 0.45);
+  background: rgb(var(--fortu-off-white) / 0.05);
 }
 .label {
   text-align: center;
   font-weight: 500;
   letter-spacing: -0.01em;
-  color: #f9f9f9;
+  color: rgb(var(--fortu-off-white));
   white-space: nowrap;
 }
 .label.tag {
-  background: #101111;
+  background: rgb(var(--fortu-dark));
   padding: 2px 6px;
 }
 .more {
   font-size: 15px;
-  color: rgba(191, 191, 191, 0.7);
+  color: rgb(var(--fortu-light) / 0.7);
 }
 
 .chip {
@@ -330,25 +330,25 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   border-radius: 38px;
-  background: #f9f9f9;
-  color: #101111;
+  background: rgb(var(--fortu-off-white));
+  color: rgb(var(--fortu-dark));
 }
 .chip.round {
   border-radius: 9999px;
 }
 .pin {
   position: absolute;
-  background: rgba(249, 249, 249, 0.5);
+  background: rgb(var(--fortu-off-white) / 0.5);
   border-radius: 2px;
 }
 .ring {
   position: absolute;
-  border: 1px solid rgba(249, 249, 249, 0.35);
+  border: 1px solid rgb(var(--fortu-off-white) / 0.35);
   animation: pulse 3s ease-out infinite;
 }
 .orbit {
   border-radius: 9999px;
-  border: 1px solid rgba(191, 191, 191, 0.16);
+  border: 1px solid rgb(var(--fortu-light) / 0.16);
 }
 .orbit.dashed {
   border-style: dashed;
@@ -358,8 +358,8 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   border-radius: 22px;
-  background: #161717;
-  border: 1px solid rgba(191, 191, 191, 0.25);
+  background: rgb(var(--fortu-dark-raised));
+  border: 1px solid rgb(var(--fortu-light) / 0.25);
 }
 .node.col {
   flex-direction: column;
@@ -371,7 +371,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(249, 249, 249, 0.08);
+  background: rgb(var(--fortu-off-white) / 0.08);
 }
 .tile {
   display: flex;
@@ -380,8 +380,8 @@ onMounted(async () => {
   width: 64px;
   height: 64px;
   border-radius: 18px;
-  border: 1px solid rgba(191, 191, 191, 0.3);
-  background: #161717;
+  border: 1px solid rgb(var(--fortu-light) / 0.3);
+  background: rgb(var(--fortu-dark-raised));
 }
 .tile.small {
   width: 44px;

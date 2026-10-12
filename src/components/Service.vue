@@ -89,10 +89,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { client } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
 import { SERVICE_SECTION_QUERY, type ServiceSection, type ServiceItem } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
-import { focalStyle } from '@/utils/focal'
+import { focalStyle, buildImageUrl } from '@/utils/image'
 import { useScrollSlider } from '@/composables/useScrollSlider'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 import SliderControls from '@/reusables/SliderControls.vue'
@@ -119,8 +117,7 @@ const illustrationUrl = (service: ServiceItem) =>
 const getBackgroundImage = (service: ServiceItem): string | null => {
   if (!service.backgroundImage?.asset) return null
   try {
-    const builder = urlFor(service.backgroundImage).width(600).height(800).fit('crop').quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+    return buildImageUrl(service.backgroundImage, { width: 600, height: 800, fit: 'crop' })
   } catch {
     return null
   }

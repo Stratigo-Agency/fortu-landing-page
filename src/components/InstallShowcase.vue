@@ -111,9 +111,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { urlFor } from '@/sanity/client'
 import { IMAGE_CONFIG } from '@/config/image'
-import { focalStyle } from '@/utils/focal'
+import { focalStyle, buildImageUrl } from '@/utils/image'
 import { useScrollSlider } from '@/composables/useScrollSlider'
 import SliderControls from '@/reusables/SliderControls.vue'
 import type { InstallShowcase, InstallStep } from '@/sanity/queries'
@@ -128,8 +127,7 @@ const pad = (n: number) => String(n).padStart(2, '0')
 
 const stepImage = (step: InstallStep) => {
   try {
-    const b = urlFor(step.image).width(800).height(1000).fit('crop').quality(IMAGE_CONFIG.quality + 15)
-    return IMAGE_CONFIG.autoFormat ? b.auto('format').url() : b.url()
+    return buildImageUrl(step.image, { width: 800, height: 1000, fit: 'crop', quality: IMAGE_CONFIG.quality + 15 })
   } catch {
     return null
   }
@@ -138,11 +136,7 @@ const stepImage = (step: InstallStep) => {
 const posterUrl = computed(() => {
   const p = props.data.demoVideo?.poster
   if (!p?.asset) return null
-  try {
-    return urlFor(p).width(1280).height(720).fit('crop').quality(80).auto('format').url()
-  } catch {
-    return null
-  }
+  return buildImageUrl(p, { width: 1280, height: 720, fit: 'crop', quality: 80 })
 })
 
 // Autoplay only while visible and only if the visitor has not asked for reduced motion

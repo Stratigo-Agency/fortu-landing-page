@@ -49,11 +49,12 @@ onMounted(async () => {
 
 <style>
 :root {
-  --bg: #1A1A1A;
-  --fg: #fafafa;
-  --accent: #f43f5e;
-  --muted: #71717a;
-  --card: #1a1a1a;
+  /* Legacy aliases: now point at the brand tokens defined in assets/css/main.css */
+  --bg: rgb(var(--fortu-dark));
+  --fg: rgb(var(--fortu-off-white));
+  --accent: rgb(var(--fortu-off-white));
+  --muted: rgb(var(--fortu-light));
+  --card: rgb(var(--fortu-dark-raised));
 }
 
 * {
@@ -140,7 +141,7 @@ h1 {
   align-items: center;
   gap: 10px;
   background-color: var(--fg);
-  color: #101111;
+  color: rgb(var(--fortu-dark));
   border: 0;
   border-radius: 9999px;
   font: inherit;
@@ -165,7 +166,7 @@ h1 {
 .contact-fab:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 3px;
-  box-shadow: 0 0 0 5px rgba(16, 17, 17, 0.9);
+  box-shadow: 0 0 0 5px rgb(var(--fortu-dark) / 0.9);
 }
 
 .contact-fab-icon {

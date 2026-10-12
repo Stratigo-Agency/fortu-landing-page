@@ -1,5 +1,6 @@
 import { ref, type Ref } from 'vue'
-import { client, urlFor } from '@/sanity/client'
+import { client } from '@/sanity/client'
+import { ogImageUrl } from '@/utils/image'
 import { PAGE_SEO_QUERY, type PageSeo } from '@/sanity/queries'
 import { useSeo, type SeoOptions } from '@/composables/useSeo'
 
@@ -18,14 +19,7 @@ const load = (page: string) => {
   return cache.get(page)!
 }
 
-const shareUrl = (img?: PageSeo['shareImage']) => {
-  if (!img?.asset) return undefined
-  try {
-    return urlFor(img).width(1200).height(630).fit('crop').quality(80).url()
-  } catch {
-    return undefined
-  }
-}
+const shareUrl = (img?: PageSeo['shareImage']) => (img?.asset ? ogImageUrl(img) ?? undefined : undefined)
 
 /**
  * useSeo with Sanity overrides: the "SEO: Halaman" document for this page key
