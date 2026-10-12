@@ -15,6 +15,8 @@ export interface SeoOptions {
   type?: 'website' | 'article'
   /** Keep this page out of search results. */
   noindex?: boolean
+  /** Set false to leave the canonical link out (e.g. the not-found page has no URL of its own to point to). */
+  canonical?: boolean
 }
 
 const upsert = (selector: string, create: () => HTMLElement, attr: string, value: string) => {
@@ -64,16 +66,20 @@ export function useSeo(options: MaybeRefOrGetter<SeoOptions>) {
     document.title = o.title
 
     setMeta('name', 'description', description)
-    upsert(
-      'link[rel="canonical"]',
-      () => {
-        const el = document.createElement('link')
-        el.setAttribute('rel', 'canonical')
-        return el
-      },
-      'href',
-      url,
-    )
+    if (o.canonical === false) {
+      document.head.querySelector('link[rel="canonical"]')?.remove()
+    } else {
+      upsert(
+        'link[rel="canonical"]',
+        () => {
+          const el = document.createElement('link')
+          el.setAttribute('rel', 'canonical')
+          return el
+        },
+        'href',
+        url,
+      )
+    }
 
     if (o.noindex) setMeta('name', 'robots', 'noindex, nofollow')
     else if (!document.head.querySelector('meta[name="robots"][data-build]')) removeMeta('name', 'robots')

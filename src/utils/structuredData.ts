@@ -12,7 +12,8 @@ const compact = <T extends Record<string, unknown>>(obj: T): T =>
 export const abs = (path: string) => `${SITE_URL}${path}`
 
 /** Organization + WebSite + LocalBusiness, built only from Site Settings data. */
-export function organizationGraph(s: SiteSettings | null) {
+/** `withOffices`: add one LocalBusiness per office (only worth repeating on the home and contact pages). */
+export function organizationGraph(s: SiteSettings | null, withOffices = true) {
   if (!s) return null
   const sameAs = Object.values(s.socialMedia || {})
     .filter((u): u is string => typeof u === 'string' && /^https?:\/\//.test(u))
@@ -41,9 +42,11 @@ export function organizationGraph(s: SiteSettings | null) {
     publisher: { '@id': ORG_ID },
   }
   const graph: Record<string, unknown>[] = [organization, website]
-  getOffices(s).forEach((office, i) => {
-    graph.push(localBusiness(office, i, s, { sameAs, logo, phone }))
-  })
+  if (withOffices) {
+    getOffices(s).forEach((office, i) => {
+      graph.push(localBusiness(office, i, s, { sameAs, logo, phone }))
+    })
+  }
   return { '@context': 'https://schema.org', '@graph': graph }
 }
 

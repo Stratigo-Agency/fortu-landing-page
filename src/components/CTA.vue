@@ -15,12 +15,12 @@
     
     <!-- Content -->
     <div class="relative z-10 px-4 md:px-16 max-w-4xl mx-auto text-center">
-      <h2 
+      <p 
         class="text-3xl md:text-5xl lg:text-6xl font-medium mb-6 tracking-tight cta-title"
         :class="variant === 'light' ? 'text-fortu-dark' : 'text-fortu-off-white'"
       >
         {{ heading }}
-      </h2>
+      </p>
       <p 
         class="text-lg md:text-xl mb-10 max-w-2xl mx-auto cta-description"
         :class="variant === 'light' ? 'text-fortu-medium' : 'text-fortu-light'"

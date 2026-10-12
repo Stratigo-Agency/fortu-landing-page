@@ -70,9 +70,9 @@ const Service = defineAsyncComponent({
 })
 
 usePageSeo('home', {
-  title: 'Digital Signage Indonesia | Fortu Digital',
+  title: 'Digital Signage & Layar Interaktif | Fortu Digital',
   description:
-    'Perangkat digital signage, interactive display, CMS cloud Marien, dan instalasi untuk bisnis dan institusi di Indonesia. Konsultasikan kebutuhan Anda.',
+    'Fortu Digital menyediakan digital signage, interactive flat panel, CMS Marien, dan instalasi untuk bisnis dan institusi di Indonesia. Konsultasi gratis.',
   path: '/',
 })
 </script>
