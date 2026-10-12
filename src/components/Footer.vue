@@ -211,12 +211,11 @@
 </template>
 
 <script setup lang="ts">
+import { buildImageUrl } from '@/utils/image'
 import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { client } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
 import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import { getOffices, safeUrl, officeLabel, isListable } from '@/utils/offices'
 import { useContactChooser } from '@/composables/useContactChooser'
 
@@ -231,8 +230,7 @@ const currentYear = computed(() => new Date().getFullYear())
 const logoUrl = computed(() => {
   if (!settings.value?.logo?.asset) return null
   try {
-    const builder = urlFor(settings.value.logo.asset).height(96).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+    return buildImageUrl(settings.value.logo, { height: 96 })
   } catch {
     return null
   }

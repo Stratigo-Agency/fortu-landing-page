@@ -100,7 +100,7 @@
 import { ref, computed, onMounted, watchEffect, onUnmounted } from 'vue'
 import { client } from '@/sanity/client'
 import { PAGE_HERO_QUERY, type PageHero } from '@/sanity/queries'
-import { focalStyle, responsiveImage } from '@/utils/focal'
+import { focalStyle, responsiveImage } from '@/utils/image'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const props = defineProps<{

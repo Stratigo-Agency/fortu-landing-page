@@ -69,12 +69,10 @@
 </template>
 
 <script setup lang="ts">
-import { focalStyle } from '@/utils/focal'
+import { focalStyle, buildImageUrl } from '@/utils/image'
 import { ref, onMounted, computed } from 'vue'
 import { client } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
 import { USE_CASE_SECTION_QUERY, type UseCaseSection, type UseCaseItem } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const props = withDefaults(defineProps<{
@@ -119,8 +117,7 @@ const getMediaUrl = (item: UseCaseItem): string | undefined => {
     try {
       // Always use urlFor to apply crop/hotspot settings
       // Pass the full image object (not just asset) to preserve hotspot and crop
-      const builder = urlFor(item.image).width(600).quality(IMAGE_CONFIG.quality)
-      return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+      return buildImageUrl(item.image, { width: 600 }) ?? undefined
     } catch {
       return undefined
     }

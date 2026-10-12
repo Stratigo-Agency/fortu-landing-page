@@ -1,5 +1,4 @@
-import { urlFor } from '@/sanity/client'
-import { IMAGE_CONFIG } from '@/config/image'
+import { buildImageUrl } from '@/utils/image'
 import type { BlogPostListItem } from '@/sanity/queries'
 
 export const formatDate = (date?: string) => {
@@ -34,12 +33,5 @@ export const postLabel = (post: BlogPostListItem) => {
   return post.category ? categoryLabel(post.category) : ''
 }
 
-export const postCoverUrl = (post: BlogPostListItem, width = 800) => {
-  if (!post.coverImage?.asset) return null
-  try {
-    const builder = urlFor(post.coverImage).width(width).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
-  } catch {
-    return null
-  }
-}
+export const postCoverUrl = (post: BlogPostListItem, width = 800) =>
+  post.coverImage?.asset ? buildImageUrl(post.coverImage, { width }) : null

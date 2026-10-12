@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { focalStyle } from '@/utils/focal'
+import { focalStyle, buildImageUrl } from '@/utils/image'
 import { ref, onMounted, computed, watchEffect, onUnmounted } from 'vue'
 import { client } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
 import { HERO_QUERY, SITE_SETTINGS_QUERY, type Hero, type Office } from '@/sanity/queries'
 import { getOffices, safeUrl } from '@/utils/offices'
-import { IMAGE_CONFIG } from '@/config/image'
 import Button from '@/reusables/Button.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
@@ -39,8 +37,7 @@ const heroPosterUrl = computed(() => {
   const poster = hero.value?.backgroundPoster ?? hero.value?.backgroundImage
   if (!poster?.asset) return null
   try {
-    const b = urlFor(poster).width(1920).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? b.auto('format').url() : b.url()
+    return buildImageUrl(poster, { width: 1920 })
   } catch {
     return null
   }
@@ -58,8 +55,7 @@ const heroImageUrl = computed(() => {
     try {
       // Always use urlFor to apply crop/hotspot settings
       // Pass the full image object (not just asset) to preserve hotspot and crop
-      const builder = urlFor(hero.value.backgroundImage).width(1920).quality(IMAGE_CONFIG.quality)
-      return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+      return buildImageUrl(hero.value.backgroundImage, { width: 1920 })
     } catch {
       return null
     }

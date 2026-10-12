@@ -205,11 +205,10 @@
 </template>
 
 <script setup lang="ts">
+import { buildImageUrl } from '@/utils/image'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { client } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
 import { PRODUCT_SLIDES_QUERY, type ProductSlide } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import FeatureIcon from '@/components/FeatureIcon.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
@@ -224,8 +223,7 @@ let autoPlayTimer: ReturnType<typeof setInterval> | null = null
 const getProductImage = (product: ProductSlide): string | undefined => {
   if (!product.slideImage?.asset) return undefined
   try {
-    const builder = urlFor(product.slideImage.asset).width(1920).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+    return buildImageUrl(product.slideImage, { width: 1920 }) ?? undefined
   } catch {
     return undefined
   }

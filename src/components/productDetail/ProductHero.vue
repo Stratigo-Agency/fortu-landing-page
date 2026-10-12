@@ -284,10 +284,9 @@
 </template>
 
 <script setup lang="ts">
+import { buildImageUrl } from '@/utils/image'
 import { computed } from 'vue'
-import { urlFor } from '@/sanity/client'
 import { useContactChooser } from '@/composables/useContactChooser'
-import { IMAGE_CONFIG } from '@/config/image'
 import Button from '@/reusables/Button.vue'
 
 interface HeroAsset {
@@ -350,8 +349,7 @@ const imageUrl = computed(() => {
     try {
       // Always use urlFor to apply crop/hotspot settings
       // Pass the full image object (not just asset) to preserve hotspot and crop
-      const builder = urlFor(props.heroImage).width(1920).quality(IMAGE_CONFIG.quality)
-      return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+      return buildImageUrl(props.heroImage, { width: 1920 })
     } catch {
       return null
     }

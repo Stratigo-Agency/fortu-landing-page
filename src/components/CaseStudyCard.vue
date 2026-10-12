@@ -67,7 +67,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { focalStyle } from '@/utils/focal'
+import { focalStyle } from '@/utils/image'
 import type { CaseStudyListItem } from '@/sanity/queries'
 import { logoSrc, imageUrl } from '@/utils/caseStudy'
 
