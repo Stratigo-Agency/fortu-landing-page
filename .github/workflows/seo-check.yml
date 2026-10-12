@@ -1,0 +1,25 @@
+name: SEO check
+
+on:
+  pull_request:
+    branches: [staging, main]
+  push:
+    branches: [staging, main]
+
+jobs:
+  seo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      VITE_SANITY_PROJECT_ID: mb1o2t9p
+      # Pull requests into main are checked against production content, everything else against staging
+      VITE_SANITY_DATASET: ${{ (github.base_ref == 'main' || github.ref_name == 'main') && 'production' || 'staging' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build (indexable) and check SEO
+        run: CHROME_PATH="$(which google-chrome)" npm run check:seo:full

@@ -98,6 +98,7 @@
 <script setup lang="ts">
 import { buildImageUrl, ogImageUrl } from '@/utils/image'
 import { useSeo } from '@/composables/useSeo'
+import { fitTitle, trimTo } from '@/utils/seo'
 import { useAnalytics } from '@/composables/useAnalytics'
 import { useJsonLd } from '@/composables/useJsonLd'
 import { breadcrumbs, productSchema } from '@/utils/structuredData'
@@ -251,8 +252,6 @@ const productImageUrl = computed(() => {
   return img?.asset ? ogImageUrl(img) ?? undefined : undefined
 })
 
-const trimTo = (text: string, max: number) =>
-  text.length <= max ? text : text.slice(0, max - 1).replace(/\s+\S*$/, '') + '…'
 
 useSeo(() => {
   const name = product.value?.name
@@ -261,7 +260,7 @@ useSeo(() => {
     title: product.value?.seoTitle?.trim()
       ? product.value.seoTitle.trim()
       : name
-        ? trimTo(`${name} | Fortu Digital`, 60)
+        ? fitTitle(name)
         : 'Produk | Fortu Digital',
     description: desc
       ? trimTo(desc, 155)
