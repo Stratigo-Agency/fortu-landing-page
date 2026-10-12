@@ -14,6 +14,7 @@ import blogPost from './blogPost'
 import pageSeo from './pageSeo'
 import installShowcase from './installShowcase'
 import caseStudy from './caseStudy'
+import sectionCopy from './sectionCopy'
 
 export const schemaTypes = [
     hero,
@@ -32,4 +33,5 @@ export const schemaTypes = [
     pageSeo,
     installShowcase,
     caseStudy,
+    sectionCopy,
 ]

@@ -23,13 +23,15 @@
 </template>
 
 <script setup lang="ts">
+import { useSanityQuery } from '@/composables/useSanityQuery'
 import { buildImageUrl } from '@/utils/image'
-import { ref, computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { client } from '@/sanity/client'
 import { PRODUCTS_QUERY, type Product } from '@/sanity/queries'
 import ImageCarousel from '@/components/ImageCarousel.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
+
+const { data: allProducts, loading } = useSanityQuery<Product[]>(PRODUCTS_QUERY, { initial: [], label: 'products' })
 
 interface Props {
   currentProductId?: string
@@ -42,8 +44,6 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const router = useRouter()
-const allProducts = ref<Product[]>([])
-const loading = ref(true)
 
 const recommendedProducts = computed(() => {
   if (!props.currentProductId && !props.currentProductSlug) {
@@ -93,14 +93,5 @@ const handleProductClick = (index: number) => {
   }
 }
 
-onMounted(async () => {
-  try {
-    allProducts.value = await client.fetch(PRODUCTS_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch products for recommendations:', e)
-  } finally {
-    loading.value = false
-  }
-})
 </script>
 

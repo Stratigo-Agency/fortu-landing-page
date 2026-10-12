@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import Navbar from '@/components/Navbar.vue'
 import Footer from '@/components/Footer.vue'
 import CookieBanner from '@/components/CookieBanner.vue'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
 import { useContactTracking } from '@/composables/useContactTracking'
 import { useContactChooser } from '@/composables/useContactChooser'
@@ -19,7 +19,7 @@ useJsonLd('organization', () => organizationGraph(siteSettings.value))
 
 onMounted(async () => {
   try {
-    siteSettings.value = await client.fetch(SITE_SETTINGS_QUERY)
+    siteSettings.value = await fetchSanity(SITE_SETTINGS_QUERY)
   } catch (e) {
     console.error('Failed to fetch site settings:', e)
   }

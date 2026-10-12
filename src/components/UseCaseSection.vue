@@ -69,11 +69,13 @@
 </template>
 
 <script setup lang="ts">
+import { useSanityQuery } from '@/composables/useSanityQuery'
 import { focalStyle, buildImageUrl } from '@/utils/image'
-import { ref, onMounted, computed } from 'vue'
-import { client } from '@/sanity/client'
+import { computed } from 'vue'
 import { USE_CASE_SECTION_QUERY, type UseCaseSection, type UseCaseItem } from '@/sanity/queries'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
+
+const { data: useCaseSection, loading } = useSanityQuery<UseCaseSection | null>(USE_CASE_SECTION_QUERY, { label: 'use case section' })
 
 const props = withDefaults(defineProps<{
   showTitle?: boolean
@@ -85,8 +87,6 @@ const props = withDefaults(defineProps<{
 
 const showHeader = computed(() => props.showTitle || props.showDescription)
 
-const useCaseSection = ref<UseCaseSection | null>(null)
-const loading = ref(true)
 
 // Vertical offsets for staggered effect (in pixels)
 const columnOffsets = [0, 40, 80, 20, 60, 100, 30]
@@ -136,15 +136,6 @@ const getItemSizeClass = (item: UseCaseItem): string => {
   }
 }
 
-onMounted(async () => {
-  try {
-    useCaseSection.value = await client.fetch(USE_CASE_SECTION_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch Use Case Section content:', e)
-  } finally {
-    loading.value = false
-  }
-})
 </script>
 
 <style scoped>

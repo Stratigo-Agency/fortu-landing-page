@@ -45,7 +45,7 @@
 import { buildImageUrl } from '@/utils/image'
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { PRODUCTS_QUERY, type Product } from '@/sanity/queries'
 import ImageCarousel from '@/components/ImageCarousel.vue'
 
@@ -105,7 +105,7 @@ const handleProductClick = (index: number) => {
 
 onMounted(async () => {
   try {
-    products.value = await client.fetch(PRODUCTS_QUERY)
+    products.value = await fetchSanity(PRODUCTS_QUERY)
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to fetch products'
   } finally {

@@ -295,7 +295,7 @@ import OfficeMap from '@/components/OfficeMap.vue'
 import { useContactChooser } from '@/composables/useContactChooser'
 import { usePageSeo } from '@/composables/usePageSeo'
 import { ref, computed, onMounted } from 'vue'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { SITE_SETTINGS_QUERY, FAQ_QUERY, type SiteSettings, type FAQ } from '@/sanity/queries'
 import PageHero from '@/components/PageHero.vue'
 import CTA from '@/components/CTA.vue'
@@ -329,8 +329,8 @@ const toggleFaqItem = (index: number) => {
 onMounted(async () => {
   try {
     const [settingsData, faqData] = await Promise.all([
-      client.fetch(SITE_SETTINGS_QUERY),
-      client.fetch(FAQ_QUERY)
+      fetchSanity(SITE_SETTINGS_QUERY),
+      fetchSanity(FAQ_QUERY)
     ])
     settings.value = settingsData
     faq.value = faqData

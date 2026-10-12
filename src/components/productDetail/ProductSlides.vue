@@ -207,7 +207,7 @@
 <script setup lang="ts">
 import { buildImageUrl } from '@/utils/image'
 import { ref, onMounted, onUnmounted } from 'vue'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { PRODUCT_SLIDES_QUERY, type ProductSlide } from '@/sanity/queries'
 import FeatureIcon from '@/components/FeatureIcon.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
@@ -263,7 +263,7 @@ const resetAutoPlay = () => {
 
 onMounted(async () => {
   try {
-    productSlides.value = await client.fetch(PRODUCT_SLIDES_QUERY)
+    productSlides.value = await fetchSanity(PRODUCT_SLIDES_QUERY)
     if (productSlides.value.length > 0) {
       startAutoPlay()
     }

@@ -179,7 +179,7 @@ import { useJsonLd } from '@/composables/useJsonLd'
 import { breadcrumbs, blogPostingSchema } from '@/utils/structuredData'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import {
   BLOG_POST_BY_SLUG_QUERY,
   RELATED_BLOG_POSTS_QUERY,
@@ -241,13 +241,13 @@ const fetchPost = async (slug: string) => {
   post.value = null
   relatedPosts.value = []
   try {
-    const data = (await client.fetch(BLOG_POST_BY_SLUG_QUERY, { slug })) as BlogPost | null
+    const data = (await fetchSanity(BLOG_POST_BY_SLUG_QUERY, { slug })) as BlogPost | null
     if (!data) {
       error.value = 'Artikel yang Anda cari tidak tersedia.'
       return
     }
     post.value = data
-    relatedPosts.value = (await client.fetch(RELATED_BLOG_POSTS_QUERY, {
+    relatedPosts.value = (await fetchSanity(RELATED_BLOG_POSTS_QUERY, {
       currentId: data._id,
     })) as BlogPostListItem[]
   } catch (e) {

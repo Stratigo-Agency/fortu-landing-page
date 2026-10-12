@@ -69,19 +69,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { useSanityQuery } from '@/composables/useSanityQuery'
+import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
-import { client } from '@/sanity/client'
 import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
 import { useContactChooser } from '@/composables/useContactChooser'
 import { useAnalytics } from '@/composables/useAnalytics'
 import { buildContactUrl, type ContactChoice } from '@/config/contact'
 
+const { data: settings } = useSanityQuery<SiteSettings | null>(SITE_SETTINGS_QUERY, { label: 'site settings' })
+
 const route = useRoute()
 const { state, closeChooser } = useContactChooser()
 const { trackEvent } = useAnalytics()
 
-const settings = ref<SiteSettings | null>(null)
 const dialogEl = ref<HTMLElement | null>(null)
 const closeBtn = ref<HTMLElement | null>(null)
 let previouslyFocused: HTMLElement | null = null
@@ -146,13 +147,6 @@ watch(
 // close when navigating to another page
 watch(() => route.fullPath, closeChooser)
 
-onMounted(async () => {
-  try {
-    settings.value = await client.fetch(SITE_SETTINGS_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch site settings:', e)
-  }
-})
 
 onBeforeUnmount(() => {
   document.documentElement.style.overflow = ''

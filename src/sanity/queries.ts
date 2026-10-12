@@ -1249,3 +1249,14 @@ export const CASE_STUDY_BY_SLUG_QUERY = defineQuery(/* groq */ `
     "updatedAt": _updatedAt
   }
 `)
+
+// Editable section headings (see config/sectionCopy.ts for the keys and their defaults)
+export const SECTION_COPY_QUERY = defineQuery(/* groq */ `
+  *[_type == "sectionCopy"][0] {
+    clientsEyebrow, clientsHeading,
+    portfolioEyebrow, portfolioHeading, portfolioDescription, portfolioAllLink,
+    articlesEyebrow, articlesHeading, articlesAllLink,
+    blogFilterAll, blogFilterOwn, blogFilterMedia,
+    caseStudyMoreHeading, connectedDevicesLabel
+  }
+`)

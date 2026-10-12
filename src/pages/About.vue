@@ -63,7 +63,7 @@
 <script setup lang="ts">
 import { usePageSeo } from '@/composables/usePageSeo'
 import { ref, onMounted } from 'vue'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { ABOUT_PAGE_QUERY, INSTALL_SHOWCASE_QUERY, type AboutPage, type InstallShowcase as InstallShowcaseData } from '@/sanity/queries'
 import PageHero from '@/components/PageHero.vue'
 import UseCaseSection from '@/components/UseCaseSection.vue'
@@ -93,8 +93,8 @@ const defaultContent = {
 onMounted(async () => {
   try {
     const [about, install] = await Promise.all([
-      client.fetch(ABOUT_PAGE_QUERY),
-      client.fetch(INSTALL_SHOWCASE_QUERY).catch(() => null),
+      fetchSanity(ABOUT_PAGE_QUERY),
+      fetchSanity(INSTALL_SHOWCASE_QUERY).catch(() => null),
     ])
     aboutContent.value = about
     showcase.value = install?.steps?.length ? install : null

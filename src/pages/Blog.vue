@@ -153,27 +153,30 @@
 </template>
 
 <script setup lang="ts">
+import { useSectionCopy } from '@/composables/useSectionCopy'
+import { useSanityQuery } from '@/composables/useSanityQuery'
 import { focalStyle } from '@/utils/image'
 import { usePageSeo } from '@/composables/usePageSeo'
 import { formatDate, displayDate, postLabel, postCoverUrl } from '@/utils/blog'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { client } from '@/sanity/client'
 import { BLOG_POSTS_QUERY, type BlogPostListItem } from '@/sanity/queries'
 import PageHero from '@/components/PageHero.vue'
 import CTA from '@/components/CTA.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
-const posts = ref<BlogPostListItem[]>([])
-const loading = ref(true)
+const copy = useSectionCopy()
+
+const { data: posts, loading } = useSanityQuery<BlogPostListItem[]>(BLOG_POSTS_QUERY, { initial: [], label: 'blog posts' })
+
 
 type PostFilter = 'all' | 'media' | 'own'
 const filter = ref<PostFilter>('all')
-const filters: { value: PostFilter; label: string }[] = [
-  { value: 'all', label: 'Semua' },
-  { value: 'own', label: 'Artikel Fortu' },
-  { value: 'media', label: 'Liputan Media' },
-]
+const filters = computed<{ value: PostFilter; label: string }[]>(() => [
+  { value: 'all', label: copy.value.blogFilterAll },
+  { value: 'own', label: copy.value.blogFilterOwn },
+  { value: 'media', label: copy.value.blogFilterMedia },
+])
 const hasBothKinds = computed(
   () => posts.value.some((p) => p.isMediaCoverage) && posts.value.some((p) => !p.isMediaCoverage),
 )
@@ -195,15 +198,6 @@ const otherPosts = computed(() =>
 
 const coverImageUrl = (post: BlogPostListItem) => postCoverUrl(post, 1200)
 
-onMounted(async () => {
-  try {
-    posts.value = (await client.fetch(BLOG_POSTS_QUERY)) as BlogPostListItem[]
-  } catch (e) {
-    console.error('Failed to fetch blog posts:', e)
-  } finally {
-    loading.value = false
-  }
-})
 
 usePageSeo('blog', {
   title: 'Blog & Berita Digital Signage | Fortu Digital',

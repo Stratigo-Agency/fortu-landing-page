@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect, onUnmounted } from 'vue'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { PAGE_HERO_QUERY, type PageHero } from '@/sanity/queries'
 import { focalStyle, responsiveImage } from '@/utils/image'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
@@ -167,7 +167,7 @@ onUnmounted(() => {
 
 onMounted(async () => {
   try {
-    pageHero.value = await client.fetch(PAGE_HERO_QUERY, { pageName: props.pageName })
+    pageHero.value = await fetchSanity(PAGE_HERO_QUERY, { pageName: props.pageName })
   } catch (e) {
     console.error('Failed to fetch page hero:', e)
   } finally {

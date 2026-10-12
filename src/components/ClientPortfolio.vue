@@ -1,15 +1,14 @@
 <template>
   <section v-if="shown.length" class="client-portfolio bg-fortu-off-white py-16 md:py-24" aria-labelledby="client-portfolio-title">
     <div class="mx-auto px-4 md:px-16">
-      <div class="text-center mb-10 md:mb-14">
-        <p class="text-[11px] md:text-xs uppercase tracking-[0.24em] text-fortu-medium mb-3">Portofolio</p>
-        <h2 id="client-portfolio-title" class="text-4xl md:text-5xl lg:text-6xl font-light text-fortu-dark tracking-tight">
-          Kreativitas tanpa Batas
-        </h2>
-        <p class="mt-4 text-fortu-medium text-base md:text-lg max-w-2xl mx-auto">
-          Sebagian klien dan proyek Fortu Digital. Pilih klien untuk membaca studi kasusnya.
-        </p>
-      </div>
+      <SectionHeader
+        class="mb-10 md:mb-14"
+        weight="light"
+        title-id="client-portfolio-title"
+        :eyebrow="copy.portfolioEyebrow"
+        :title="copy.portfolioHeading"
+        :description="copy.portfolioDescription"
+      />
     </div>
 
     <!-- Story cards: slide by themselves, and stop whenever the visitor reaches for them -->
@@ -55,7 +54,7 @@
 
     <div v-if="hasPublished" class="text-center mt-10 px-4">
       <RouterLink to="/studi-kasus" class="inline-flex items-center gap-2 text-fortu-dark text-lg font-medium group">
-        Lihat semua studi kasus
+        {{ copy.portfolioAllLink }}
         <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
         </svg>
@@ -65,13 +64,17 @@
 </template>
 
 <script setup lang="ts">
+import { useSectionCopy } from '@/composables/useSectionCopy'
+import SectionHeader from '@/reusables/SectionHeader.vue'
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { RouterLink } from 'vue-router'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { CASE_STUDIES_QUERY, type CaseStudyListItem } from '@/sanity/queries'
 import { useScrollSlider } from '@/composables/useScrollSlider'
 import CaseStudyCard from '@/components/CaseStudyCard.vue'
 import SliderControls from '@/reusables/SliderControls.vue'
+
+const copy = useSectionCopy()
 
 // At most this many cards are shown; which ones is chosen in Sanity ("Tampilkan di slider beranda")
 const MAX_CARDS = 8
@@ -144,7 +147,7 @@ onMounted(async () => {
     observer.observe(regionRef.value)
   }
   try {
-    studies.value = (await client.fetch(CASE_STUDIES_QUERY)) as CaseStudyListItem[]
+    studies.value = (await fetchSanity(CASE_STUDIES_QUERY)) as CaseStudyListItem[]
   } catch (e) {
     console.error('Failed to fetch case studies:', e)
   }

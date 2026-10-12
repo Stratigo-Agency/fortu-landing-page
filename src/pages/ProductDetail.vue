@@ -103,7 +103,7 @@ import { useJsonLd } from '@/composables/useJsonLd'
 import { breadcrumbs, productSchema } from '@/utils/structuredData'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { PRODUCT_BY_SLUG_QUERY, type Product, type ProductVariant } from '@/sanity/queries'
 import Button from '@/reusables/Button.vue'
 import CompareIcon from '@/components/CompareIcon.vue'
@@ -217,7 +217,7 @@ const fetchProduct = async (slug: string) => {
   error.value = null
   
   try {
-    const productData = await client.fetch(PRODUCT_BY_SLUG_QUERY, { slug })
+    const productData = await fetchSanity(PRODUCT_BY_SLUG_QUERY, { slug })
     
     if (!productData) {
       error.value = 'The product you are looking for does not exist.'

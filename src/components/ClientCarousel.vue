@@ -1,12 +1,12 @@
 <template>
   <section class="client-carousel-section bg-white py-14 md:py-24" aria-labelledby="client-carousel-title">
     <div class="mx-auto px-4 md:px-16 mb-10 md:mb-14 text-center">
-      <p class="text-[11px] md:text-xs uppercase tracking-[0.24em] text-fortu-medium mb-3">Klien kami</p>
+      <p class="text-xs md:text-sm uppercase tracking-[0.2em] text-fortu-medium mb-3">{{ copy.clientsEyebrow }}</p>
       <h2
         id="client-carousel-title"
         class="text-2xl md:text-4xl font-medium tracking-tight text-fortu-dark"
       >
-        Dipercaya oleh institusi dan perusahaan di Indonesia
+        {{ copy.clientsHeading }}
       </h2>
     </div>
 
@@ -54,7 +54,10 @@
 </template>
 
 <script setup lang="ts">
+import { useSectionCopy } from '@/composables/useSectionCopy'
 import { clientLogoRows } from '@/data/clientLogos'
+
+const copy = useSectionCopy()
 </script>
 
 <style scoped>

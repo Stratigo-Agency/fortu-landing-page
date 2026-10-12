@@ -87,16 +87,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { client } from '@/sanity/client'
+import { useSanityQuery } from '@/composables/useSanityQuery'
+import { ref, computed } from 'vue'
 import { SERVICE_SECTION_QUERY, type ServiceSection, type ServiceItem } from '@/sanity/queries'
 import { focalStyle, buildImageUrl } from '@/utils/image'
 import { useScrollSlider } from '@/composables/useScrollSlider'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 import SliderControls from '@/reusables/SliderControls.vue'
 
-const serviceSection = ref<ServiceSection | null>(null)
-const loading = ref(true)
+const { data: serviceSection, loading } = useSanityQuery<ServiceSection | null>(SERVICE_SECTION_QUERY, { label: 'service section' })
+
 const carouselRef = ref<HTMLElement | null>(null)
 const { index: currentSlide, isAtStart, isAtEnd, prev, next } = useScrollSlider(carouselRef)
 
@@ -123,15 +123,6 @@ const getBackgroundImage = (service: ServiceItem): string | null => {
   }
 }
 
-onMounted(async () => {
-  try {
-    serviceSection.value = await client.fetch(SERVICE_SECTION_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch service section:', e)
-  } finally {
-    loading.value = false
-  }
-})
 </script>
 
 <style scoped>

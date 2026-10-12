@@ -131,7 +131,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { PRODUCT_SLIDES_QUERY, type ProductSlide } from '@/sanity/queries'
 import { focalStyle, responsiveImage } from '@/utils/image'
 import Button from '@/reusables/Button.vue'
@@ -202,7 +202,7 @@ watchEffect(() => {
 
 onMounted(async () => {
   try {
-    productSlides.value = await client.fetch(PRODUCT_SLIDES_QUERY)
+    productSlides.value = await fetchSanity(PRODUCT_SLIDES_QUERY)
     start()
   } catch (e) {
     console.error('Failed to fetch product slides:', e)

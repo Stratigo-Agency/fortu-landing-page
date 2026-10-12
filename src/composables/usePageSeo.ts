@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { ogImageUrl } from '@/utils/image'
 import { PAGE_SEO_QUERY, type PageSeo } from '@/sanity/queries'
 import { useSeo, type SeoOptions } from '@/composables/useSeo'
@@ -10,7 +10,7 @@ const load = (page: string) => {
   if (!cache.has(page)) {
     cache.set(
       page,
-      client.fetch<PageSeo | null>(PAGE_SEO_QUERY, { page }).catch((e) => {
+      fetchSanity<PageSeo | null>(PAGE_SEO_QUERY, { page }).catch((e) => {
         console.warn('Failed to fetch page SEO:', e)
         return null
       }),

@@ -43,12 +43,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { useSanityQuery } from '@/composables/useSanityQuery'
 import { useContactChooser } from '@/composables/useContactChooser'
-import { client } from '@/sanity/client'
 import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
 import Button from '@/reusables/Button.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
+
+const { data: settings, loading } = useSanityQuery<SiteSettings | null>(SITE_SETTINGS_QUERY, { label: 'site settings' })
 
 interface Props {
   heading?: string
@@ -64,21 +65,10 @@ withDefaults(defineProps<Props>(), {
   variant: 'dark'
 })
 
-const settings = ref<SiteSettings | null>(null)
-const loading = ref(true)
 const { openChooser } = useContactChooser()
 
 
 
-onMounted(async () => {
-  try {
-    settings.value = await client.fetch(SITE_SETTINGS_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch site settings:', e)
-  } finally {
-    loading.value = false
-  }
-})
 </script>
 
 <style scoped>
