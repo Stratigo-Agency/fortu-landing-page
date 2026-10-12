@@ -53,6 +53,7 @@ useSeo({
   title: 'Halaman Tidak Ditemukan | Fortu Digital',
   description: 'Halaman yang Anda cari tidak tersedia. Kembali ke beranda Fortu Digital.',
   noindex: true,
+  canonical: false,
 })
 </script>
 

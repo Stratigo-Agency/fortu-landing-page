@@ -20,8 +20,8 @@ import Compare from '@/components/Compare.vue'
 import CTA from '@/components/CTA.vue'
 
 usePageSeo('products', {
-  title: 'Produk Digital Signage & Interactive Display | Fortu Digital',
+  title: 'Produk Digital Signage & Interactive Flat Panel | Fortu',
   description:
-    'Katalog Fortu Digital: layar digital signage, interactive flat panel, dan videotron untuk ruang rapat, ritel, pendidikan, dan lobi perusahaan.',
+    'Katalog Fortu Digital: digital signage standing, interactive flat panel, smart mobile signage, dan videotron untuk rapat, retail, sekolah, dan lobi.',
 })
 </script>

@@ -8,6 +8,7 @@ import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
 import { useContactTracking } from '@/composables/useContactTracking'
 import { useContactChooser } from '@/composables/useContactChooser'
 import ContactChooser from '@/components/ContactChooser.vue'
+import { useRoute } from 'vue-router'
 import { useJsonLd } from '@/composables/useJsonLd'
 import { organizationGraph } from '@/utils/structuredData'
 
@@ -15,7 +16,10 @@ const siteSettings = ref<SiteSettings | null>(null)
 useContactTracking()
 const { openChooser } = useContactChooser()
 
-useJsonLd('organization', () => organizationGraph(siteSettings.value))
+const route = useRoute()
+useJsonLd('organization', () =>
+  organizationGraph(siteSettings.value, route.path === '/' || route.path === '/contact'),
+)
 
 onMounted(async () => {
   try {

@@ -29,11 +29,11 @@
           <div class="space-y-8">
             <div>
               <h2 class="text-4xl md:text-6xl font-medium text-fortu-dark mb-4 tracking-tight">
-                Get in Touch
+                Hubungi Tim Fortu
               </h2>
               <p class="text-fortu-medium leading-relaxed">
-                Have questions about our products or services? We're here to help. 
-                Reach out through any of the channels below.
+                Ada pertanyaan tentang produk atau layanan kami? Tim kami siap membantu.
+                Hubungi kami lewat salah satu kanal di bawah.
               </p>
             </div>
 
