@@ -103,9 +103,9 @@
     <section v-if="others.length" class="bg-fortu-off-white py-16 md:py-24" aria-labelledby="more-stories-title">
       <div class="mx-auto max-w-7xl px-4 md:px-16">
         <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 mb-10">
-          <h2 id="more-stories-title" class="text-2xl md:text-3xl font-medium text-fortu-dark tracking-tight">Jelajahi studi kasus lainnya</h2>
+          <h2 id="more-stories-title" class="text-2xl md:text-3xl font-medium text-fortu-dark tracking-tight">{{ copy.caseStudyMoreHeading }}</h2>
           <RouterLink to="/studi-kasus" class="inline-flex items-center gap-2 text-lg font-medium text-fortu-dark underline underline-offset-4">
-            Lihat semua studi kasus
+            {{ copy.portfolioAllLink }}
           </RouterLink>
         </div>
         <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10 list-none">
@@ -117,10 +117,11 @@
 </template>
 
 <script setup lang="ts">
+import { useSectionCopy } from '@/composables/useSectionCopy'
 import { focalStyle } from '@/utils/image'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { CASE_STUDY_BY_SLUG_QUERY, CASE_STUDIES_QUERY, type CaseStudy, type CaseStudyListItem } from '@/sanity/queries'
 import { logoSrc, imageUrl } from '@/utils/caseStudy'
 import { useSeo } from '@/composables/useSeo'
@@ -130,6 +131,8 @@ import { breadcrumbs, caseStudySchema } from '@/utils/structuredData'
 import Button from '@/reusables/Button.vue'
 import CaseStudyCard from '@/components/CaseStudyCard.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
+
+const copy = useSectionCopy()
 
 const route = useRoute()
 const study = ref<CaseStudy | null>(null)
@@ -203,7 +206,7 @@ useJsonLd('breadcrumb', () =>
 // Other published stories, for "Jelajahi studi kasus lainnya"
 const loadOthers = async (slug: string) => {
   try {
-    const all = (await client.fetch(CASE_STUDIES_QUERY)) as CaseStudyListItem[]
+    const all = (await fetchSanity(CASE_STUDIES_QUERY)) as CaseStudyListItem[]
     others.value = all.filter((c) => c.status === 'published' && c.slug.current !== slug).slice(0, 4)
   } catch (e) {
     console.error('Failed to fetch other case studies:', e)
@@ -214,7 +217,7 @@ const loadOthers = async (slug: string) => {
 const load = async (slug: string) => {
   loading.value = true
   try {
-    study.value = (await client.fetch(CASE_STUDY_BY_SLUG_QUERY, { slug })) as CaseStudy | null
+    study.value = (await fetchSanity(CASE_STUDY_BY_SLUG_QUERY, { slug })) as CaseStudy | null
   } catch (e) {
     console.error('Failed to fetch case study:', e)
     study.value = null

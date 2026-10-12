@@ -211,15 +211,16 @@
 </template>
 
 <script setup lang="ts">
+import { useSanityQuery } from '@/composables/useSanityQuery'
 import { buildImageUrl } from '@/utils/image'
-import { ref, computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { client } from '@/sanity/client'
 import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
 import { getOffices, safeUrl, officeLabel, isListable } from '@/utils/offices'
 import { useContactChooser } from '@/composables/useContactChooser'
 
-const settings = ref<SiteSettings | null>(null)
+const { data: settings } = useSanityQuery<SiteSettings | null>(SITE_SETTINGS_QUERY, { label: 'site settings' })
+
 
 const { openChooser } = useContactChooser()
 
@@ -243,11 +244,4 @@ const scrollToTop = () => {
   })
 }
 
-onMounted(async () => {
-  try {
-    settings.value = await client.fetch(SITE_SETTINGS_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch site settings:', e)
-  }
-})
 </script>

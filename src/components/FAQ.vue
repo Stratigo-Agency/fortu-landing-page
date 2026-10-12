@@ -69,15 +69,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { client } from '@/sanity/client'
+import { useSanityQuery } from '@/composables/useSanityQuery'
+import { ref } from 'vue'
 import { FAQ_QUERY, type FAQ } from '@/sanity/queries'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 import { useJsonLd } from '@/composables/useJsonLd'
 import { faqSchema } from '@/utils/structuredData'
 
-const faq = ref<FAQ | null>(null)
-const loading = ref(true)
+const { data: faq, loading } = useSanityQuery<FAQ | null>(FAQ_QUERY, { label: 'FAQ' })
+
 const openItems = ref<number[]>([])
 
 useJsonLd('faq', () => faqSchema(faq.value))
@@ -91,15 +91,6 @@ const toggleItem = (index: number) => {
   }
 }
 
-onMounted(async () => {
-  try {
-    faq.value = await client.fetch(FAQ_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch FAQ:', e)
-  } finally {
-    loading.value = false
-  }
-})
 </script>
 
 <style scoped>

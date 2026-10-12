@@ -65,7 +65,7 @@
               <div class="space-y-1 md:space-y-2">
                 <div class="flex items-center gap-1 md:gap-2">
                   <div class="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-[green] animate-pulse"></div>
-                  <span class="text-[10px] md:text-xs text-fortu-light uppercase tracking-wider">Perangkat Terhubung</span>
+                  <span class="text-[10px] md:text-xs text-fortu-light uppercase tracking-wider">{{ copy.connectedDevicesLabel }}</span>
                 </div>
                 <p class="text-fortu-off-white font-medium text-xs md:text-base truncate">{{ getProductName('top-left') }}</p>
               </div>
@@ -92,7 +92,7 @@
               <div class="space-y-1 md:space-y-2">
                 <div class="flex items-center gap-1 md:gap-2">
                   <div class="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-[green] animate-pulse"></div>
-                  <span class="text-[10px] md:text-xs text-fortu-light uppercase tracking-wider">Perangkat Terhubung</span>
+                  <span class="text-[10px] md:text-xs text-fortu-light uppercase tracking-wider">{{ copy.connectedDevicesLabel }}</span>
                 </div>
                 <p class="text-fortu-off-white font-medium text-xs md:text-base truncate">{{ getProductName('top-right') }}</p>
               </div>
@@ -119,7 +119,7 @@
               <div class="space-y-1 md:space-y-2">
                 <div class="flex items-center gap-1 md:gap-2">
                   <div class="w-1.5 md:w-2 h-1.5 md:h-2 rounded-full bg-[green] animate-pulse"></div>
-                  <span class="text-[10px] md:text-xs text-fortu-light uppercase tracking-wider">Perangkat Terhubung</span>
+                  <span class="text-[10px] md:text-xs text-fortu-light uppercase tracking-wider">{{ copy.connectedDevicesLabel }}</span>
                 </div>
                 <p class="text-fortu-off-white font-medium text-xs md:text-base truncate">{{ getProductName('bottom-center') }}</p>
               </div>
@@ -229,11 +229,14 @@
 </template>
 
 <script setup lang="ts">
+import { useSectionCopy } from '@/composables/useSectionCopy'
 import { buildImageUrl } from '@/utils/image'
 import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { CMS_DEMO_QUERY, type CMSDemo, type CMSDemoProduct } from '@/sanity/queries'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
+
+const copy = useSectionCopy()
 
 const cmsDemo = ref<CMSDemo | null>(null)
 const loading = ref(true)
@@ -500,7 +503,7 @@ onMounted(async () => {
   handleResize()
   window.addEventListener('resize', handleResize, { passive: true })
   try {
-    cmsDemo.value = await client.fetch(CMS_DEMO_QUERY)
+    cmsDemo.value = await fetchSanity(CMS_DEMO_QUERY)
   } catch (e) {
     console.error('Failed to fetch CMS Demo content:', e)
   } finally {

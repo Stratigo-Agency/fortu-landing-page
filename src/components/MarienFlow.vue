@@ -156,7 +156,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { CMS_DEMO_QUERY, type CMSDemo } from '@/sanity/queries'
 import { useFitScale } from '@/composables/useFitScale'
 
@@ -227,7 +227,7 @@ const iconFor = (name: string) => {
 
 onMounted(async () => {
   try {
-    cmsDemo.value = await client.fetch(CMS_DEMO_QUERY)
+    cmsDemo.value = await fetchSanity(CMS_DEMO_QUERY)
   } catch (e) {
     console.error('Failed to fetch Marien flow content:', e)
   }

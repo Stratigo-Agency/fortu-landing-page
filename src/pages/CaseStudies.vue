@@ -22,8 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { client } from '@/sanity/client'
+import { useSanityQuery } from '@/composables/useSanityQuery'
 import { CASE_STUDIES_QUERY, type CaseStudyListItem } from '@/sanity/queries'
 import { usePageSeo } from '@/composables/usePageSeo'
 import PageHero from '@/components/PageHero.vue'
@@ -31,8 +30,8 @@ import CaseStudyCard from '@/components/CaseStudyCard.vue'
 import CTA from '@/components/CTA.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
-const studies = ref<CaseStudyListItem[]>([])
-const loading = ref(true)
+const { data: studies, loading } = useSanityQuery<CaseStudyListItem[]>(CASE_STUDIES_QUERY, { initial: [], label: 'case studies' })
+
 
 usePageSeo('case-studies', {
   title: 'Studi Kasus Digital Signage | Fortu Digital',
@@ -40,13 +39,4 @@ usePageSeo('case-studies', {
     'Proyek digital signage dan interactive display Fortu Digital bersama klien di berbagai industri: dari kebutuhan, solusi, sampai hasilnya.',
 })
 
-onMounted(async () => {
-  try {
-    studies.value = (await client.fetch(CASE_STUDIES_QUERY)) as CaseStudyListItem[]
-  } catch (e) {
-    console.error('Failed to fetch case studies:', e)
-  } finally {
-    loading.value = false
-  }
-})
 </script>

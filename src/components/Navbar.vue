@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import Button from '@/reusables/Button.vue'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { NAV_PRODUCTS_QUERY, type NavProduct } from '@/sanity/queries'
 import { FALLBACK_NAV_PRODUCTS, NAV_LINKS } from '@/config/nav'
 
@@ -72,7 +72,7 @@ onMounted(async () => {
   window.addEventListener('keydown', onKeydown)
   handleScroll() // Initial check
   try {
-    const list = (await client.fetch(NAV_PRODUCTS_QUERY)) as NavProduct[]
+    const list = (await fetchSanity(NAV_PRODUCTS_QUERY)) as NavProduct[]
     if (list?.length) navProducts.value = list
   } catch (e) {
     console.warn('Failed to fetch menu products, using defaults:', e)

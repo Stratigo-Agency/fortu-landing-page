@@ -2,20 +2,17 @@
   <section v-if="posts.length" class="latest-articles bg-white py-16 md:py-24" aria-labelledby="latest-articles-title">
     <div class="mx-auto px-4 md:px-16">
       <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10 md:mb-14">
-        <div>
-          <p class="text-[11px] md:text-xs uppercase tracking-[0.24em] text-fortu-medium mb-3">Blog</p>
-          <h2
-            id="latest-articles-title"
-            class="text-3xl md:text-5xl font-medium text-fortu-dark tracking-tight"
-          >
-            Artikel &amp; Berita
-          </h2>
-        </div>
+        <SectionHeader
+          align="left"
+          title-id="latest-articles-title"
+          :eyebrow="copy.articlesEyebrow"
+          :title="copy.articlesHeading"
+        />
         <RouterLink
           to="/blog"
           class="inline-flex items-center gap-2 text-fortu-dark font-medium group"
         >
-          Lihat semua artikel
+          {{ copy.articlesAllLink }}
           <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
           </svg>
@@ -68,18 +65,22 @@
 </template>
 
 <script setup lang="ts">
+import { useSectionCopy } from '@/composables/useSectionCopy'
+import SectionHeader from '@/reusables/SectionHeader.vue'
 import { focalStyle } from '@/utils/image'
 import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { BLOG_POSTS_QUERY, type BlogPostListItem } from '@/sanity/queries'
 import { formatDate, displayDate, postLabel, postCoverUrl } from '@/utils/blog'
+
+const copy = useSectionCopy()
 
 const posts = ref<BlogPostListItem[]>([])
 
 onMounted(async () => {
   try {
-    const all = (await client.fetch(BLOG_POSTS_QUERY)) as BlogPostListItem[]
+    const all = (await fetchSanity(BLOG_POSTS_QUERY)) as BlogPostListItem[]
     posts.value = all.slice(0, 3)
   } catch (e) {
     console.error('Failed to fetch latest articles:', e)

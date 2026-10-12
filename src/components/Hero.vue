@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { focalStyle, buildImageUrl } from '@/utils/image'
 import { ref, onMounted, computed, watchEffect, onUnmounted } from 'vue'
-import { client } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { HERO_QUERY, SITE_SETTINGS_QUERY, type Hero, type Office } from '@/sanity/queries'
 import { getOffices, safeUrl } from '@/utils/offices'
 import Button from '@/reusables/Button.vue'
@@ -99,8 +99,8 @@ onUnmounted(() => {
 onMounted(async () => {
   try {
     const [heroData, settings] = await Promise.all([
-      client.fetch(HERO_QUERY),
-      client.fetch(SITE_SETTINGS_QUERY).catch(() => null),
+      fetchSanity(HERO_QUERY),
+      fetchSanity(SITE_SETTINGS_QUERY).catch(() => null),
     ])
     hero.value = heroData
     offices.value = [...getOffices(settings)]

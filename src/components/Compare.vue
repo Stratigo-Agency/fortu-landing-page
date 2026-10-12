@@ -152,15 +152,15 @@
 </template>
 
 <script setup lang="ts">
+import { useSanityQuery } from '@/composables/useSanityQuery'
 import { buildImageUrl } from '@/utils/image'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { client } from '@/sanity/client'
 import { PRODUCT_COMPARE_QUERY, type ProductCompare, type ProductCompareItem, type ProductSpec } from '@/sanity/queries'
 import Button from '@/reusables/Button.vue'
 
-const compare = ref<ProductCompare | null>(null)
-const loading = ref(true)
+const { data: compare, loading } = useSanityQuery<ProductCompare | null>(PRODUCT_COMPARE_QUERY, { label: 'product comparison' })
+
 
 // Four products fit side by side from 1280px; phones compare two at a time
 const MAX_COLUMNS = 4
@@ -283,15 +283,6 @@ const mobileCols = computed(() => mobileIdx.value.map((i) => columns.value[i]))
 const mobileRows = computed(() => rows.value.filter((r) => mobileIdx.value.some((i) => r.cells[i])))
 const mobileExtras = computed(() => mobileIdx.value.some((i) => extraCells.value[i]?.length))
 
-onMounted(async () => {
-  try {
-    compare.value = await client.fetch(PRODUCT_COMPARE_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch product comparison:', e)
-  } finally {
-    loading.value = false
-  }
-})
 </script>
 
 <style scoped>
