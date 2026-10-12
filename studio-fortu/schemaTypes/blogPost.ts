@@ -247,8 +247,22 @@ export default defineType({
       title: 'Featured Post',
       type: 'boolean',
       group: 'basic',
-      description: 'Highlight this post on the listing page',
+      description:
+        'Centang untuk menampilkan artikel ini di bagian "Artikel & Berita" di Beranda (dan sebagai artikel utama di halaman Blog). Maksimal 3 artikel featured. Untuk mengganti, hilangkan centang di artikel lain dulu.',
       initialValue: false,
+      validation: (Rule) =>
+        Rule.custom(async (value, context) => {
+          if (!value) return true
+          const client = context.getClient({apiVersion: '2024-01-01'})
+          const id = String(context.document?._id || '').replace(/^drafts\./, '')
+          const others = await client.fetch<number>(
+            'count(*[_type == "blogPost" && featured == true && isActive == true && !(_id in path("drafts.**")) && _id != $id])',
+            {id},
+          )
+          return others >= 3
+            ? 'Sudah ada 3 artikel featured. Hilangkan centang featured di salah satu artikel lain dulu (maksimal 3).'
+            : true
+        }),
     }),
     defineField({
       name: 'isActive',

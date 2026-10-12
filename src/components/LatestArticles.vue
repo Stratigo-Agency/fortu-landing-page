@@ -68,22 +68,13 @@
 import { useSectionCopy } from '@/composables/useSectionCopy'
 import SectionHeader from '@/reusables/SectionHeader.vue'
 import { focalStyle } from '@/utils/image'
-import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
-import { fetchSanity } from '@/sanity/fetch'
-import { BLOG_POSTS_QUERY, type BlogPostListItem } from '@/sanity/queries'
+import { useSanityQuery } from '@/composables/useSanityQuery'
+import { FEATURED_POSTS_QUERY, type BlogPostListItem } from '@/sanity/queries'
 import { formatDate, displayDate, postLabel, postCoverUrl } from '@/utils/blog'
 
 const copy = useSectionCopy()
 
-const posts = ref<BlogPostListItem[]>([])
-
-onMounted(async () => {
-  try {
-    const all = (await fetchSanity(BLOG_POSTS_QUERY)) as BlogPostListItem[]
-    posts.value = all.slice(0, 3)
-  } catch (e) {
-    console.error('Failed to fetch latest articles:', e)
-  }
-})
+// Only the posts editors marked Featured (max 3, enforced in Studio and in the query)
+const { data: posts } = useSanityQuery<BlogPostListItem[]>(FEATURED_POSTS_QUERY, { initial: [], label: 'featured articles' })
 </script>

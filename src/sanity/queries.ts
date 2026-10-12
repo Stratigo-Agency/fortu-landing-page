@@ -1260,3 +1260,28 @@ export const SECTION_COPY_QUERY = defineQuery(/* groq */ `
     caseStudyMoreHeading, connectedDevicesLabel
   }
 `)
+
+// Landing page "Artikel & Berita": only posts marked Featured in Studio, newest first, never more than 3
+export const FEATURED_POSTS_QUERY = defineQuery(/* groq */ `
+  *[_type == "blogPost" && isActive == true && featured == true] | order(coalesce(sourcePublishedAt, publishedAt) desc) [0...3] {
+    _id,
+    title,
+    slug,
+    excerpt,
+    publishedAt,
+    category,
+    coverImage {
+      asset-> {
+        _id,
+        url
+      },
+      hotspot,
+      crop,
+      alt
+    },
+    isMediaCoverage,
+    sourceName,
+    sourcePublishedAt,
+    featured
+  }
+`)
