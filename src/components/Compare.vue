@@ -19,30 +19,22 @@
       <div class="cmp-fade lg:hidden">
         <div v-if="columns.length > 2" class="flex flex-col gap-3 mb-8 max-w-md mx-auto">
           <p class="text-center text-base" :class="th.sub">Bandingkan dua produk</p>
-          <div v-for="slot in [0, 1]" :key="slot" class="select-wrap">
-            <select
-              v-model.number="mobileSelection[slot]"
-              :aria-label="`Produk ${slot + 1}`"
-              class="w-full h-[52px] pl-4 pr-10 rounded-xl text-base font-medium appearance-none cursor-pointer"
-              :class="th.select"
-            >
-              <option
-                v-for="(c, idx) in columns"
-                :key="c.id"
-                :value="idx"
-                :disabled="idx === mobileSelection[slot === 0 ? 1 : 0]"
-              >
-                {{ c.name }}{{ c.soon ? ' (segera)' : '' }}
-              </option>
-            </select>
-          </div>
+          <FortuSelect
+            v-for="slot in [0, 1]"
+            :key="slot"
+            :model-value="mobileSelection[slot]"
+            @update:model-value="mobileSelection[slot] = Number($event)"
+            :label="`Produk ${slot + 1}`"
+            :tone="isLight ? 'light' : 'dark'"
+            :options="selectOptions(mobileSelection[slot === 0 ? 1 : 0])"
+          />
         </div>
 
         <table class="w-full table-fixed border-collapse">
           <caption class="sr-only">Perbandingan dua produk Fortu</caption>
           <thead>
             <tr>
-              <th v-for="c in mobileCols" :key="c.id" scope="col" class="px-1.5 pb-6 align-top font-normal">
+              <th v-for="(c, ci) in mobileCols" :key="c.id" scope="col" class="px-3 pb-6 align-top font-normal" :class="{ 'border-l': ci > 0, [th.line]: ci > 0 }">
                 <div class="pimg h-[150px] mb-3" :class="[th.panel, { 'is-soon': c.soon }]">
                   <img v-if="c.image" :src="c.image" :alt="c.name" loading="lazy" decoding="async" width="320" height="320" />
                   <img v-else-if="c.soon" src="/products/videotron.svg" :alt="`${c.name}, segera hadir`" loading="lazy" width="320" height="240" class="soon-art" />
@@ -64,7 +56,7 @@
               </th>
             </tr>
             <tr>
-              <td v-for="i in mobileIdx" :key="i" class="px-1.5 pb-4 text-center text-base leading-snug" :class="r.cells[i] ? th.value : th.na">
+              <td v-for="(i, ci) in mobileIdx" :key="i" class="px-3 pb-4 text-center text-base leading-snug" :class="[r.cells[i] ? th.value : th.na, { 'border-l': ci > 0, [th.line]: ci > 0 }]">
                 <template v-if="r.cells[i]">{{ r.cells[i] }}</template>
                 <template v-else><span aria-hidden="true">—</span><span class="sr-only">Tidak tersedia</span></template>
               </td>
@@ -77,7 +69,7 @@
               </th>
             </tr>
             <tr>
-              <td v-for="i in mobileIdx" :key="i" class="px-1.5 pb-4 text-center text-[15px] leading-snug" :class="extraCells[i].length ? th.value : th.na">
+              <td v-for="(i, ci) in mobileIdx" :key="i" class="px-3 pb-4 text-center text-[15px] leading-snug" :class="[extraCells[i].length ? th.value : th.na, { 'border-l': ci > 0, [th.line]: ci > 0 }]">
                 <template v-if="extraCells[i].length">{{ extraCells[i].join(', ') }}</template>
                 <template v-else><span aria-hidden="true">—</span><span class="sr-only">Tidak tersedia</span></template>
               </td>
@@ -158,6 +150,7 @@ import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { PRODUCT_COMPARE_QUERY, type ProductCompare, type ProductCompareItem, type ProductSpec } from '@/sanity/queries'
 import Button from '@/reusables/Button.vue'
+import FortuSelect from '@/reusables/Select.vue'
 
 const { data: compare, loading } = useSanityQuery<ProductCompare | null>(PRODUCT_COMPARE_QUERY, { label: 'product comparison' })
 
@@ -180,7 +173,6 @@ const th = computed(() =>
         line: 'border-fortu-dark/15',
         cta: 'primary' as const,
         pill: 'border-fortu-dark/30 text-fortu-medium',
-        select: 'bg-white border border-fortu-light/50 text-fortu-dark',
         panel: 'pimg-light',
         link: 'text-fortu-dark',
       }
@@ -193,7 +185,6 @@ const th = computed(() =>
         line: 'border-fortu-light/20',
         cta: 'inverted' as const,
         pill: 'border-fortu-light/45 text-fortu-light',
-        select: 'bg-fortu-medium/20 border border-fortu-medium/30 text-fortu-off-white',
         panel: 'pimg-dark',
         link: 'text-fortu-off-white',
       },
@@ -275,6 +266,10 @@ const extraCells = computed(() => {
 })
 const hasExtras = computed(() => extraCells.value.some((list) => list.length))
 
+// Dropdown rows: a product already shown in the other slot cannot be picked again
+const selectOptions = (other: number) =>
+  columns.value.map((c, idx) => ({ value: idx, label: c.name, hint: c.soon ? 'Segera' : undefined, disabled: idx === other }))
+
 // Phones: the two chosen products (or all of them when there are only two)
 const mobileIdx = computed(() =>
   columns.value.length <= 2 ? columns.value.map((_, i) => i) : mobileSelection.value.filter((i) => columns.value[i]),
@@ -334,23 +329,6 @@ const mobileExtras = computed(() => mobileIdx.value.some((i) => extraCells.value
   border-width: 1px;
   border-style: solid;
   font-size: 1rem;
-}
-
-.select-wrap {
-  position: relative;
-}
-.select-wrap::after {
-  content: '';
-  position: absolute;
-  right: 18px;
-  top: 50%;
-  width: 8px;
-  height: 8px;
-  margin-top: -6px;
-  border-right: 2px solid rgb(var(--fortu-light));
-  border-bottom: 2px solid rgb(var(--fortu-light));
-  transform: rotate(45deg);
-  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
