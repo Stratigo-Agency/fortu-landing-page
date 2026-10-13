@@ -1,16 +1,16 @@
 <template>
-  <section class="marien-flow relative overflow-hidden bg-fortu-dark py-16 md:py-28" aria-labelledby="marien-flow-title">
-    <div class="mx-auto px-6 md:px-10 xl:px-16 max-w-7xl relative z-10">
+  <section class="relative py-16 overflow-hidden marien-flow bg-fortu-dark md:py-28" aria-labelledby="marien-flow-title">
+    <div class="relative z-10 px-6 mx-auto md:px-10 xl:px-16 max-w-7xl">
       <!-- Header (editable in Sanity: Integrasi Praktis) -->
-      <div class="text-center mb-12 md:mb-16">
-        <span class="inline-block px-4 py-2 rounded-full bg-fortu-off-white text-fortu-dark font-light text-xs tracking-wide uppercase mb-6">
+      <div class="mb-12 text-center md:mb-16">
+        <span class="inline-block px-4 py-2 mb-6 text-xs font-light tracking-wide uppercase rounded-full bg-fortu-off-white text-fortu-dark">
           {{ content.badge }}
         </span>
-        <h2 id="marien-flow-title" class="text-3xl md:text-5xl lg:text-6xl font-light text-fortu-off-white mb-4 md:mb-6 tracking-tight">
+        <h2 id="marien-flow-title" class="mb-4 text-3xl font-light tracking-tight md:text-5xl lg:text-6xl text-fortu-off-white md:mb-6">
           {{ content.line1 }}
           <span class="block mt-1 md:mt-2 text-fortu-light">{{ content.line2 }}</span>
         </h2>
-        <p class="text-fortu-light/80 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+        <p class="max-w-2xl mx-auto text-base leading-relaxed text-fortu-light/80 md:text-lg">
           {{ content.description }}
         </p>
       </div>
@@ -31,7 +31,8 @@
           <div class="hl" style="left: 88px; top: 289px; width: 180px"></div>
           <div class="hl" style="left: 436px; top: 289px; width: 164px"></div>
           <div class="cr cr-top" style="left: 519px; top: 89px; width: 81px; height: 22px"></div>
-          <div class="vl" style="left: 519px; top: 111px; height: 358px"></div>
+          <div class="vl up" style="left: 519px; top: 111px; height: 178px"></div>
+          <div class="vl" style="left: 519px; top: 289px; height: 180px"></div>
           <div class="cr cr-bottom" style="left: 519px; top: 469px; width: 81px; height: 22px"></div>
           <div class="hl" style="left: 541px; top: 89px; width: 59px"></div>
           <div class="hl" style="left: 541px; top: 489px; width: 59px"></div>
@@ -58,7 +59,7 @@
               <span class="pin" :style="{ top: '-10px', left: `${p}px`, width: '4px', height: '10px' }"></span>
               <span class="pin" :style="{ bottom: '-10px', left: `${p}px`, width: '4px', height: '10px' }"></span>
             </template>
-            <img src="/marien-icon.png" alt="" width="96" height="75" class="relative" />
+            <img src="/marien-icon.png" alt="" width="100" height="80" class="relative" />
           </div>
           <p class="label" style="left: 222px; top: 398px; width: 260px; font-size: 24px">Marien CMS</p>
 
@@ -119,9 +120,9 @@
             <!-- 2. Marien -->
             <div class="chip round" style="left: 125px; top: 164px; width: 100px; height: 100px">
               <span class="ring" style="left: -9px; top: -9px; width: 118px; height: 118px; border-radius: 9999px"></span>
-              <img src="/marien-icon.png" alt="" width="62" height="49" class="relative" />
+              <img src="/marien-icon.png" alt="" width="64" height="51" class="relative" />
             </div>
-            <p class="label tag" style="left: 232px; top: 203px; font-size: 17px">Marien CMS</p>
+            <p class="label tag" style="left: 100px; top: 280px; width: 150px; font-size: 18px">Marien CMS</p>
 
             <!-- 3. buildings, 4. their products -->
             <template v-for="(b, i) in buildings" :key="b">
@@ -281,6 +282,10 @@ onMounted(async () => {
   background-repeat: repeat-y, no-repeat;
   animation: flow-y 1.2s linear infinite;
 }
+/* The upper half of the trunk carries data from Marien up to the first building */
+.vl.up {
+  animation-name: flow-y-up;
+}
 .cr {
   border: 0 solid rgb(var(--fortu-light) / 0.28);
 }
@@ -404,6 +409,11 @@ onMounted(async () => {
     background-position: 0 15px, 0 0;
   }
 }
+@keyframes flow-y-up {
+  to {
+    background-position: 0 -15px, 0 0;
+  }
+}
 @keyframes pulse {
   0% {
     transform: scale(0.94);
@@ -419,6 +429,7 @@ onMounted(async () => {
 @media (prefers-reduced-motion: reduce) {
   .hl,
   .vl,
+  .vl.up,
   .ring {
     animation: none;
   }

@@ -159,8 +159,8 @@ onMounted(async () => {
       }"
     >
       <div class="w-full">
-        <h1 class="text-5xl md:text-8xl font-medium mb-4 tracking-tight leading-tight hero-title">{{ hero.title }}</h1>
-        <h2 v-if="hero.subtitle" class="text-xl md:text-3xl font-medium mb-4 text-fortu-light leading-snug hero-subtitle">{{ hero.subtitle }}</h2>
+        <h1 class="text-4xl sm:text-5xl md:text-8xl font-medium mb-4 tracking-tight leading-[1.1] md:leading-tight hero-title">{{ hero.title }}</h1>
+        <h2 v-if="hero.subtitle" class="text-2xl md:text-3xl font-medium mb-4 text-fortu-off-white leading-snug hero-subtitle">{{ hero.subtitle }}</h2>
         <p v-if="hero.description" class="text-lg md:text-xl leading-relaxed mb-6 max-w-3xl text-[rgba(250,250,250,0.9)] hero-description"
            :class="{ 'mx-auto': heroAlignment === 'center', 'ml-auto': heroAlignment === 'right' }">{{ hero.description }}</p>
 

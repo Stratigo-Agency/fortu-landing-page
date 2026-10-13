@@ -12,14 +12,15 @@
   >
     <!-- Product tabs (shared by all slides) -->
     <div class="relative z-10 px-6 pt-24 pb-5 md:absolute md:top-0 md:left-0 md:w-1/2 md:px-10 lg:px-16 md:pt-36 md:pb-0" role="group" aria-label="Pilih produk">
-      <div class="grid grid-cols-2 sm:inline-flex gap-1 p-1 rounded-3xl sm:rounded-full bg-fortu-dark">
+      <!-- One row on every screen: on phones it scrolls sideways and keeps the active tab in view -->
+      <div ref="tabsEl" class="product-tabs flex sm:inline-flex max-w-full overflow-x-auto gap-1 p-1 rounded-full bg-fortu-dark">
         <button
           v-for="(prod, idx) in productSlides"
           :key="`tab-${prod._id}`"
           type="button"
           :aria-label="`Lihat ${prod.name}`"
           :aria-pressed="currentIndex === idx ? 'true' : 'false'"
-          class="rounded-full px-3.5 py-2 text-sm font-medium sm:whitespace-nowrap transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-fortu-off-white"
+          class="shrink-0 rounded-full px-5 py-3 text-base sm:px-4 sm:py-2.5 sm:text-sm font-medium whitespace-nowrap transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-fortu-off-white"
           :class="currentIndex === idx
             ? 'bg-fortu-off-white text-fortu-dark'
             : 'text-fortu-off-white hover:bg-fortu-off-white/15'"
@@ -130,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
+import { ref, onMounted, onUnmounted, watch, watchEffect } from 'vue'
 import { fetchSanity } from '@/sanity/fetch'
 import { PRODUCT_SLIDES_QUERY, type ProductSlide } from '@/sanity/queries'
 import { focalStyle, responsiveImage } from '@/utils/image'
@@ -141,6 +142,18 @@ import SliderControls from '@/reusables/SliderControls.vue'
 const productSlides = ref<ProductSlide[]>([])
 const loading = ref(true)
 const currentIndex = ref(0)
+const tabsEl = ref<HTMLElement | null>(null)
+
+// Keep the active tab inside the scrolling row (scrolls the row only, never the page)
+watch(currentIndex, (i) => {
+  const row = tabsEl.value
+  const tab = row?.children[i] as HTMLElement | undefined
+  if (!row || !tab || row.scrollWidth <= row.clientWidth) return
+  row.scrollTo({
+    left: tab.offsetLeft - (row.clientWidth - tab.offsetWidth) / 2,
+    behavior: reduceMotion ? 'auto' : 'smooth',
+  })
+})
 const autoPlayInterval = 6000
 
 let timer: ReturnType<typeof setInterval> | null = null
@@ -218,6 +231,12 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.product-tabs {
+  scrollbar-width: none;
+}
+.product-tabs::-webkit-scrollbar {
+  display: none;
+}
 /* All slides share one grid cell, so the section is as tall as the tallest slide. */
 .slides-grid {
   display: grid;
