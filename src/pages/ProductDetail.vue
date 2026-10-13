@@ -207,6 +207,17 @@ const selectVariant = (variant: ProductVariant) => {
   selectedVariant.value = variant
 }
 
+// "65", "65\"" and "65 inci" all mean the same size
+const sizeKey = (v: string) => v.toLowerCase().replace(/["”″\s]|inci?h?$/g, '')
+const selectVariantFromQuery = () => {
+  const wanted = route.query.ukuran
+  const size = Array.isArray(wanted) ? wanted[0] : wanted
+  if (!size || !product.value?.variants) return
+  const match = product.value.variants.find((v) => sizeKey(v.name) === sizeKey(size))
+  if (match) selectedVariant.value = match
+}
+watch(() => route.query.ukuran, selectVariantFromQuery)
+
 watch(() => route.params.slug, async (newSlug) => {
   if (newSlug) {
     await fetchProduct(newSlug as string)
@@ -227,9 +238,10 @@ const fetchProduct = async (slug: string) => {
     
     product.value = productData
     
-    // Auto-select first variant
+    // Auto-select first variant, unless the link asked for a size (?ukuran=65 from the header menu)
     if (productData.hasVariants && productData.variants && productData.variants.length > 0) {
       selectedVariant.value = productData.variants[0]
+      selectVariantFromQuery()
     }
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to fetch product'
