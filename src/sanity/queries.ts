@@ -1076,22 +1076,16 @@ export const PAGE_SEO_QUERY = defineQuery(/* groq */ `
   }
 `)
 
-// Header menu: featured products, shown directly in the navigation
+// Header menu: which products exist and are live (the menu structure itself is in config/nav.ts)
 export interface NavProduct {
-  _id: string
-  name: string
   slug: string
   status?: string
-  menuOrder?: number
 }
 
 export const NAV_PRODUCTS_QUERY = defineQuery(/* groq */ `
-  *[_type == "product" && showInMenu == true && status in ["active", "coming_soon"]] | order(menuOrder asc, name asc) {
-    _id,
-    name,
+  *[_type == "product" && status in ["active", "coming_soon"] && defined(slug.current)] {
     "slug": slug.current,
-    status,
-    menuOrder
+    status
   }
 `)
 
