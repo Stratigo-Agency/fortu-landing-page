@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { whenElement } from '@/utils/whenElement'
 
 // Lazy load routes for code splitting
 const Home = () => import('@/pages/Home.vue')
@@ -72,7 +73,13 @@ const router = createRouter({
       component: NotFound,
     },
   ],
-  scrollBehavior() {
+  scrollBehavior(to) {
+    // /#portfolio etc.: wait for the (lazy) section, then glide to it
+    if (to.hash) {
+      return whenElement(to.hash).then((el) =>
+        el ? { el: to.hash, top: 0, behavior: 'smooth' as const } : { top: 0 },
+      )
+    }
     return { top: 0 }
   },
 })

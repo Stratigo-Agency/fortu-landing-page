@@ -1,5 +1,5 @@
 <template>
-  <section v-if="shown.length" class="client-portfolio bg-fortu-off-white py-16 md:py-24" aria-labelledby="client-portfolio-title">
+  <section v-if="shown.length" id="portfolio" class="client-portfolio bg-fortu-off-white py-16 md:py-24" aria-labelledby="client-portfolio-title">
     <div class="mx-auto px-4 md:px-16">
       <SectionHeader
         class="mb-10 md:mb-14"
