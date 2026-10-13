@@ -14,6 +14,7 @@
 
     <!-- CMS Demo Section -->
     <MarienFlow />
+    <MarienDemo />
     <Service />
 
     <!-- Use Case Section -->
@@ -36,6 +37,11 @@ import { defineAsyncComponent } from 'vue'
 const MarienFlow = defineAsyncComponent({
   loader: () => import('@/components/MarienFlow.vue'),
   delay: 200, // Delay loading by 200ms
+  timeout: 3000,
+})
+const MarienDemo = defineAsyncComponent({
+  loader: () => import('@/components/MarienDemo.vue'),
+  delay: 200,
   timeout: 3000,
 })
 const ClientPortfolio = defineAsyncComponent({
