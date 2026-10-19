@@ -30,7 +30,7 @@ merged into `staging` by pull request and deleted afterwards.
 Every public page needs:
 
 - **One title**, unique, at most **60 characters**. **One description**, unique, at most **160** (aim for 120-155).
-- A **canonical** link in the form `https://www.fortu.co.id/...` equal to the page's own address.
+- A **canonical** link in the form `https://fortu.co.id/...` equal to the page's own address.
 - Exactly **one H1** (the main heading), with the main keyword of the page in it. The rest are H2/H3 in order.
 - An **alt text** on every image that carries information (describe what is seen and name the product). Pure decoration uses `alt=""`.
 - Valid **structured data** (JSON-LD).

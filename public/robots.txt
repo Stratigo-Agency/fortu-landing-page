@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 Disallow: /studio/
 
-Sitemap: https://www.fortu.co.id/sitemap.xml
+Sitemap: https://fortu.co.id/sitemap.xml
