@@ -15,10 +15,10 @@
   <!-- Error State -->
   <div v-else-if="error" class="min-h-screen flex items-center justify-center bg-fortu-off-white">
     <div class="text-center px-4">
-      <h1 class="text-2xl font-medium text-fortu-dark mb-4">Product Not Found</h1>
+      <h1 class="text-2xl font-medium text-fortu-dark mb-4">Produk Tidak Ditemukan</h1>
       <p class="text-fortu-medium mb-8">{{ error }}</p>
       <Button href="/products" variant="primary">
-        Back to Products
+        Kembali ke Produk
       </Button>
     </div>
   </div>
@@ -244,7 +244,7 @@ const fetchProduct = async (slug: string) => {
     const productData = await fetchSanity(PRODUCT_BY_SLUG_QUERY, { slug })
     
     if (!productData) {
-      error.value = 'The product you are looking for does not exist.'
+      error.value = 'Produk yang Anda cari tidak tersedia.'
       return
     }
     
@@ -256,7 +256,7 @@ const fetchProduct = async (slug: string) => {
       selectVariantFromQuery()
     }
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Failed to fetch product'
+    error.value = e instanceof Error ? e.message : 'Produk tidak dapat dimuat. Coba lagi nanti.'
   } finally {
     loading.value = false
   }

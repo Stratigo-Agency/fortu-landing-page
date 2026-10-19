@@ -84,7 +84,7 @@
           v-for="variant in variants"
           :key="variant._key"
           @click="$emit('select-variant', variant)"
-          :aria-label="`Select ${variant.name} variant`"
+          :aria-label="`Pilih varian ${variant.name}`"
           :aria-pressed="selectedVariantKey === variant._key ? 'true' : 'false'"
           class="w-8 h-8 rounded-full border-2 transition-all hover:scale-110"
           :class="selectedVariantKey === variant._key 

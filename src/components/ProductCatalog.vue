@@ -25,7 +25,7 @@
 
     <!-- Empty State -->
     <div v-else-if="products.length === 0" class="text-center py-20 text-fortu-medium">
-      No products found. Add some products in Sanity Studio.
+      Produk belum tersedia.
     </div>
 
     <!-- Products Carousel -->
@@ -107,7 +107,7 @@ onMounted(async () => {
   try {
     products.value = await fetchSanity(PRODUCTS_QUERY)
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Failed to fetch products'
+    error.value = e instanceof Error ? e.message : 'Produk tidak dapat dimuat. Coba lagi nanti.'
   } finally {
     loading.value = false
   }

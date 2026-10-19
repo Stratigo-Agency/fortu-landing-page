@@ -2,7 +2,7 @@
   <div class="about-page bg-fortu-off-white min-h-screen">
     <PageHero 
       pageName="about" 
-      fallbackTitle="About Us"
+      fallbackTitle="Tentang FORTU"
       fallbackSubtitle="Pelajari lebih lanjut tentang kami dan misi kami"
     />
 

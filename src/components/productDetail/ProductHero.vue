@@ -37,7 +37,7 @@
     <div class="relative z-10 w-full px-4 md:px-16 pb-12 md:pb-16">
       <!-- Breadcrumb -->
       <nav class="text-sm text-fortu-light/80 mb-4">
-        <router-link to="/products" class="hover:text-fortu-off-white transition-colors">Products</router-link>
+        <router-link to="/products" class="hover:text-fortu-off-white transition-colors">Produk</router-link>
         <span class="mx-2">/</span>
         <span class="text-fortu-off-white">{{ productName }}</span>
       </nav>
@@ -172,7 +172,7 @@
     <div class="relative z-10 w-full px-4 md:px-16 pb-12 md:pb-16">
       <!-- Breadcrumb -->
       <nav class="text-sm text-fortu-light/80 mb-4">
-        <router-link to="/products" class="hover:text-fortu-off-white transition-colors">Products</router-link>
+        <router-link to="/products" class="hover:text-fortu-off-white transition-colors">Produk</router-link>
         <span class="mx-2">/</span>
         <span class="text-fortu-off-white">{{ productName }}</span>
       </nav>

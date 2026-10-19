@@ -16,7 +16,7 @@
             />
           </RouterLink>
           <p class="text-fortu-light text-sm leading-relaxed mb-6">
-            {{ settings?.tagline || 'Empowering businesses with seamless digital solutions and premium experiences.' }}
+            {{ settings?.tagline || 'Solusi digital signage dan layar interaktif untuk bisnis dan institusi di seluruh Indonesia.' }}
           </p>
           <!-- Social Links -->
           <div class="flex gap-4">
