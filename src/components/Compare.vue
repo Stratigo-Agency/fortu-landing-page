@@ -35,7 +35,7 @@
           <thead>
             <tr>
               <th v-for="(c, ci) in mobileCols" :key="c.id" scope="col" class="px-3 pb-6 align-top font-normal" :class="{ 'border-l': ci > 0, [th.line]: ci > 0 }">
-                <div class="pimg h-[150px] mb-3" :class="[th.panel, { 'is-soon': c.soon }]">
+                <div class="pimg h-[170px] mb-3" :class="[th.panel, { 'is-soon': c.soon }]">
                   <img v-if="c.image" :src="c.image" :alt="c.name" loading="lazy" decoding="async" width="320" height="320" />
                   <img v-else-if="c.soon" src="/products/videotron.svg" :alt="`${c.name}, segera hadir`" loading="lazy" width="320" height="240" class="soon-art" />
                 </div>
@@ -89,7 +89,7 @@
           <tr>
             <th scope="col" class="p-0"><span class="sr-only">Spesifikasi</span></th>
             <th v-for="c in columns" :key="c.id" scope="col" class="px-2.5 pb-7 align-top font-normal">
-              <div class="pimg h-[190px] xl:h-[210px] mb-5" :class="[th.panel, { 'is-soon': c.soon }]">
+              <div class="pimg h-[230px] xl:h-[260px] mb-5" :class="[th.panel, { 'is-soon': c.soon }]">
                 <img v-if="c.image" :src="c.image" :alt="c.name" loading="lazy" decoding="async" width="560" height="560" />
                 <img v-else-if="c.soon" src="/products/videotron.svg" :alt="`${c.name}, segera hadir`" loading="lazy" width="560" height="420" class="soon-art" />
               </div>
@@ -295,24 +295,16 @@ const mobileExtras = computed(() => mobileIdx.value.some((i) => extraCells.value
   }
 }
 
+/* Product cut-outs sit straight on the section background: no panel, no backdrop */
 .pimg {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 22px;
 }
 .pimg img {
-  max-width: 84%;
-  max-height: 84%;
+  max-width: 92%;
+  max-height: 100%;
   object-fit: contain;
-  /* studio photos have their own backdrop: round it like the panel */
-  border-radius: 14px;
-}
-.pimg-dark {
-  background: radial-gradient(circle at 50% 38%, rgb(var(--fortu-off-white) / 0.12), rgb(var(--fortu-off-white) / 0.03));
-}
-.pimg-light {
-  background: radial-gradient(circle at 50% 38%, rgb(var(--fortu-dark) / 0.07), rgb(var(--fortu-dark) / 0.02));
 }
 .pimg.is-soon {
   border: 1px dashed rgb(var(--fortu-medium) / 0.55);
