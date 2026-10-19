@@ -28,7 +28,7 @@ async function fetchSanityEntries(
   const version = env.VITE_SANITY_API_VERSION || '2024-01-01'
   if (!projectId || !dataset) throw new Error('VITE_SANITY_PROJECT_ID / VITE_SANITY_DATASET not set')
   const query = `{
-    "products": *[_type == "product" && status == "active" && defined(slug.current) && noIndex != true]{ "slug": slug.current, _updatedAt },
+    "products": *[_type == "product" && status == "active" && showOnSite != false && defined(slug.current) && noIndex != true]{ "slug": slug.current, _updatedAt },
     "posts": *[_type == "blogPost" && isActive == true && defined(slug.current) && noIndex != true]{ "slug": slug.current, _updatedAt },
     "studies": *[_type == "caseStudy" && status == "published" && defined(slug.current) && noIndex != true]{ "slug": slug.current, _updatedAt },
     "hiddenPages": *[_type == "pageSeo" && noIndex == true].page

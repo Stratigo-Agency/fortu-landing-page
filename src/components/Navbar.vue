@@ -20,11 +20,20 @@ let closeTimer: ReturnType<typeof setTimeout> | null = null
 
 // Which product pages exist (Sanity). Until it answers, the products that already exist are treated as live.
 const liveSlugs = ref<Set<string>>(new Set(FALLBACK_LIVE_SLUGS))
+// Products switched off in Studio ("Tampilkan produk di website"): their menu entries disappear
+const hiddenSlugs = ref<Set<string>>(new Set())
+
+const productSlug = (g: MenuGroup) => g.product ?? g.slug
+const menu = computed(() =>
+  NAV_MENU.map((cat) => ({ ...cat, groups: cat.groups.filter((g) => !hiddenSlugs.value.has(productSlug(g))) })).filter(
+    (cat) => cat.groups.length > 0,
+  ),
+)
 
 // Transparent over the hero, solid once scrolled, while the mobile menu is open or a panel is open
 const isInHero = computed(() => !isMenuOpen.value && openId.value === null && isInHeroSection.value)
 
-const isLive = (g: MenuGroup) => liveSlugs.value.has(g.slug)
+const isLive = (g: MenuGroup) => liveSlugs.value.has(productSlug(g))
 const groupPath = (g: MenuGroup) => `/products/${encodeURIComponent(g.slug)}`
 const sizeTo = (g: MenuGroup, s: MenuSize) => ({ path: groupPath(g), query: { ukuran: s.value } })
 const sizeLive = (g: MenuGroup, s: MenuSize) => isLive(g) && !s.soon && !!s.value
@@ -113,7 +122,10 @@ onMounted(async () => {
   handleScroll() // Initial check
   try {
     const list = (await fetchSanity(NAV_PRODUCTS_QUERY)) as NavProduct[]
-    if (list) liveSlugs.value = new Set(list.filter((p) => p.status === 'active').map((p) => p.slug))
+    if (list) {
+      liveSlugs.value = new Set(list.filter((p) => p.status === 'active' && !p.hidden).map((p) => p.slug))
+      hiddenSlugs.value = new Set(list.filter((p) => p.hidden).map((p) => p.slug))
+    }
   } catch (e) {
     console.warn('Failed to fetch menu products, using defaults:', e)
   }
@@ -156,7 +168,7 @@ onUnmounted(() => {
 
         <!-- Desktop navigation: three categories that open a full-width panel, then the other pages -->
         <div class="hidden xl:flex items-center gap-5 2xl:gap-8 text-[17px] min-[1440px]:text-[18px] min-[1700px]:text-[20px] tracking-tight">
-          <div v-for="cat in NAV_MENU" :key="cat.id">
+          <div v-for="cat in menu" :key="cat.id">
             <button
               type="button"
               :data-cat="cat.id"
@@ -287,7 +299,7 @@ onUnmounted(() => {
         :class="isInHero ? 'border-fortu-medium/30' : 'border-fortu-light'"
       >
         <ul class="mb-4">
-          <li v-for="cat in NAV_MENU" :key="cat.id" class="border-b last:border-b-0" :class="isInHero ? 'border-fortu-medium/20' : 'border-fortu-light/60'">
+          <li v-for="cat in menu" :key="cat.id" class="border-b last:border-b-0" :class="isInHero ? 'border-fortu-medium/20' : 'border-fortu-light/60'">
             <button
               type="button"
               class="flex w-full items-center justify-between py-3.5 text-xl tracking-tight text-left"

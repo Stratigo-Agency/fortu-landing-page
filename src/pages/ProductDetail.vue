@@ -83,13 +83,11 @@
           </div>
         </div>
 
-        <!-- Full spec sheet per size (from the product team's specification sheet) -->
+        <!-- Full spec sheet per size (from the product team's specification sheet); independent of the hero's size picker -->
         <ProductSpecTable
           v-if="product.specTable?.groups?.length"
           class="mt-14"
           :table="product.specTable"
-          :selected="selectedVariant?.name"
-          @select="selectVariantByName"
         />
       </div>
     </section>
@@ -218,7 +216,7 @@ const selectVariant = (variant: ProductVariant) => {
   selectedVariant.value = variant
 }
 
-// A size from the header menu (?ukuran=65) or a column of the spec table
+// A size from the header menu (?ukuran=65)
 const selectVariantByName = (size?: string | null) => {
   if (!size || !product.value?.variants) return
   const match = product.value.variants.find((v) => sizeKey(v.name) === sizeKey(size))

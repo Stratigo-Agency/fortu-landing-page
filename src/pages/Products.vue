@@ -22,6 +22,6 @@ import CTA from '@/components/CTA.vue'
 usePageSeo('products', {
   title: 'Produk Digital Signage & Interactive Flat Panel | Fortu',
   description:
-    'Katalog Fortu Digital: digital signage standing, interactive flat panel, smart mobile signage, dan videotron untuk rapat, retail, sekolah, dan lobi.',
+    'Katalog Fortu Digital: digital signage standing, interactive flat panel, dan smart mobile signage untuk rapat, retail, sekolah, dan lobi.',
 })
 </script>

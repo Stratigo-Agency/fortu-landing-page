@@ -15,7 +15,10 @@ export interface MenuSize {
 
 export interface MenuGroup {
   label: string
+  /** Page path under /products/ */
   slug: string
+  /** Slug of the Sanity product behind this group, when it differs from `slug` (e.g. one Videotron product, two menu entries) */
+  product?: string
   sizes?: MenuSize[]
 }
 
@@ -51,8 +54,8 @@ export const NAV_MENU: MenuCategory[] = [
     id: 'videotron',
     label: 'Videotron',
     groups: [
-      { label: 'Videotron Indoor', slug: 'videotron-indoor', sizes: pitch('P1.8', 'P2.5', 'TBD') },
-      { label: 'Videotron Outdoor', slug: 'videotron-outdoor', sizes: pitch('P4', 'P6', 'TBD') },
+      { label: 'Videotron Indoor', slug: 'videotron-indoor', product: 'videotron', sizes: pitch('P1.8', 'P2.5', 'TBD') },
+      { label: 'Videotron Outdoor', slug: 'videotron-outdoor', product: 'videotron', sizes: pitch('P4', 'P6', 'TBD') },
     ],
   },
 ]
