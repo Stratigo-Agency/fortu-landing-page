@@ -2,14 +2,14 @@
   <div class="not-found-page bg-fortu-dark min-h-screen flex items-center justify-center">
     <div class="text-center px-4 md:px-16 py-24 max-w-2xl mx-auto">
       <!-- 404 Number -->
-      <h1 class="text-8xl md:text-9xl font-medium text-fortu-off-white mb-4 tracking-tight opacity-20">
+      <p class="text-8xl md:text-9xl font-medium text-fortu-off-white mb-4 tracking-tight opacity-20" aria-hidden="true">
         404
-      </h1>
+      </p>
       
       <!-- Title -->
-      <h2 class="text-3xl md:text-5xl font-medium text-fortu-off-white mb-4 tracking-tight">
+      <h1 class="text-3xl md:text-5xl font-medium text-fortu-off-white mb-4 tracking-tight">
         Halaman Tidak Ditemukan
-      </h2>
+      </h1>
       
       <!-- Description -->
       <p class="text-fortu-light text-lg mb-8 leading-relaxed">
@@ -46,7 +46,15 @@
 </template>
 
 <script setup lang="ts">
+import { useSeo } from '@/composables/useSeo'
 import Button from '@/reusables/Button.vue'
+
+useSeo({
+  title: 'Halaman Tidak Ditemukan | Fortu Digital',
+  description: 'Halaman yang Anda cari tidak tersedia. Kembali ke beranda Fortu Digital.',
+  noindex: true,
+  canonical: false,
+})
 </script>
 
 <style scoped>

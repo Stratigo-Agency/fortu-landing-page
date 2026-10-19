@@ -18,6 +18,7 @@ export default defineType({
           {title: 'Services', value: 'services'},
           {title: 'Privacy', value: 'privacy'},
           {title: 'Blog', value: 'blog'},
+          {title: 'Studi Kasus', value: 'case-studies'},
         ],
       },
       validation: (Rule) => Rule.required(),
@@ -43,6 +44,16 @@ export default defineType({
       options: {
         hotspot: true,
       },
+      fields: [
+        {
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative Text',
+          description: 'Jelaskan apa yang terlihat dan sebut nama produk, bukan sekadar "gambar".',
+          validation: (Rule) =>
+            Rule.required().warning('Isi alt text: jelaskan apa yang terlihat dan sebut nama produk (bukan sekadar "gambar").'),
+        },
+      ],
       description: 'Background image (used if no video is provided)',
     }),
     defineField({

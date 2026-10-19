@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-fortu-dark text-fortu-off-white">
+  <footer data-track-source="footer" class="bg-fortu-dark text-fortu-off-white">
     <!-- Main Footer Content -->
     <div class="mx-auto px-4 md:px-16 py-16">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
@@ -9,13 +9,14 @@
             <img 
               :src="logoUrl || '/logo.png'" 
               :alt="settings?.companyName || 'FORTU DIGITAL'" 
-              width="120"
+              width="164"
               height="48"
+              loading="lazy"
               class="h-12 w-auto" 
             />
           </RouterLink>
           <p class="text-fortu-light text-sm leading-relaxed mb-6">
-            {{ settings?.tagline || 'Empowering businesses with seamless digital solutions and premium experiences.' }}
+            {{ settings?.tagline || 'Solusi digital signage dan layar interaktif untuk bisnis dan institusi di seluruh Indonesia.' }}
           </p>
           <!-- Social Links -->
           <div class="flex gap-4">
@@ -102,7 +103,7 @@
 
         <!-- Quick Links -->
         <div>
-          <h4 class="text-fortu-off-white font-medium mb-6">Tautan Cepat</h4>
+          <p class="text-fortu-off-white font-medium mb-6">Tautan Cepat</p>
           <ul class="space-y-3">
             <li>
               <RouterLink to="/" class="text-fortu-light hover:text-fortu-off-white transition-colors text-sm" @click="scrollToTop">
@@ -134,16 +135,26 @@
 
         <!-- Contact -->
         <div>
-          <h4 class="text-fortu-off-white font-medium mb-6">Kontak</h4>
+          <p class="text-fortu-off-white font-medium mb-6">Kontak</p>
           <ul class="space-y-4">
-            <!-- Address -->
-            <li v-if="settings?.address" class="flex gap-3">
+            <!-- Offices -->
+            <li v-for="(office, i) in offices" :key="office._key || i" class="flex gap-3">
               <svg class="w-5 h-5 text-fortu-light flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
               <span class="text-fortu-light text-sm leading-relaxed">
-                {{ settings.address }}
+                <span v-if="office.city" class="block text-fortu-off-white font-medium">{{ office.city }}</span>
+                {{ office.address || officeLabel(office) }}
+                <a
+                  v-if="safeUrl(office.mapsUrl)"
+                  :href="safeUrl(office.mapsUrl)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="block mt-1 underline hover:text-fortu-off-white transition-colors"
+                >
+                  Lihat di Google Maps
+                </a>
               </span>
             </li>
             <!-- Phone -->
@@ -155,14 +166,19 @@
                 {{ settings.phone }}
               </a>
             </li>
-            <!-- WhatsApp -->
-            <li v-if="settings?.whatsapp" class="flex gap-3">
-              <svg class="w-5 h-5 text-fortu-light flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            <!-- Hubungi Kami -->
+            <li class="flex gap-3">
+              <svg class="w-5 h-5 text-fortu-light flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h8M8 14h5m-9 6l2.6-3H18a3 3 0 003-3V7a3 3 0 00-3-3H6a3 3 0 00-3 3v13z" />
               </svg>
-              <a :href="`https://wa.me/${settings.whatsapp.replace(/[^0-9]/g, '')}`" target="_blank" rel="noopener noreferrer" class="text-fortu-light hover:text-fortu-off-white transition-colors text-sm">
-                {{ settings.whatsapp }}
-              </a>
+              <button
+                type="button"
+                class="text-fortu-light hover:text-fortu-off-white transition-colors text-sm text-left"
+                aria-haspopup="dialog"
+                @click="openChooser('footer')"
+              >
+                Hubungi Kami (Sales &amp; Partnership)
+              </button>
             </li>
             <!-- Email -->
             <li v-if="settings?.email" class="flex gap-3">
@@ -183,7 +199,7 @@
     <div class="border-t border-fortu-medium/20">
       <div class="mx-auto px-4 md:px-16 py-6">
         <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-          <p class="text-fortu-medium text-sm">
+          <p class="text-fortu-light text-sm">
             © {{ currentYear }} {{ settings?.companyName || 'FORTU DIGITAL' }}. Hak cipta dilindungi.
           </p>
           <div class="flex gap-6">
@@ -195,22 +211,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { useSanityQuery } from '@/composables/useSanityQuery'
+import { buildImageUrl } from '@/utils/image'
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { client } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
 import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
+import { getOffices, safeUrl, officeLabel, isListable } from '@/utils/offices'
+import { useContactChooser } from '@/composables/useContactChooser'
 
-const settings = ref<SiteSettings | null>(null)
+const { data: settings } = useSanityQuery<SiteSettings | null>(SITE_SETTINGS_QUERY, { label: 'site settings' })
+
+
+const { openChooser } = useContactChooser()
+
+const offices = computed(() => getOffices(settings.value).filter(isListable))
 
 const currentYear = computed(() => new Date().getFullYear())
 
 const logoUrl = computed(() => {
   if (!settings.value?.logo?.asset) return null
   try {
-    const builder = urlFor(settings.value.logo.asset).height(96).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+    return buildImageUrl(settings.value.logo, { height: 96 })
   } catch {
     return null
   }
@@ -223,11 +244,4 @@ const scrollToTop = () => {
   })
 }
 
-onMounted(async () => {
-  try {
-    settings.value = await client.fetch(SITE_SETTINGS_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch site settings:', e)
-  }
-})
 </script>

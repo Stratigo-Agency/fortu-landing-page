@@ -25,7 +25,7 @@
 
     <!-- Empty State -->
     <div v-else-if="products.length === 0" class="text-center py-20 text-fortu-medium">
-      No products found. Add some products in Sanity Studio.
+      Produk belum tersedia.
     </div>
 
     <!-- Products Carousel -->
@@ -42,11 +42,11 @@
 </template>
 
 <script setup lang="ts">
+import { buildImageUrl } from '@/utils/image'
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { client, urlFor } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { PRODUCTS_QUERY, type Product } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import ImageCarousel from '@/components/ImageCarousel.vue'
 
 const router = useRouter()
@@ -68,8 +68,7 @@ const getProductImage = (product: Product): string | undefined => {
     }
     try {
       // Pass the full image object (not just asset) to preserve hotspot and crop
-      const builder = urlFor(firstImage).width(600).height(600).quality(IMAGE_CONFIG.quality)
-      return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+      return buildImageUrl(firstImage, { width: 600, height: 600 }) ?? undefined
     } catch {
       return undefined
     }
@@ -106,9 +105,9 @@ const handleProductClick = (index: number) => {
 
 onMounted(async () => {
   try {
-    products.value = await client.fetch(PRODUCTS_QUERY)
+    products.value = await fetchSanity(PRODUCTS_QUERY)
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Failed to fetch products'
+    error.value = e instanceof Error ? e.message : 'Produk tidak dapat dimuat. Coba lagi nanti.'
   } finally {
     loading.value = false
   }

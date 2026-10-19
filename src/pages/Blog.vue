@@ -35,6 +35,23 @@
 
     <!-- Posts -->
     <div v-else class="max-w-7xl mx-auto px-4 md:px-16 py-16 md:py-24">
+      <!-- Filter -->
+      <div v-if="hasBothKinds" class="flex flex-wrap gap-2 mb-10 md:mb-14" role="group" aria-label="Filter artikel">
+        <button
+          v-for="opt in filters"
+          :key="opt.value"
+          type="button"
+          :aria-pressed="filter === opt.value ? 'true' : 'false'"
+          class="rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-fortu-dark focus-visible:ring-offset-2"
+          :class="filter === opt.value
+            ? 'bg-fortu-dark text-fortu-off-white border-fortu-dark'
+            : 'border-fortu-light text-fortu-dark hover:border-fortu-dark'"
+          @click="filter = opt.value"
+        >
+          {{ opt.label }}
+        </button>
+      </div>
+
       <!-- Featured Post -->
       <RouterLink
         v-if="featuredPost"
@@ -47,19 +64,28 @@
               v-if="coverImageUrl(featuredPost)"
               :src="coverImageUrl(featuredPost) as string"
               :alt="featuredPost.coverImage?.alt || featuredPost.title"
+              width="800"
+              height="600"
               loading="lazy"
               decoding="async"
               class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
+        :style="focalStyle(featuredPost.coverImage)"
+      />
           </div>
           <div>
-            <div class="flex items-center gap-3 mb-4">
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
               <span class="text-xs md:text-sm font-medium text-fortu-medium uppercase tracking-wider">
                 Featured
               </span>
-              <span class="w-1 h-1 rounded-full bg-fortu-medium"></span>
+              <template v-if="featuredPost.isMediaCoverage">
+                <span class="w-1 h-1 rounded-full bg-fortu-medium" aria-hidden="true"></span>
+                <span class="text-xs md:text-sm font-medium text-fortu-dark uppercase tracking-wider">
+                  {{ postLabel(featuredPost) }}
+                </span>
+              </template>
+              <span class="w-1 h-1 rounded-full bg-fortu-medium" aria-hidden="true"></span>
               <span class="text-xs md:text-sm text-fortu-medium">
-                {{ formatDate(featuredPost.publishedAt) }}
+                {{ formatDate(displayDate(featuredPost)) }}
               </span>
             </div>
             <h2 class="text-3xl md:text-5xl font-medium text-fortu-dark mb-4 tracking-tight group-hover:text-fortu-medium transition-colors">
@@ -91,18 +117,25 @@
               v-if="coverImageUrl(post)"
               :src="coverImageUrl(post) as string"
               :alt="post.coverImage?.alt || post.title"
+              width="800"
+              height="600"
               loading="lazy"
               decoding="async"
               class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
+        :style="focalStyle(post.coverImage)"
+      />
           </div>
           <div class="flex items-center gap-3 mb-3">
-            <span v-if="post.category" class="text-xs font-medium text-fortu-medium uppercase tracking-wider">
-              {{ categoryLabel(post.category) }}
+            <span
+              v-if="postLabel(post)"
+              class="text-xs font-medium uppercase tracking-wider"
+              :class="post.isMediaCoverage ? 'text-fortu-dark' : 'text-fortu-medium'"
+            >
+              {{ postLabel(post) }}
             </span>
-            <span v-if="post.category" class="w-1 h-1 rounded-full bg-fortu-medium"></span>
+            <span v-if="postLabel(post)" class="w-1 h-1 rounded-full bg-fortu-medium"></span>
             <span class="text-xs text-fortu-medium">
-              {{ formatDate(post.publishedAt) }}
+              {{ formatDate(displayDate(post)) }}
             </span>
           </div>
           <h3 class="text-xl md:text-2xl font-medium text-fortu-dark mb-2 tracking-tight group-hover:text-fortu-medium transition-colors">
@@ -120,70 +153,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { useSectionCopy } from '@/composables/useSectionCopy'
+import { useSanityQuery } from '@/composables/useSanityQuery'
+import { focalStyle } from '@/utils/image'
+import { usePageSeo } from '@/composables/usePageSeo'
+import { formatDate, displayDate, postLabel, postCoverUrl } from '@/utils/blog'
+import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { client, urlFor } from '@/sanity/client'
 import { BLOG_POSTS_QUERY, type BlogPostListItem } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import PageHero from '@/components/PageHero.vue'
 import CTA from '@/components/CTA.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
-const posts = ref<BlogPostListItem[]>([])
-const loading = ref(true)
+const copy = useSectionCopy()
+
+const { data: posts, loading } = useSanityQuery<BlogPostListItem[]>(BLOG_POSTS_QUERY, { initial: [], label: 'blog posts' })
+
+
+type PostFilter = 'all' | 'media' | 'own'
+const filter = ref<PostFilter>('all')
+const filters = computed<{ value: PostFilter; label: string }[]>(() => [
+  { value: 'all', label: copy.value.blogFilterAll },
+  { value: 'own', label: copy.value.blogFilterOwn },
+  { value: 'media', label: copy.value.blogFilterMedia },
+])
+const hasBothKinds = computed(
+  () => posts.value.some((p) => p.isMediaCoverage) && posts.value.some((p) => !p.isMediaCoverage),
+)
+const visiblePosts = computed(() =>
+  filter.value === 'all'
+    ? posts.value
+    : posts.value.filter((p) => (filter.value === 'media' ? !!p.isMediaCoverage : !p.isMediaCoverage)),
+)
 
 const featuredPost = computed(() =>
-  posts.value.find((p) => p.featured) || posts.value[0] || null,
+  visiblePosts.value.find((p) => p.featured) || visiblePosts.value[0] || null,
 )
 
 const otherPosts = computed(() =>
   featuredPost.value
-    ? posts.value.filter((p) => p._id !== featuredPost.value!._id)
+    ? visiblePosts.value.filter((p) => p._id !== featuredPost.value!._id)
     : [],
 )
 
-const coverImageUrl = (post: BlogPostListItem) => {
-  if (!post.coverImage?.asset) return null
-  try {
-    const builder = urlFor(post.coverImage).width(1200).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
-  } catch {
-    return null
-  }
-}
+const coverImageUrl = (post: BlogPostListItem) => postCoverUrl(post, 1200)
 
-const formatDate = (date: string) => {
-  if (!date) return ''
-  try {
-    return new Date(date).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-  } catch {
-    return ''
-  }
-}
 
-const categoryLabel = (value: string) => {
-  const map: Record<string, string> = {
-    news: 'Berita',
-    tutorial: 'Tutorial',
-    product: 'Produk',
-    tips: 'Tips',
-    other: 'Lainnya',
-  }
-  return map[value] || value
-}
-
-onMounted(async () => {
-  try {
-    posts.value = (await client.fetch(BLOG_POSTS_QUERY)) as BlogPostListItem[]
-  } catch (e) {
-    console.error('Failed to fetch blog posts:', e)
-  } finally {
-    loading.value = false
-  }
+usePageSeo('blog', {
+  title: 'Blog & Berita Digital Signage | Fortu Digital',
+  description:
+    'Artikel, studi kasus, dan liputan media tentang digital signage, interactive display, dan solusi visual dari Fortu Digital.',
 })
 </script>
 

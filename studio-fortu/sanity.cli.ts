@@ -11,5 +11,6 @@ export default defineCliConfig({
      * Learn more at https://www.sanity.io/docs/cli#auto-updates
      */
     autoUpdates: true,
+    appId: 'oe5fl4euvm7xmugqdajwgwbl', // hosted studio: https://fortu.sanity.studio
   }
 })

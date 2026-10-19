@@ -1,170 +1,133 @@
 <template>
-  <section v-if="clients.length > 0" class="client-carousel-section overflow-hidden py-8">
-    <div class="mx-auto px-4 md:px-16 mb-4">
-      <p class="text-fortu-light/60 text-sm uppercase tracking-wider text-center">Dipercaya Oleh</p>
+  <section class="client-carousel-section bg-white py-14 md:py-24" aria-labelledby="client-carousel-title">
+    <div class="mx-auto px-4 md:px-16 mb-10 md:mb-14 text-center">
+      <p class="text-xs md:text-sm uppercase tracking-[0.2em] text-fortu-medium mb-3">{{ copy.clientsEyebrow }}</p>
+      <h2
+        id="client-carousel-title"
+        class="text-2xl md:text-4xl font-medium tracking-tight text-fortu-dark"
+      >
+        {{ copy.clientsHeading }}
+      </h2>
     </div>
-    <!-- Carousel wrapper -->
-    <div class="relative">
-      <!-- Scrolling track -->
-      <div class="carousel-track flex gap-8">
-        <!-- First set of cards -->
-        <div 
-          v-for="(client, index) in clients" 
-          :key="`first-${client._id || index}`"
-          class="carousel-card rounded-lg p-8 flex-shrink-0 h-24 w-48 flex items-center justify-center"
-        >
-          <img 
-            v-if="getLogoUrl(client)"
-            :src="getLogoUrl(client)"
-            :alt="client.name"
-            loading="lazy"
-            decoding="async"
-            width="160"
-            height="48"
-            class="h-24 w-48 object-contain transition-all duration-300"
-            @error="handleImageError($event, client)"
-          />
-        </div>
-        <!-- Second set for seamless loop -->
-        <div 
-          v-for="(client, index) in clients" 
-          :key="`second-${client._id || index}`"
-          class="carousel-card rounded-lg p-8 flex-shrink-0 h-24 w-48 flex items-center justify-center"
-        >
-          <img 
-            v-if="getLogoUrl(client)"
-            :src="getLogoUrl(client)"
-            :alt="client.name"
-            loading="lazy"
-            decoding="async"
-            width="160"
-            height="48"
-            class="h-24 w-48 object-contain transition-all duration-300"
-            @error="handleImageError($event, client)"
-          />
-        </div>
-        <!-- Third set for seamless loop -->
-        <div 
-          v-for="(client, index) in clients" 
-          :key="`third-${client._id || index}`"
-          class="carousel-card rounded-lg p-8 flex-shrink-0 h-24 w-48 flex items-center justify-center"
-        >
-          <img 
-            v-if="getLogoUrl(client)"
-            :src="getLogoUrl(client)"
-            :alt="client.name"
-            loading="lazy"
-            decoding="async"
-            width="160"
-            height="48"
-            class="h-24 w-48 object-contain transition-all duration-300"
-            @error="handleImageError($event, client)"
-          />
-        </div>
-        <!-- Fourth set for seamless loop -->
-        <div 
-          v-for="(client, index) in clients" 
-          :key="`fourth-${client._id || index}`"
-          class="carousel-card rounded-lg p-8 flex-shrink-0 h-24 w-48 flex items-center justify-center"
-        >
-          <img 
-            v-if="getLogoUrl(client)"
-            :src="getLogoUrl(client)"
-            :alt="client.name"
-            loading="lazy"
-            decoding="async"
-            width="160"
-            height="48"
-            class="h-24 w-48 object-contain transition-all duration-300"
-            @error="handleImageError($event, client)"
-          />
-        </div>
-        
 
-        
+    <!-- Two rows moving in opposite directions; logos float on white, no boxes -->
+    <div class="carousel-rows flex flex-col gap-6 md:gap-10">
+      <div
+        v-for="(row, rowIndex) in clientLogoRows"
+        :key="rowIndex"
+        class="carousel-row"
+        :class="rowIndex === 1 ? 'carousel-row-reverse' : ''"
+      >
+        <div class="carousel-viewport">
+          <div class="carousel-track flex w-max items-center">
+            <!-- Two identical sets give a seamless loop (track moves 50%) -->
+            <ul
+              v-for="setIndex in 2"
+              :key="setIndex"
+              class="carousel-set flex flex-shrink-0 items-center"
+              :class="{ 'carousel-set-clone': setIndex === 2 }"
+              :aria-hidden="setIndex === 2 ? 'true' : undefined"
+            >
+              <li
+                v-for="logo in row"
+                :key="logo.file"
+                class="carousel-card flex flex-shrink-0 items-center justify-center"
+              >
+                <img
+                  :src="logo.src"
+                  :alt="setIndex === 1 ? logo.name : ''"
+                  loading="lazy"
+                  decoding="async"
+                  :width="logo.width"
+                  :height="logo.height"
+                  class="carousel-logo w-auto max-w-none select-none"
+                  :style="{ '--logo-h': `${logo.displayHeight}px` }"
+                  draggable="false"
+                />
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { client as sanityClient } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
-import { CLIENT_LOGOS_QUERY, type ClientLogo } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
+import { useSectionCopy } from '@/composables/useSectionCopy'
+import { clientLogoRows } from '@/data/clientLogos'
 
-const clients = ref<ClientLogo[]>([])
-
-const getLogoUrl = (client: ClientLogo): string => {
-  if (!client.logo) {
-    console.warn(`Client "${client.name}" has no logo`)
-    return ''
-  }
-  
-  // Check if asset exists
-  if (!client.logo.asset) {
-    console.warn(`Client "${client.name}" logo has no asset`)
-    return ''
-  }
-  
-  try {
-    // Always use urlFor to apply crop/hotspot settings
-    // Pass the full image object (not just asset) to preserve hotspot and crop
-    const builder = urlFor(client.logo).width(320).fit('max').quality(IMAGE_CONFIG.quality)
-    const url = IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
-    
-    if (!url) {
-      console.warn(`Failed to generate URL for client "${client.name}"`)
-      return ''
-    }
-    
-    return url
-  } catch (error) {
-    console.error(`Error generating logo URL for client "${client.name}":`, error)
-    return ''
-  }
-}
-
-const handleImageError = (event: Event, client: ClientLogo) => {
-  console.error(`Failed to load image for client "${client.name}"`, event)
-  // Optionally hide the broken image
-  const img = event.target as HTMLImageElement
-  if (img) {
-    img.style.display = 'none'
-  }
-}
-
-onMounted(async () => {
-  try {
-    clients.value = await sanityClient.fetch(CLIENT_LOGOS_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch client logos:', e)
-  }
-})
+const copy = useSectionCopy()
 </script>
 
 <style scoped>
+.client-carousel-section {
+  --logo-scale: 1;
+  --logo-gap: 6rem;
+}
+
+@media (max-width: 767px) {
+  .client-carousel-section {
+    --logo-scale: 0.7;
+    --logo-gap: 3rem;
+  }
+}
+
+/* Soft fade at both edges so logos glide in and out of the white page */
+.carousel-rows {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+}
+
+.carousel-viewport {
+  overflow: hidden;
+}
+
 .carousel-track {
-  animation: scroll 25s linear infinite;
-  width: max-content;
+  animation: scroll-left 90s linear infinite;
 }
 
-
-
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-25%);
-  }
+.carousel-row-reverse .carousel-track {
+  animation-name: scroll-right;
+  animation-duration: 105s;
 }
 
-/* Pause animation when user prefers reduced motion */
+/* Pause the row the visitor points at */
+.carousel-row:hover .carousel-track {
+  animation-play-state: paused;
+}
+
+.carousel-card {
+  height: 5rem;
+  padding: 0 calc(var(--logo-gap) / 2);
+}
+
+.carousel-logo {
+  height: calc(var(--logo-h) * var(--logo-scale));
+}
+
+@keyframes scroll-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes scroll-right {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+/* Reduced motion: no animation, each row becomes manually scrollable */
 @media (prefers-reduced-motion: reduce) {
   .carousel-track {
-    animation: none;
+    animation: none !important;
+  }
+
+  .carousel-viewport {
+    overflow-x: auto;
+  }
+
+  .carousel-set-clone {
+    display: none;
   }
 }
 </style>

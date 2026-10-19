@@ -1,39 +1,51 @@
 <template>
   <div>
-    <!-- Hero Section (includes ClientCarousel at bottom) -->
+    <!-- Hero Section -->
     <Hero />
+
+    <!-- Client logos (own section, white background) -->
+    <ClientCarousel />
 
     <!-- Product Slides -->
     <BannerSlides />
 
+    <!-- Product Compare Section (directly below the product slides) -->
+    <Compare />
+
     <!-- CMS Demo Section -->
-    <CMSDemo />
+    <MarienFlow />
+    <MarienDemo />
     <Service />
 
     <!-- Use Case Section -->
-    <UseCaseSection />
+    <ClientPortfolio />
 
-    <!-- Product Compare Section -->
-    <Compare />
-    <!-- FAQ Section -->
-    <FAQ />
+    <!-- Latest articles & media coverage -->
+    <LatestArticles />
     <CTA variant="light" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { usePageSeo } from '@/composables/usePageSeo'
 // Lazy load below-the-fold components
 import Hero from '@/components/Hero.vue'
+import ClientCarousel from '@/components/ClientCarousel.vue'
 import { defineAsyncComponent } from 'vue'
 
 // Defer non-critical components until needed
-const CMSDemo = defineAsyncComponent({
-  loader: () => import('@/components/CMSDemo.vue'),
+const MarienFlow = defineAsyncComponent({
+  loader: () => import('@/components/MarienFlow.vue'),
   delay: 200, // Delay loading by 200ms
   timeout: 3000,
 })
-const UseCaseSection = defineAsyncComponent({
-  loader: () => import('@/components/UseCaseSection.vue'),
+const MarienDemo = defineAsyncComponent({
+  loader: () => import('@/components/MarienDemo.vue'),
+  delay: 200,
+  timeout: 3000,
+})
+const ClientPortfolio = defineAsyncComponent({
+  loader: () => import('@/components/ClientPortfolio.vue'),
   delay: 200,
   timeout: 3000,
 })
@@ -42,8 +54,8 @@ const BannerSlides = defineAsyncComponent({
   delay: 200,
   timeout: 3000,
 })
-const FAQ = defineAsyncComponent({
-  loader: () => import('@/components/FAQ.vue'),
+const LatestArticles = defineAsyncComponent({
+  loader: () => import('@/components/LatestArticles.vue'),
   delay: 200,
   timeout: 3000,
 })
@@ -61,6 +73,13 @@ const Service = defineAsyncComponent({
   loader: () => import('@/components/Service.vue'),
   delay: 200,
   timeout: 3000,
+})
+
+usePageSeo('home', {
+  title: 'Digital Signage & Layar Interaktif | Fortu Digital',
+  description:
+    'Fortu Digital menyediakan digital signage, interactive flat panel, CMS Marien, dan instalasi untuk bisnis dan institusi di Indonesia. Konsultasi gratis.',
+  path: '/',
 })
 </script>
 

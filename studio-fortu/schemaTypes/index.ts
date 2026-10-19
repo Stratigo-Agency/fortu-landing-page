@@ -11,6 +11,10 @@ import productCompare from './productCompare'
 import service from './service'
 import aboutPage from './aboutPage'
 import blogPost from './blogPost'
+import pageSeo from './pageSeo'
+import installShowcase from './installShowcase'
+import caseStudy from './caseStudy'
+import sectionCopy from './sectionCopy'
 
 export const schemaTypes = [
     hero,
@@ -26,4 +30,8 @@ export const schemaTypes = [
     faq,
     aboutPage,
     blogPost,
+    pageSeo,
+    installShowcase,
+    caseStudy,
+    sectionCopy,
 ]

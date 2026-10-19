@@ -1,8 +1,43 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { sitemapPlugin } from './scripts/sitemap-plugin'
+
+// Staging builds must never be indexed by Google (duplicate of fortu.co.id).
+// Railway injects RAILWAY_GIT_BRANCH at build time, so only builds of the
+// `staging` branch are affected; `main` (production) output is unchanged.
+// VITE_NOINDEX=true forces the same behaviour for any other preview build.
+const isNoIndexBuild =
+  process.env.RAILWAY_GIT_BRANCH === 'staging' || process.env.VITE_NOINDEX === 'true'
+
+function noIndexPlugin(): Plugin {
+  let outDir = 'dist'
+  return {
+    name: 'fortu-noindex',
+    apply: 'build',
+    configResolved(config) {
+      outDir = resolve(config.root, config.build.outDir)
+    },
+    transformIndexHtml() {
+      if (!isNoIndexBuild) return
+      return [
+        {
+          tag: 'meta',
+          attrs: { name: 'robots', content: 'noindex, nofollow', 'data-build': '' },
+          injectTo: 'head-prepend',
+        },
+      ]
+    },
+    closeBundle() {
+      if (!isNoIndexBuild) return
+      writeFileSync(resolve(outDir, 'robots.txt'), 'User-agent: *\nDisallow: /\n')
+    },
+  }
+}
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), noIndexPlugin(), sitemapPlugin(isNoIndexBuild)],
   resolve: {
     alias: {
       '@': '/src'
@@ -22,4 +57,3 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
   },
 })
-

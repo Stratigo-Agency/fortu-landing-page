@@ -15,10 +15,10 @@
   <!-- Error State -->
   <div v-else-if="error" class="min-h-screen flex items-center justify-center bg-fortu-off-white">
     <div class="text-center px-4">
-      <h1 class="text-2xl font-medium text-fortu-dark mb-4">Product Not Found</h1>
+      <h1 class="text-2xl font-medium text-fortu-dark mb-4">Produk Tidak Ditemukan</h1>
       <p class="text-fortu-medium mb-8">{{ error }}</p>
       <Button href="/products" variant="primary">
-        Back to Products
+        Kembali ke Produk
       </Button>
     </div>
   </div>
@@ -28,6 +28,7 @@
     <!-- Product Hero -->
     <ProductHero
       :product-name="product.name"
+      :product-slug="product.slug?.current"
       :description="product.description"
       :hero-image="product.heroImage"
       :hero-video="product.heroVideo"
@@ -62,13 +63,13 @@
     />
 
     <!-- Specifications Section -->
-    <section v-if="product.specs && product.specs.length > 0" class="py-16 px-4 md:px-16 bg-white">
+    <section v-if="product.specs?.length || product.specTable?.groups?.length" id="spesifikasi" class="py-16 px-4 md:px-16 bg-white">
       <div>
         <h2 class="text-4xl md:text-4xl font-medium text-fortu-dark mb-10 tracking-tight">
           Spesifikasi
         </h2>
         
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <div v-if="product.specs?.length" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
           <div 
             v-for="(spec, index) in product.specs" 
             :key="spec._key || index"
@@ -78,9 +79,16 @@
               <CompareIcon :icon="spec.icon || 'check'" class="text-fortu-dark" />
             </div>
             <p class="font-medium text-fortu-dark">{{ spec.label }}</p>
-            <p v-if="spec.value" class="text-sm text-fortu-medium mt-1">{{ spec.value }}</p>
+            <p v-if="spec.value" class="text-base text-fortu-medium mt-1">{{ spec.value }}</p>
           </div>
         </div>
+
+        <!-- Full spec sheet per size (from the product team's specification sheet); independent of the hero's size picker -->
+        <ProductSpecTable
+          v-if="product.specTable?.groups?.length"
+          class="mt-14"
+          :table="product.specTable"
+        />
       </div>
     </section>
 
@@ -95,17 +103,24 @@
 </template>
 
 <script setup lang="ts">
+import { buildImageUrl, ogImageUrl } from '@/utils/image'
+import { useSeo } from '@/composables/useSeo'
+import { fitTitle, trimTo } from '@/utils/seo'
+import { useAnalytics } from '@/composables/useAnalytics'
+import { useJsonLd } from '@/composables/useJsonLd'
+import { breadcrumbs, productSchema } from '@/utils/structuredData'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { client, urlFor } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { PRODUCT_BY_SLUG_QUERY, type Product, type ProductVariant } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import Button from '@/reusables/Button.vue'
 import CompareIcon from '@/components/CompareIcon.vue'
 import ImageCarousel from '@/components/ImageCarousel.vue'
 import ProductHero from '@/components/productDetail/ProductHero.vue'
 import ProductSingleFeature from '@/components/productDetail/ProductSingleFeature.vue'
 import ProductRecommendation from '@/components/productDetail/ProductRecommendation.vue'
+import ProductSpecTable from '@/components/productDetail/ProductSpecTable.vue'
+import { sizeKey } from '@/utils/size'
 import CTA from '@/components/CTA.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 const route = useRoute()
@@ -122,14 +137,13 @@ const carouselImages = computed(() => {
     product.value.images.forEach((img, index) => {
       if (img.asset) {
         try {
-          // Always use urlFor to apply crop/hotspot settings
+          // Whole image object is passed so crop/hotspot are honoured
           // Pass the full image object (not just asset) to preserve hotspot and crop
-          const builder = urlFor(img).width(960).quality(IMAGE_CONFIG.quality)
-          const url = IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+          const url = buildImageUrl(img, { width: 960 })
           if (url) {
             images.push({
               url,
-              alt: img.alt || `${product.value?.name} image ${index + 1}`
+              alt: img.alt || `${product.value?.name} - gambar ${index + 1}`
             })
           }
         } catch (e) {
@@ -144,9 +158,8 @@ const carouselImages = computed(() => {
     product.value.variants.forEach(variant => {
       if (variant.image?.asset) {
         try {
-          // Always use urlFor to apply crop/hotspot settings
-          const builder = urlFor(variant.image).width(960).quality(IMAGE_CONFIG.quality)
-          const url = IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+          // Whole image object is passed so crop/hotspot are honoured
+          const url = buildImageUrl(variant.image, { width: 960 })
           if (url && !images.some(img => img.url === url)) {
             images.push({
               url,
@@ -162,9 +175,8 @@ const carouselImages = computed(() => {
         variant.images.forEach(variantImg => {
           if (variantImg.asset) {
             try {
-              // Always use urlFor to apply crop/hotspot settings
-              const builder = urlFor(variantImg).width(960).quality(IMAGE_CONFIG.quality)
-              const url = IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+              // Whole image object is passed so crop/hotspot are honoured
+              const url = buildImageUrl(variantImg, { width: 960 })
               if (url && !images.some(img => img.url === url)) {
                 images.push({
                   url,
@@ -204,6 +216,18 @@ const selectVariant = (variant: ProductVariant) => {
   selectedVariant.value = variant
 }
 
+// A size from the header menu (?ukuran=65)
+const selectVariantByName = (size?: string | null) => {
+  if (!size || !product.value?.variants) return
+  const match = product.value.variants.find((v) => sizeKey(v.name) === sizeKey(size))
+  if (match) selectedVariant.value = match
+}
+const selectVariantFromQuery = () => {
+  const wanted = route.query.ukuran
+  selectVariantByName(Array.isArray(wanted) ? wanted[0] : wanted)
+}
+watch(() => route.query.ukuran, selectVariantFromQuery)
+
 watch(() => route.params.slug, async (newSlug) => {
   if (newSlug) {
     await fetchProduct(newSlug as string)
@@ -215,21 +239,22 @@ const fetchProduct = async (slug: string) => {
   error.value = null
   
   try {
-    const productData = await client.fetch(PRODUCT_BY_SLUG_QUERY, { slug })
+    const productData = await fetchSanity(PRODUCT_BY_SLUG_QUERY, { slug })
     
     if (!productData) {
-      error.value = 'The product you are looking for does not exist.'
+      error.value = 'Produk yang Anda cari tidak tersedia.'
       return
     }
     
     product.value = productData
     
-    // Auto-select first variant
+    // Auto-select first variant, unless the link asked for a size (?ukuran=65 from the header menu)
     if (productData.hasVariants && productData.variants && productData.variants.length > 0) {
       selectedVariant.value = productData.variants[0]
+      selectVariantFromQuery()
     }
   } catch (e) {
-    error.value = e instanceof Error ? e.message : 'Failed to fetch product'
+    error.value = e instanceof Error ? e.message : 'Produk tidak dapat dimuat. Coba lagi nanti.'
   } finally {
     loading.value = false
   }
@@ -241,9 +266,65 @@ onMounted(() => {
     fetchProduct(slug)
   }
 })
+
+const productImageUrl = computed(() => {
+  const img = product.value?.shareImage?.asset
+    ? product.value.shareImage
+    : product.value?.heroImage || product.value?.images?.[0]
+  return img?.asset ? ogImageUrl(img) ?? undefined : undefined
+})
+
+
+useSeo(() => {
+  const name = product.value?.name
+  const desc = (product.value?.seoDescription || product.value?.description)?.replace(/\s+/g, ' ').trim()
+  return {
+    title: product.value?.seoTitle?.trim()
+      ? product.value.seoTitle.trim()
+      : name
+        ? fitTitle(name)
+        : 'Produk | Fortu Digital',
+    description: desc
+      ? trimTo(desc, 155)
+      : name
+        ? `Spesifikasi, fitur, dan informasi pemesanan ${name} dari Fortu Digital.`
+        : undefined,
+    image: productImageUrl.value,
+    noindex: product.value?.noIndex === true || (!!error.value && !product.value),
+  }
+})
+
+const { trackEvent } = useAnalytics()
+watch(
+  () => product.value?._id,
+  (id) => {
+    if (id) {
+      trackEvent('view_product', {
+        product_name: product.value?.name,
+        product_slug: product.value?.slug.current,
+        page_path: route.path,
+      })
+    }
+  },
+)
+
+useJsonLd('product', () =>
+  productSchema(
+    product.value,
+    carouselImages.value.map((img) => img.url),
+  ),
+)
+useJsonLd('breadcrumb', () =>
+  product.value
+    ? breadcrumbs([
+        { name: 'Beranda', path: '/' },
+        { name: 'Produk', path: '/products' },
+        { name: product.value.name, path: `/products/${product.value.slug.current}` },
+      ])
+    : null,
+)
 </script>
 
 <style scoped>
 /* Product detail styles */
 </style>
-

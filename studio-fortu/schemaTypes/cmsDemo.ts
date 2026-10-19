@@ -47,6 +47,15 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'flowProducts',
+      title: 'Jenis produk di diagram alur',
+      type: 'array',
+      of: [{type: 'string'}],
+      description:
+        'Jenis produk Fortu yang tampil di tiap gedung pada diagram "Pengguna > Marien > Gedung > Produk". Contoh: Digital Signage, Wallmount Display, Videotron, Layar Lift. Minimal 3; kosongkan untuk memakai daftar bawaan.',
+      options: {layout: 'tags'},
+    }),
+    defineField({
       name: 'products',
       title: 'Demo Products',
       type: 'array',

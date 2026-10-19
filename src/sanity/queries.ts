@@ -26,6 +26,14 @@ export interface Hero {
       url?: string
     }
   }
+  backgroundVideoMobile?: {
+    asset: {
+      _ref: string
+      _type: string
+      url?: string
+    }
+  }
+  backgroundPoster?: SanityImage
   ctaButtons?: CTAButton[]
   alignment?: 'left' | 'center' | 'right'
   isActive?: boolean
@@ -62,6 +70,7 @@ export interface CMSDemoProduct {
 export interface CMSDemo {
   _id: string
   badge: string
+  flowProducts?: string[]
   heading: {
     line1: string
     line2: string
@@ -114,13 +123,8 @@ export interface ProductSlide {
   _id: string
   name: string
   tagline: string
-  slideImage: {
-    asset: {
-      _ref: string
-      _type: string
-      url?: string
-    }
-  }
+  comingSoon?: boolean
+  slideImage?: SanityImage
   features?: ProductSlideFeature[]
   product?: {
     _id: string
@@ -136,6 +140,20 @@ export interface ProductSpec {
   icon?: string
   label: string
   value?: string
+}
+
+/** Full technical spec sheet: one column per size/model, rows grouped (from the product team's spec sheet). */
+export interface ProductSpecRow {
+  _key?: string
+  label: string
+  /** One value per column, or a single value that applies to every column */
+  values?: string[]
+}
+
+export interface ProductSpecTable {
+  columns?: string[]
+  groups?: { _key?: string; title: string; rows?: ProductSpecRow[] }[]
+  note?: string
 }
 
 export interface FeatureHighlight {
@@ -219,6 +237,7 @@ export interface Product {
   currency?: string
   compareAtPrice?: number
   specs?: ProductSpec[]
+  specTable?: ProductSpecTable
   features?: ProductFeature[]
   hasVariants?: boolean
   variantType?: 'color' | 'size' | 'material' | 'style' | 'custom'
@@ -226,7 +245,13 @@ export interface Product {
   category?: string
   inStock?: boolean
   featured?: boolean
-  status?: 'active' | 'draft' | 'archived'
+  status?: 'active' | 'draft' | 'archived' | 'coming_soon'
+  /** Switched off in Studio (false): hidden from the menu, sections, listings, sitemap and its own page */
+  showOnSite?: boolean
+  seoTitle?: string
+  seoDescription?: string
+  shareImage?: SanityImage
+  noIndex?: boolean
 }
 
 // Queries
@@ -259,6 +284,21 @@ export const HERO_QUERY = defineQuery(/* groq */ `
         url
       }
     },
+    backgroundVideoMobile {
+      asset-> {
+        _id,
+        url
+      }
+    },
+    backgroundPoster {
+      asset-> {
+        _id,
+        url
+      },
+      hotspot,
+      crop,
+      alt
+    },
     ctaButtons[] {
       label,
       link,
@@ -278,6 +318,7 @@ export const CMS_DEMO_QUERY = defineQuery(/* groq */ `
       line2
     },
     description,
+    flowProducts,
     products[] {
       _key,
       position,
@@ -358,15 +399,19 @@ export const USE_CASE_SECTION_QUERY = defineQuery(/* groq */ `
 `)
 
 export const PRODUCT_SLIDES_QUERY = defineQuery(/* groq */ `
-  *[_type == "productSlide" && isActive == true] | order(order asc) {
+  *[_type == "productSlide" && isActive == true && (!defined(product) || product->showOnSite != false)] | order(order asc) {
     _id,
     name,
     tagline,
+    comingSoon,
     slideImage {
       asset-> {
         _id,
         url
-      }
+      },
+      hotspot,
+      crop,
+      alt
     },
     features[] {
       _key,
@@ -385,7 +430,7 @@ export const PRODUCT_SLIDES_QUERY = defineQuery(/* groq */ `
 
 // Products query for catalog (essential fields only)
 export const PRODUCTS_QUERY = defineQuery(/* groq */ `
-  *[_type == "product" && status == "active"] | order(_createdAt desc) {
+  *[_type == "product" && status == "active" && showOnSite != false] | order(_createdAt desc) {
     _id,
     name,
     slug,
@@ -452,6 +497,30 @@ export interface SiteSettings {
   email?: string
   whatsapp?: string
   socialMedia?: SocialMedia
+  offices?: Office[]
+  contactSalesUrl?: string
+  contactPartnershipUrl?: string
+}
+
+export interface OfficeHours {
+  days?: string[]
+  opens?: string
+  closes?: string
+}
+
+export interface Office {
+  _key?: string
+  city: string
+  name?: string
+  address?: string
+  phone?: string
+  /** 'whatsapp' = a WhatsApp-registered number, 'phone' (default) = a regular call. Not guessable from the number. */
+  phoneType?: 'whatsapp' | 'phone'
+  mapsUrl?: string
+  mapsEmbed?: string
+  latitude?: number
+  longitude?: number
+  openingHours?: OfficeHours[]
 }
 
 export const SITE_SETTINGS_QUERY = defineQuery(/* groq */ `
@@ -469,6 +538,21 @@ export const SITE_SETTINGS_QUERY = defineQuery(/* groq */ `
     phone,
     email,
     whatsapp,
+    contactSalesUrl,
+    contactPartnershipUrl,
+    offices[] {
+      _key,
+      city,
+      name,
+      address,
+      phone,
+      phoneType,
+      mapsUrl,
+      mapsEmbed,
+      latitude,
+      longitude,
+      openingHours[] { days, opens, closes }
+    },
     socialMedia {
       twitter,
       instagram,
@@ -514,16 +598,10 @@ export const FAQ_QUERY = defineQuery(/* groq */ `
 // Page Hero
 export interface PageHero {
   _id: string
-  pageName: 'products' | 'about' | 'contact' | 'services' | 'privacy' | 'blog'
+  pageName: 'products' | 'about' | 'contact' | 'services' | 'privacy' | 'blog' | 'case-studies'
   title: string
   subtitle?: string
-  backgroundImage?: {
-    asset: {
-      _ref: string
-      _type: string
-      url?: string
-    }
-  }
+  backgroundImage?: SanityImage
   backgroundVideo?: {
     asset: {
       _ref: string
@@ -546,7 +624,10 @@ export const PAGE_HERO_QUERY = defineQuery(/* groq */ `
       asset-> {
         _id,
         url
-      }
+      },
+      hotspot,
+      crop,
+      alt
     },
     backgroundVideo {
       asset-> {
@@ -565,13 +646,7 @@ export interface ProductCompareItem {
   _key?: string
   product: Product  // Full product with specs
   ctaLabel?: string
-  compareImage?: {
-    asset: {
-      _ref: string
-      _type: string
-      url?: string
-    }
-  }
+  compareImage?: SanityImage
 }
 
 export interface ProductCompare {
@@ -588,12 +663,13 @@ export const PRODUCT_COMPARE_QUERY = defineQuery(/* groq */ `
     _id,
     heading,
     subheading,
-    products[] {
+    products[product->showOnSite != false] {
       _key,
       product-> {
         _id,
         name,
         slug,
+        status,
         description,
         images[] {
           asset-> {
@@ -617,7 +693,9 @@ export const PRODUCT_COMPARE_QUERY = defineQuery(/* groq */ `
         asset-> {
           _id,
           url
-        }
+        },
+        hotspot,
+        crop
       }
     },
     backgroundColor,
@@ -627,10 +705,21 @@ export const PRODUCT_COMPARE_QUERY = defineQuery(/* groq */ `
 
 // Single Product by Slug
 export const PRODUCT_BY_SLUG_QUERY = defineQuery(/* groq */ `
-  *[_type == "product" && slug.current == $slug && status == "active"][0] {
+  *[_type == "product" && slug.current == $slug && status == "active" && showOnSite != false][0] {
     _id,
     name,
     slug,
+    seoTitle,
+    seoDescription,
+    shareImage {
+      asset-> {
+        _id,
+        url
+      },
+      hotspot,
+      crop
+    },
+    noIndex,
     sku,
     description,
     heroImage {
@@ -665,6 +754,15 @@ export const PRODUCT_BY_SLUG_QUERY = defineQuery(/* groq */ `
       icon,
       label,
       value
+    },
+    specTable {
+      columns,
+      groups[] {
+        _key,
+        title,
+        rows[] { _key, label, values }
+      },
+      note
     },
     features[] {
       _key,
@@ -736,13 +834,8 @@ export interface ServiceItem {
   title: string
   description: string
   icon?: string
-  backgroundImage?: {
-    asset: {
-      _ref: string
-      _type: string
-      url?: string
-    }
-  }
+  illustration?: string
+  backgroundImage?: SanityImage
   darkOverlay?: boolean
 }
 
@@ -765,11 +858,14 @@ export const SERVICE_SECTION_QUERY = defineQuery(/* groq */ `
       title,
       description,
       icon,
+      illustration,
       backgroundImage {
         asset-> {
           _id,
           url
-        }
+        },
+        hotspot,
+        crop
       },
       darkOverlay
     },
@@ -825,6 +921,9 @@ export interface BlogPostListItem {
   tags?: string[]
   coverImage?: SanityImage
   featured?: boolean
+  isMediaCoverage?: boolean
+  sourceName?: string
+  sourcePublishedAt?: string
 }
 
 export interface PortableTextSpan {
@@ -869,6 +968,11 @@ export interface BlogPost extends BlogPostListItem {
   body: PortableTextContent[]
   seoTitle?: string
   seoDescription?: string
+  shareImage?: SanityImage
+  noIndex?: boolean
+  updatedAt?: string
+  sourceUrl?: string
+  sourceAuthor?: string
 }
 
 export const BLOG_POSTS_QUERY = defineQuery(/* groq */ `
@@ -890,6 +994,9 @@ export const BLOG_POSTS_QUERY = defineQuery(/* groq */ `
       crop,
       alt
     },
+    isMediaCoverage,
+    sourceName,
+    sourcePublishedAt,
     featured
   }
 `)
@@ -913,6 +1020,11 @@ export const BLOG_POST_BY_SLUG_QUERY = defineQuery(/* groq */ `
       crop,
       alt
     },
+    isMediaCoverage,
+    sourceName,
+    sourcePublishedAt,
+    sourceUrl,
+    sourceAuthor,
     featured,
     body[] {
       ...,
@@ -926,7 +1038,17 @@ export const BLOG_POST_BY_SLUG_QUERY = defineQuery(/* groq */ `
       }
     },
     seoTitle,
-    seoDescription
+    seoDescription,
+    shareImage {
+      asset-> {
+        _id,
+        url
+      },
+      hotspot,
+      crop
+    },
+    noIndex,
+    "updatedAt": _updatedAt
   }
 `)
 
@@ -939,6 +1061,9 @@ export const RELATED_BLOG_POSTS_QUERY = defineQuery(/* groq */ `
     author,
     publishedAt,
     category,
+    isMediaCoverage,
+    sourceName,
+    sourcePublishedAt,
     coverImage {
       asset-> {
         _id,
@@ -948,5 +1073,238 @@ export const RELATED_BLOG_POSTS_QUERY = defineQuery(/* groq */ `
       crop,
       alt
     }
+  }
+`)
+
+// Per-page SEO overrides (document type "pageSeo", one per page key)
+export interface PageSeo {
+  page: string
+  seoTitle?: string
+  seoDescription?: string
+  shareImage?: SanityImage
+  noIndex?: boolean
+}
+
+export const PAGE_SEO_QUERY = defineQuery(/* groq */ `
+  *[_type == "pageSeo" && page == $page][0] {
+    page,
+    seoTitle,
+    seoDescription,
+    shareImage {
+      asset-> {
+        _id,
+        url
+      },
+      hotspot,
+      crop
+    },
+    noIndex
+  }
+`)
+
+// Header menu: which products exist and are live (the menu structure itself is in config/nav.ts)
+export interface NavProduct {
+  slug: string
+  status?: string
+  /** Switched off in Studio: hide it from the menu too */
+  hidden?: boolean
+}
+
+export const NAV_PRODUCTS_QUERY = defineQuery(/* groq */ `
+  *[_type == "product" && status in ["active", "coming_soon"] && defined(slug.current)] {
+    "slug": slug.current,
+    status,
+    "hidden": showOnSite == false
+  }
+`)
+
+// About page: installation process showcase
+export interface InstallStep {
+  _key: string
+  title: string
+  caption?: string
+  image: SanityImage & { alt?: string }
+}
+
+export interface InstallShowcase {
+  eyebrow?: string
+  heading: string
+  description?: string
+  steps?: InstallStep[]
+  demoVideo?: {
+    title?: string
+    caption?: string
+    videoUrl?: string
+    poster?: SanityImage & { alt?: string }
+  }
+}
+
+export const INSTALL_SHOWCASE_QUERY = defineQuery(/* groq */ `
+  *[_type == "installShowcase" && isActive != false][0] {
+    eyebrow,
+    heading,
+    description,
+    steps[] {
+      _key,
+      title,
+      caption,
+      image {
+        asset-> { _id, url },
+        hotspot,
+        crop,
+        alt
+      }
+    },
+    demoVideo {
+      title,
+      caption,
+      "videoUrl": video.asset->url,
+      poster {
+        asset-> { _id, url },
+        hotspot,
+        crop,
+        alt
+      }
+    }
+  }
+`)
+
+// Portfolio: client case studies
+export interface CaseStudyListItem {
+  _id: string
+  clientName: string
+  slug: { current: string }
+  status: 'published' | 'coming_soon'
+  logoKey?: string
+  industry?: string
+  projectType?: string
+  location?: string
+  productsUsed?: string[]
+  summary?: string
+  /** One sentence naming the result: the caption under a card and the page title. */
+  headline?: string
+  /** Shown in the home slider (at most 8); when none is flagged the first 8 are shown. */
+  featured?: boolean
+  coverImage?: SanityImage & { alt?: string }
+}
+
+export interface CaseStudy extends CaseStudyListItem {
+  background?: string
+  spokespersonName?: string
+  spokespersonRole?: string
+  tags?: string[]
+  challenge?: string
+  solution?: string
+  result?: string
+  gallery?: Array<SanityImage & { alt?: string; caption?: string; _key?: string }>
+  seoTitle?: string
+  seoDescription?: string
+  shareImage?: SanityImage
+  noIndex?: boolean
+  updatedAt?: string
+}
+
+export const CASE_STUDIES_QUERY = defineQuery(/* groq */ `
+  *[_type == "caseStudy" && defined(slug.current)] | order(select(status == "published" => 0, 1) asc, order asc, clientName asc) {
+    _id,
+    clientName,
+    slug,
+    status,
+    logoKey,
+    industry,
+    projectType,
+    location,
+    productsUsed,
+    summary,
+    headline,
+    featured,
+    coverImage {
+      asset-> { _id, url },
+      hotspot,
+      crop,
+      alt
+    }
+  }
+`)
+
+export const CASE_STUDY_BY_SLUG_QUERY = defineQuery(/* groq */ `
+  *[_type == "caseStudy" && slug.current == $slug && status == "published"][0] {
+    _id,
+    clientName,
+    slug,
+    status,
+    logoKey,
+    industry,
+    projectType,
+    location,
+    productsUsed,
+    summary,
+    headline,
+    tags,
+    background,
+    challenge,
+    solution,
+    result,
+    spokespersonName,
+    spokespersonRole,
+    coverImage {
+      asset-> { _id, url },
+      hotspot,
+      crop,
+      alt
+    },
+    gallery[] {
+      _key,
+      asset-> { _id, url },
+      hotspot,
+      crop,
+      alt,
+      caption
+    },
+    seoTitle,
+    seoDescription,
+    shareImage {
+      asset-> { _id, url },
+      hotspot,
+      crop
+    },
+    noIndex,
+    "updatedAt": _updatedAt
+  }
+`)
+
+// Editable section headings (see config/sectionCopy.ts for the keys and their defaults)
+export const SECTION_COPY_QUERY = defineQuery(/* groq */ `
+  *[_type == "sectionCopy"][0] {
+    clientsEyebrow, clientsHeading,
+    portfolioEyebrow, portfolioHeading, portfolioDescription, portfolioAllLink,
+    articlesEyebrow, articlesHeading, articlesAllLink,
+    blogFilterAll, blogFilterOwn, blogFilterMedia,
+    caseStudyMoreHeading, connectedDevicesLabel
+  }
+`)
+
+// Landing page "Artikel & Berita": only posts marked Featured in Studio, newest first, never more than 3
+export const FEATURED_POSTS_QUERY = defineQuery(/* groq */ `
+  *[_type == "blogPost" && isActive == true && featured == true] | order(coalesce(sourcePublishedAt, publishedAt) desc) [0...3] {
+    _id,
+    title,
+    slug,
+    excerpt,
+    publishedAt,
+    category,
+    coverImage {
+      asset-> {
+        _id,
+        url
+      },
+      hotspot,
+      crop,
+      alt
+    },
+    isMediaCoverage,
+    sourceName,
+    sourcePublishedAt,
+    featured
   }
 `)

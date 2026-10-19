@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {seoFields} from './seoFields'
 
 export default defineType({
   name: 'product',
@@ -11,6 +12,7 @@ export default defineType({
     {name: 'specs', title: 'Specifications'},
     {name: 'variants', title: 'Variants'},
     {name: 'inventory', title: 'Inventory'},
+    {name: 'seo', title: 'SEO'},
   ],
   fields: [
     defineField({
@@ -30,6 +32,15 @@ export default defineType({
         maxLength: 96,
       },
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'showOnSite',
+      title: 'Tampilkan produk di website',
+      type: 'boolean',
+      group: 'basic',
+      description:
+        'Satu sakelar untuk seluruh website. Matikan untuk menyembunyikan produk ini dari menu header, slider produk, perbandingan produk, daftar produk, rekomendasi, sitemap, dan halaman detailnya. Nyalakan lagi untuk memunculkannya kembali di semua tempat itu.',
+      initialValue: true,
     }),
     defineField({
       name: 'sku',
@@ -54,6 +65,16 @@ export default defineType({
       options: {
         hotspot: true,
       },
+      fields: [
+        {
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative Text',
+          description: 'Jelaskan apa yang terlihat dan sebut nama produk, bukan sekadar "gambar".',
+          validation: (Rule) =>
+            Rule.required().warning('Isi alt text: jelaskan apa yang terlihat dan sebut nama produk (bukan sekadar "gambar").'),
+        },
+      ],
     }),
     defineField({
       name: 'heroVideo',
@@ -82,6 +103,7 @@ export default defineType({
               name: 'alt',
               type: 'string',
               title: 'Alternative Text',
+              validation: (Rule) => Rule.required().warning('Isi alt text: jelaskan apa yang terlihat dan sebut nama produk (bukan sekadar "gambar").'),
             },
           ],
         },
@@ -140,6 +162,7 @@ export default defineType({
                   {title: 'Storage', value: 'storage'},
                   {title: 'Connectivity', value: 'connectivity'},
                   {title: 'WiFi', value: 'wifi'},
+                  {title: 'Pen / Stylus', value: 'pen'},
                   {title: 'Weight', value: 'weight'},
                   {title: 'Dimensions', value: 'dimensions'},
                   {title: 'Material', value: 'material'},
@@ -180,6 +203,61 @@ export default defineType({
             },
           },
         },
+      ],
+    }),
+    defineField({
+      name: 'specTable',
+      title: 'Spesifikasi lengkap (tabel)',
+      type: 'object',
+      group: 'specs',
+      description:
+        'Tabel spesifikasi teknis per ukuran, diisi dari specification sheet. Kartu "Spesifikasi" di atas tetap dipakai untuk sorotan dan perbandingan produk.',
+      fields: [
+        defineField({
+          name: 'columns',
+          title: 'Kolom (ukuran/model)',
+          type: 'array',
+          of: [{type: 'string'}],
+          description: 'Tulis sama persis dengan nama varian (mis. 43", 55", 65") agar kolom ikut terpilih saat pengunjung memilih ukuran.',
+        }),
+        defineField({
+          name: 'groups',
+          title: 'Kelompok',
+          type: 'array',
+          of: [
+            {
+              type: 'object',
+              name: 'specGroup',
+              fields: [
+                defineField({name: 'title', title: 'Nama kelompok', type: 'string', validation: (Rule) => Rule.required()}),
+                defineField({
+                  name: 'rows',
+                  title: 'Baris',
+                  type: 'array',
+                  of: [
+                    {
+                      type: 'object',
+                      name: 'specRow',
+                      fields: [
+                        defineField({name: 'label', title: 'Label', type: 'string', validation: (Rule) => Rule.required()}),
+                        defineField({
+                          name: 'values',
+                          title: 'Nilai per kolom',
+                          type: 'array',
+                          of: [{type: 'string'}],
+                          description: 'Satu nilai per kolom, urut sesuai kolom. Isi satu nilai saja jika sama untuk semua ukuran. Pakai "-" jika tidak tersedia.',
+                        }),
+                      ],
+                      preview: {select: {title: 'label', values: 'values'}, prepare: ({title, values}) => ({title, subtitle: (values || []).join(' | ')})},
+                    },
+                  ],
+                }),
+              ],
+              preview: {select: {title: 'title', rows: 'rows'}, prepare: ({title, rows}) => ({title, subtitle: `${rows?.length || 0} baris`})},
+            },
+          ],
+        }),
+        defineField({name: 'note', title: 'Catatan kaki', type: 'string', description: 'Mis. "A = Android, W = Windows. Spesifikasi dapat berubah tanpa pemberitahuan."'}),
       ],
     }),
     // FEATURE SECTIONS
@@ -293,6 +371,7 @@ export default defineType({
                           {title: 'Storage', value: 'storage'},
                           {title: 'Connectivity', value: 'connectivity'},
                           {title: 'WiFi', value: 'wifi'},
+                          {title: 'Pen / Stylus', value: 'pen'},
                           {title: 'Weight', value: 'weight'},
                           {title: 'Dimensions', value: 'dimensions'},
                           {title: 'Material', value: 'material'},
@@ -415,6 +494,7 @@ export default defineType({
                   name: 'alt',
                   type: 'string',
                   title: 'Alternative Text',
+                  validation: (Rule) => Rule.required().warning('Isi alt text: jelaskan apa yang terlihat dan sebut nama produk (bukan sekadar "gambar").'),
                 },
               ],
             }),
@@ -433,6 +513,7 @@ export default defineType({
                       name: 'alt',
                       type: 'string',
                       title: 'Alternative Text',
+                      validation: (Rule) => Rule.required().warning('Isi alt text: jelaskan apa yang terlihat dan sebut nama produk (bukan sekadar "gambar").'),
                     },
                   ],
                 },
@@ -518,10 +599,28 @@ export default defineType({
           {title: 'Active', value: 'active'},
           {title: 'Draft', value: 'draft'},
           {title: 'Archived', value: 'archived'},
+          {title: 'Segera hadir (tampil di menu, tanpa halaman)', value: 'coming_soon'},
         ],
       },
       initialValue: 'active',
     }),
+    defineField({
+      name: 'showInMenu',
+      title: 'Tampilkan di menu header',
+      type: 'boolean',
+      group: 'basic',
+      description: 'Produk unggulan yang langsung terlihat di menu atas website.',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'menuOrder',
+      title: 'Urutan di menu header',
+      type: 'number',
+      group: 'basic',
+      description: 'Angka kecil tampil lebih dulu (1, 2, 3, ...).',
+      hidden: ({document}) => !document?.showInMenu,
+    }),
+    ...seoFields(),
   ],
   preview: {
     select: {
@@ -531,12 +630,13 @@ export default defineType({
       status: 'status',
       hasVariants: 'hasVariants',
       variantCount: 'variants.length',
+      showOnSite: 'showOnSite',
     },
-    prepare({title, subtitle, media, status, hasVariants, variantCount}) {
+    prepare({title, subtitle, media, status, hasVariants, variantCount, showOnSite}) {
       const variantText = hasVariants && variantCount ? ` (${variantCount} variants)` : ''
       return {
         title,
-        subtitle: `$${subtitle || '0.00'} - ${status || 'active'}${variantText}`,
+        subtitle: `${showOnSite === false ? 'DISEMBUNYIKAN · ' : ''}$${subtitle || '0.00'} - ${status || 'active'}${variantText}`,
         media,
       }
     },

@@ -30,6 +30,16 @@ export default defineType({
       options: {
         hotspot: true,
       },
+      fields: [
+        {
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative Text',
+          description: 'Jelaskan apa yang terlihat dan sebut nama produk, bukan sekadar "gambar".',
+          validation: (Rule) =>
+            Rule.required().warning('Isi alt text: jelaskan apa yang terlihat dan sebut nama produk (bukan sekadar "gambar").'),
+        },
+      ],
       description: 'Background image for the hero (used if no video is provided)',
     }),
     defineField({
@@ -40,6 +50,25 @@ export default defineType({
         accept: 'video/*',
       },
       description: 'Background video (takes priority over image if both provided)',
+    }),
+    defineField({
+      name: 'backgroundVideoMobile',
+      title: 'Background Video (mobile, lighter)',
+      type: 'file',
+      options: {accept: 'video/mp4'},
+      description:
+        'Versi ringan untuk HP (mis. 1280 px lebar, di bawah 1 MB, tanpa suara). Dipakai otomatis di layar sempit agar halaman cepat dibuka.',
+    }),
+    defineField({
+      name: 'backgroundPoster',
+      title: 'Video Poster',
+      type: 'image',
+      options: {hotspot: true},
+      description:
+        'Gambar diam yang tampil sebelum video siap, dan menggantikan video bagi pengunjung yang memilih gerakan dikurangi atau hemat data. Ambil dari satu frame video.',
+      fields: [
+        {name: 'alt', type: 'string', title: 'Alternative Text', description: 'Jelaskan isi gambar dan nama produk.'},
+      ],
     }),
     defineField({
       name: 'ctaButtons',

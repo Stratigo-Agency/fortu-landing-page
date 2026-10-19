@@ -18,14 +18,17 @@
     
     <!-- Background Image (fallback) -->
     <img
-      v-else-if="heroImageUrl"
-      :src="heroImageUrl"
-      :alt="pageHero.title"
+      v-else-if="heroImage"
+      :src="heroImage.src"
+      :srcset="heroImage.srcset"
+      sizes="100vw"
+      :alt="pageHero.backgroundImage?.alt || pageHero.title"
       fetchpriority="high"
       decoding="async"
       width="1920"
       height="1080"
       class="absolute inset-0 w-full h-full object-cover"
+      :style="focalStyle(pageHero.backgroundImage)"
     />
     
     <!-- Overlay -->
@@ -34,19 +37,19 @@
       :style="{ opacity: (pageHero.overlayOpacity ?? 60) / 100 }"
     ></div>
     
-    <!-- Content -->
+    <!-- Content: always centred on phones (symmetry), aligned as set in Sanity from tablet up -->
     <div 
       class="relative z-10 px-4 md:px-16 w-full"
       :class="{
-        'text-left': pageHero.alignment === 'left',
+        'text-center md:text-left': pageHero.alignment === 'left',
         'text-center': pageHero.alignment === 'center' || !pageHero.alignment,
-        'text-right': pageHero.alignment === 'right'
+        'text-center md:text-right': pageHero.alignment === 'right'
       }"
     >
       <h1 class="text-5xl md:text-6xl lg:text-7xl font-medium text-fortu-off-white mb-4 tracking-tight hero-title">
         {{ pageHero.title }}
       </h1>
-      <p v-if="pageHero.subtitle" class="text-lg md:text-xl text-fortu-light max-w-2xl hero-subtitle" :class="{ 'mx-auto': pageHero.alignment === 'center' }">
+      <p v-if="pageHero.subtitle" class="text-lg md:text-xl text-fortu-light max-w-2xl mx-auto hero-subtitle" :class="{ 'md:mx-0': pageHero.alignment === 'left', 'md:ml-auto md:mr-0': pageHero.alignment === 'right' }">
         {{ pageHero.subtitle }}
       </p>
     </div>
@@ -95,14 +98,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watchEffect, onUnmounted } from 'vue'
-import { client } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { PAGE_HERO_QUERY, type PageHero } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
+import { focalStyle, responsiveImage } from '@/utils/image'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const props = defineProps<{
-  pageName: 'products' | 'about' | 'contact' | 'services' | 'privacy' | 'blog'
+  pageName: 'products' | 'about' | 'contact' | 'services' | 'privacy' | 'blog' | 'case-studies'
   fallbackTitle?: string
   fallbackSubtitle?: string
 }>()
@@ -117,17 +119,12 @@ const heroVideoUrl = computed(() => {
   return null
 })
 
-const heroImageUrl = computed(() => {
-  if (pageHero.value?.backgroundImage?.asset) {
-    try {
-      const builder = urlFor(pageHero.value.backgroundImage.asset).width(1920).quality(IMAGE_CONFIG.quality)
-      return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
-    } catch {
-      return null
-    }
-  }
-  return null
-})
+const heroImage = computed(() =>
+  pageHero.value?.backgroundImage?.asset
+    ? responsiveImage(pageHero.value.backgroundImage, [640, 1024, 1536, 2048])
+    : null,
+)
+const heroImageUrl = computed(() => heroImage.value?.src ?? null)
 
 // Add preload link for LCP optimization
 let preloadLink: HTMLLinkElement | null = null
@@ -170,7 +167,7 @@ onUnmounted(() => {
 
 onMounted(async () => {
   try {
-    pageHero.value = await client.fetch(PAGE_HERO_QUERY, { pageName: props.pageName })
+    pageHero.value = await fetchSanity(PAGE_HERO_QUERY, { pageName: props.pageName })
   } catch (e) {
     console.error('Failed to fetch page hero:', e)
   } finally {

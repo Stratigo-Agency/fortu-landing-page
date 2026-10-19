@@ -45,13 +45,14 @@
               <img
                 v-else-if="getMediaUrl(item)"
                 :src="getMediaUrl(item)"
-                :alt="item.alt || item.caption || 'Use case image'"
+                :alt="item.alt || item.caption || 'Contoh penerapan digital signage Fortu Digital'"
                 loading="lazy"
                 decoding="async"
                 width="600"
                 :height="item.size === 'tall' ? 800 : item.size === 'short' ? 400 : 600"
                 class="w-full h-full object-cover"
-              />
+        :style="focalStyle(item.image)"
+      />
               
               <!-- Caption overlay -->
               <div v-if="item.caption" class="absolute inset-0 bg-gradient-to-t from-fortu-dark/60 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
@@ -68,12 +69,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { client } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
+import { useSanityQuery } from '@/composables/useSanityQuery'
+import { focalStyle, buildImageUrl } from '@/utils/image'
+import { computed } from 'vue'
 import { USE_CASE_SECTION_QUERY, type UseCaseSection, type UseCaseItem } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
+
+const { data: useCaseSection, loading } = useSanityQuery<UseCaseSection | null>(USE_CASE_SECTION_QUERY, { label: 'use case section' })
 
 const props = withDefaults(defineProps<{
   showTitle?: boolean
@@ -85,8 +87,6 @@ const props = withDefaults(defineProps<{
 
 const showHeader = computed(() => props.showTitle || props.showDescription)
 
-const useCaseSection = ref<UseCaseSection | null>(null)
-const loading = ref(true)
 
 // Vertical offsets for staggered effect (in pixels)
 const columnOffsets = [0, 40, 80, 20, 60, 100, 30]
@@ -117,8 +117,7 @@ const getMediaUrl = (item: UseCaseItem): string | undefined => {
     try {
       // Always use urlFor to apply crop/hotspot settings
       // Pass the full image object (not just asset) to preserve hotspot and crop
-      const builder = urlFor(item.image).width(600).quality(IMAGE_CONFIG.quality)
-      return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+      return buildImageUrl(item.image, { width: 600 }) ?? undefined
     } catch {
       return undefined
     }
@@ -137,15 +136,6 @@ const getItemSizeClass = (item: UseCaseItem): string => {
   }
 }
 
-onMounted(async () => {
-  try {
-    useCaseSection.value = await client.fetch(USE_CASE_SECTION_QUERY)
-  } catch (e) {
-    console.error('Failed to fetch Use Case Section content:', e)
-  } finally {
-    loading.value = false
-  }
-})
 </script>
 
 <style scoped>

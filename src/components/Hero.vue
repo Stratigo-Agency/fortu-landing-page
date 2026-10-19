@@ -1,14 +1,26 @@
 <script setup lang="ts">
+import { focalStyle, buildImageUrl } from '@/utils/image'
 import { ref, onMounted, computed, watchEffect, onUnmounted } from 'vue'
-import { client } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
-import { HERO_QUERY, type Hero } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
+import { fetchSanity } from '@/sanity/fetch'
+import { HERO_QUERY, SITE_SETTINGS_QUERY, type Hero, type Office } from '@/sanity/queries'
+import { getOffices, safeUrl } from '@/utils/offices'
 import Button from '@/reusables/Button.vue'
-import ClientCarousel from '@/components/ClientCarousel.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const hero = ref<Hero | null>(null)
+const offices = ref<Office[]>([])
+
+// Office locations under the description: Medan, Jakarta, Bali (then any others), from Sanity
+const LOCATION_ORDER = ['medan', 'jakarta', 'bali']
+const locations = computed(() =>
+  offices.value
+    .filter((o) => o.city)
+    .sort((a, b) => {
+      const ia = LOCATION_ORDER.indexOf(a.city.toLowerCase())
+      const ib = LOCATION_ORDER.indexOf(b.city.toLowerCase())
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib)
+    }),
+)
 const loading = ref(true)
 
 const heroVideoUrl = computed(() => {
@@ -18,13 +30,32 @@ const heroVideoUrl = computed(() => {
   return null
 })
 
+const heroMobileVideoUrl = computed(() => hero.value?.backgroundVideoMobile?.asset?.url ?? null)
+
+// Poster shown while the video loads (and instead of it when the visitor prefers less motion or data)
+const heroPosterUrl = computed(() => {
+  const poster = hero.value?.backgroundPoster ?? hero.value?.backgroundImage
+  if (!poster?.asset) return null
+  try {
+    return buildImageUrl(poster, { width: 1920 })
+  } catch {
+    return null
+  }
+})
+
+const reduceMotion =
+  typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+const saveData =
+  typeof navigator !== 'undefined' &&
+  !!(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
+const playVideo = computed(() => !!heroVideoUrl.value && !reduceMotion && !saveData)
+
 const heroImageUrl = computed(() => {
   if (hero.value?.backgroundImage?.asset) {
     try {
       // Always use urlFor to apply crop/hotspot settings
       // Pass the full image object (not just asset) to preserve hotspot and crop
-      const builder = urlFor(hero.value.backgroundImage).width(1920).quality(IMAGE_CONFIG.quality)
-      return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+      return buildImageUrl(hero.value.backgroundImage, { width: 1920 })
     } catch {
       return null
     }
@@ -40,26 +71,16 @@ const heroAlignment = computed(() => {
 let preloadLink: HTMLLinkElement | null = null
 
 watchEffect(() => {
-  const videoUrl = heroVideoUrl.value
-  const imageUrl = heroImageUrl.value
-  
-  // Remove existing preload link if any
+  // Preload the still (poster or image): it is the LCP element and is small.
+  // The video itself is never preloaded, so it cannot compete with the page for bandwidth.
+  const imageUrl = heroPosterUrl.value || heroImageUrl.value
+
   if (preloadLink && preloadLink.parentNode) {
     preloadLink.parentNode.removeChild(preloadLink)
     preloadLink = null
   }
-  
-  // Preload video if available (takes priority)
-  if (videoUrl) {
-    preloadLink = document.createElement('link')
-    preloadLink.rel = 'preload'
-    preloadLink.as = 'video'
-    preloadLink.href = videoUrl
-    preloadLink.setAttribute('fetchpriority', 'high')
-    document.head.appendChild(preloadLink)
-  } 
-  // Otherwise preload image
-  else if (imageUrl) {
+
+  if (imageUrl) {
     preloadLink = document.createElement('link')
     preloadLink.rel = 'preload'
     preloadLink.as = 'image'
@@ -77,7 +98,12 @@ onUnmounted(() => {
 
 onMounted(async () => {
   try {
-    hero.value = await client.fetch(HERO_QUERY)
+    const [heroData, settings] = await Promise.all([
+      fetchSanity(HERO_QUERY),
+      fetchSanity(SITE_SETTINGS_QUERY).catch(() => null),
+    ])
+    hero.value = heroData
+    offices.value = [...getOffices(settings)]
   } catch (e) {
     console.error('Failed to fetch hero content:', e)
   } finally {
@@ -93,27 +119,33 @@ onMounted(async () => {
   >
     <!-- Background Video -->
     <video
-      v-if="heroVideoUrl"
-      :src="heroVideoUrl"
+      v-if="playVideo"
+      :poster="heroPosterUrl || undefined"
       autoplay
       loop
       muted
       playsinline
-      fetchpriority="high"
+      preload="auto"
+      aria-hidden="true"
       class="absolute inset-0 w-full h-full object-cover z-0"
-    ></video>
-    
-    <!-- Background Image (fallback) -->
+      :style="focalStyle(hero?.backgroundPoster ?? hero?.backgroundImage)"
+    >
+      <source v-if="heroMobileVideoUrl" :src="heroMobileVideoUrl" media="(max-width: 767px)" type="video/mp4" />
+      <source :src="heroVideoUrl!" type="video/mp4" />
+    </video>
+
+    <!-- Still image: no video set, or the visitor prefers less motion / data -->
     <img
-      v-else-if="heroImageUrl"
-      :src="heroImageUrl"
-      :alt="hero.title"
+      v-else-if="heroPosterUrl || heroImageUrl"
+      :src="heroPosterUrl || heroImageUrl!"
+      :alt="hero.backgroundPoster?.alt || hero.backgroundImage?.alt || hero.title"
       fetchpriority="high"
       decoding="async"
       width="1920"
       height="1080"
       class="absolute inset-0 w-full h-full object-cover z-0"
-    />
+        :style="focalStyle(hero?.backgroundImage)"
+      />
     
     <div class="absolute inset-0 bg-black/50 z-[1]"></div>
     
@@ -127,9 +159,37 @@ onMounted(async () => {
       }"
     >
       <div class="w-full">
-        <h1 class="text-5xl md:text-8xl font-medium mb-4 tracking-tight leading-tight hero-title">{{ hero.title }}</h1>
-        <h2 v-if="hero.subtitle" class="text-xl md:text-3xl font-medium mb-4 text-fortu-light leading-snug hero-subtitle">{{ hero.subtitle }}</h2>
-        <p v-if="hero.description" class="text-lg md:text-xl leading-relaxed mb-8 text-[rgba(250,250,250,0.9)] hero-description">{{ hero.description }}</p>
+        <h1 class="text-4xl sm:text-5xl md:text-8xl font-medium mb-4 tracking-tight leading-[1.1] md:leading-tight hero-title">{{ hero.title }}</h1>
+        <h2 v-if="hero.subtitle" class="text-2xl md:text-3xl font-medium mb-4 text-fortu-off-white leading-snug hero-subtitle">{{ hero.subtitle }}</h2>
+        <!-- The longer supporting paragraph is for tablet and up; phones keep the headline, tagline and buttons -->
+        <p v-if="hero.description" class="hidden md:block text-lg md:text-xl leading-relaxed mb-6 max-w-3xl text-[rgba(250,250,250,0.9)] hero-description"
+           :class="{ 'mx-auto': heroAlignment === 'center', 'ml-auto': heroAlignment === 'right' }">{{ hero.description }}</p>
+
+        <!-- Office locations: link to Google Maps when a link exists, plain text otherwise -->
+        <ul
+          v-if="locations.length"
+          class="hero-locations flex flex-wrap items-center gap-x-6 gap-y-2 mb-6 md:mb-8 text-sm md:text-base text-fortu-off-white/85"
+          :class="{
+            'justify-center': heroAlignment === 'center',
+            'justify-end': heroAlignment === 'right'
+          }"
+          aria-label="Lokasi kantor Fortu Digital"
+        >
+          <li v-for="(office, i) in locations" :key="office._key || i" class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 flex-shrink-0 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <a
+              v-if="safeUrl(office.mapsUrl)"
+              :href="safeUrl(office.mapsUrl)"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline underline-offset-4 decoration-white/40 hover:decoration-white transition-colors"
+            >{{ office.city }}<span class="sr-only"> (buka di Google Maps)</span></a>
+            <span v-else>{{ office.city }}</span>
+          </li>
+        </ul>
         <div 
           v-if="hero.ctaButtons && hero.ctaButtons.length > 0" 
           class="flex gap-4 flex-wrap flex-col md:flex-row hero-buttons"
@@ -142,7 +202,8 @@ onMounted(async () => {
           <Button
             v-for="(button, index) in hero.ctaButtons"
             :key="index"
-            :href="button.link"
+            :to="button.link?.startsWith('/') ? button.link : undefined"
+            :href="button.link?.startsWith('/') ? undefined : button.link"
             :variant="button.variant"
             size="md"
             class="w-full md:w-auto"
@@ -151,11 +212,6 @@ onMounted(async () => {
           </Button>
         </div>
       </div>
-    </div>
-    
-    <!-- Client Carousel at bottom -->
-    <div class="hero-carousel relative z-[2] pb-8">
-      <ClientCarousel />
     </div>
   </section>
 
@@ -219,28 +275,13 @@ onMounted(async () => {
     margin-bottom: 1rem;
   }
 
+  .hero-locations {
+    margin-bottom: 0.75rem;
+    font-size: 0.8rem;
+  }
+
   .hero-buttons {
     gap: 0.75rem;
-  }
-
-  /* the client strip is the biggest block down here - shrink it rather than
-     let it push the hero past the screen */
-  .hero-carousel {
-    padding-bottom: 0.5rem;
-  }
-
-  .hero-carousel :deep(.client-carousel-section) {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-  }
-
-  .hero-carousel :deep(.carousel-card) {
-    height: 3.5rem;
-    padding: 0.5rem;
-  }
-
-  .hero-carousel :deep(.carousel-card img) {
-    height: 100%;
   }
 }
 </style>

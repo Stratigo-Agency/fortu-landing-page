@@ -20,14 +20,36 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'comingSoon',
+      title: 'Segera hadir',
+      type: 'boolean',
+      description:
+        'Aktifkan jika foto produk belum ada. Tab tampil dengan label "Segera" dan tombol "Segera hadir" (tanpa link). Matikan setelah foto dan halaman produk siap.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'slideImage',
       title: 'Slide Image',
       type: 'image',
       options: {
         hotspot: true,
       },
-      description: 'Full-screen background image for this product slide',
-      validation: (Rule) => Rule.required(),
+      fields: [
+        {
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative Text',
+          description: 'Jelaskan apa yang terlihat dan sebut nama produk, bukan sekadar "gambar".',
+          validation: (Rule) =>
+            Rule.required().warning('Isi alt text: jelaskan apa yang terlihat dan sebut nama produk (bukan sekadar "gambar").'),
+        },
+      ],
+      description:
+        'Foto produk yang menonjolkan produknya (boleh ada manusia kecil sebagai konteks). Wajib kecuali "Segera hadir".',
+      validation: (Rule) =>
+        Rule.custom((value, ctx) =>
+          !value && !(ctx.document as {comingSoon?: boolean})?.comingSoon ? 'Foto wajib diisi' : true,
+        ),
     }),
     defineField({
       name: 'features',
@@ -122,7 +144,8 @@ export default defineType({
       title: 'Linked Product',
       type: 'reference',
       to: [{type: 'product'}],
-      description: 'Optional: Link to a product for more details',
+      description:
+        'Optional: Link to a product for more details. If that product is switched off ("Tampilkan produk di website"), this slide is hidden too.',
     }),
     defineField({
       name: 'order',

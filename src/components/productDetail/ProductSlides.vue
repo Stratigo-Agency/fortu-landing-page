@@ -20,7 +20,7 @@
                     v-for="(prod, idx) in productSlides"
                     :key="`mobile-tab-${prod._id}`"
                     @click="goToSlide(idx)"
-                    :aria-label="`View ${prod.name} product slide`"
+                    :aria-label="`Lihat slide ${prod.name}`"
                     :aria-pressed="currentIndex === idx ? 'true' : 'false'"
                     class="px-4 py-2 text-xs font-medium transition-all duration-300"
                     :class="currentIndex === idx 
@@ -69,7 +69,7 @@
                 <button
                   @click="prevSlide"
                   class="w-10 h-10 text-fortu-dark rounded-full bg-fortu-off-white/90 backdrop-blur-sm flex items-center justify-center"
-                  aria-label="Previous slide"
+                  aria-label="Slide sebelumnya"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
@@ -78,7 +78,7 @@
                 <button
                   @click="nextSlide"
                   class="w-10 h-10 text-fortu-dark rounded-full bg-fortu-off-white/90 backdrop-blur-sm flex items-center justify-center"
-                  aria-label="Next slide"
+                  aria-label="Slide berikutnya"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
@@ -101,7 +101,7 @@
                       v-for="(prod, idx) in productSlides"
                       :key="`desktop-tab-${prod._id}`"
                       @click="goToSlide(idx)"
-                      :aria-label="`View ${prod.name} product slide`"
+                      :aria-label="`Lihat slide ${prod.name}`"
                       :aria-pressed="currentIndex === idx ? 'true' : 'false'"
                       class="px-6 py-2.5 text-sm font-medium transition-all duration-300"
                       :class="currentIndex === idx 
@@ -139,7 +139,7 @@
                   <button
                     @click="prevSlide"
                     class="w-12 h-12 text-fortu-dark rounded-full border border-fortu-light/30 flex items-center justify-center hover:bg-fortu-dark hover:text-fortu-off-white hover:border-fortu-dark transition-all duration-300"
-                    aria-label="Previous slide"
+                    aria-label="Slide sebelumnya"
                   >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -148,7 +148,7 @@
                   <button
                     @click="nextSlide"
                     class="w-12 h-12 text-fortu-dark rounded-full border border-fortu-light/30 flex items-center justify-center hover:bg-fortu-dark hover:text-fortu-off-white hover:border-fortu-dark transition-all duration-300"
-                    aria-label="Next slide"
+                    aria-label="Slide berikutnya"
                   >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -205,11 +205,10 @@
 </template>
 
 <script setup lang="ts">
+import { buildImageUrl } from '@/utils/image'
 import { ref, onMounted, onUnmounted } from 'vue'
-import { client } from '@/sanity/client'
-import { urlFor } from '@/sanity/client'
+import { fetchSanity } from '@/sanity/fetch'
 import { PRODUCT_SLIDES_QUERY, type ProductSlide } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import FeatureIcon from '@/components/FeatureIcon.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
@@ -224,8 +223,7 @@ let autoPlayTimer: ReturnType<typeof setInterval> | null = null
 const getProductImage = (product: ProductSlide): string | undefined => {
   if (!product.slideImage?.asset) return undefined
   try {
-    const builder = urlFor(product.slideImage.asset).width(1920).quality(IMAGE_CONFIG.quality)
-    return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+    return buildImageUrl(product.slideImage, { width: 1920 }) ?? undefined
   } catch {
     return undefined
   }
@@ -265,7 +263,7 @@ const resetAutoPlay = () => {
 
 onMounted(async () => {
   try {
-    productSlides.value = await client.fetch(PRODUCT_SLIDES_QUERY)
+    productSlides.value = await fetchSanity(PRODUCT_SLIDES_QUERY)
     if (productSlides.value.length > 0) {
       startAutoPlay()
     }

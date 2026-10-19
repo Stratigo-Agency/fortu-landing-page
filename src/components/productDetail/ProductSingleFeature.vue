@@ -122,10 +122,9 @@
 </template>
 
 <script setup lang="ts">
+import { buildImageUrl } from '@/utils/image'
 import { computed } from 'vue'
-import { urlFor } from '@/sanity/client'
 import type { ProductFeature } from '@/sanity/queries'
-import { IMAGE_CONFIG } from '@/config/image'
 import CompareIcon from '@/components/CompareIcon.vue'
 
 const props = defineProps<{
@@ -156,8 +155,7 @@ const imageUrl = computed(() => {
     try {
       // Always use urlFor to apply crop/hotspot settings
       // Pass the full image object (not just asset) to preserve hotspot and crop
-        const builder = urlFor(props.feature.image).width(1920).quality(IMAGE_CONFIG.quality)
-        return IMAGE_CONFIG.autoFormat ? builder.auto('format').url() : builder.url()
+        return buildImageUrl(props.feature.image, { width: 1920 })
     } catch {
       return null
     }
