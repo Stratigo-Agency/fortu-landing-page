@@ -144,7 +144,8 @@ export default defineType({
       title: 'Linked Product',
       type: 'reference',
       to: [{type: 'product'}],
-      description: 'Optional: Link to a product for more details',
+      description:
+        'Optional: Link to a product for more details. If that product is switched off ("Tampilkan produk di website"), this slide is hidden too.',
     }),
     defineField({
       name: 'order',

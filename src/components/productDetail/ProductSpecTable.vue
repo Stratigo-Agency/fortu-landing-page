@@ -1,8 +1,8 @@
 <template>
   <div class="spec-table">
-    <h3 class="text-2xl md:text-3xl font-medium text-fortu-dark tracking-tight mb-6">Spesifikasi lengkap</h3>
+    <h3 class="text-2xl md:text-3xl font-medium text-fortu-dark tracking-tight mb-6">Productsheet</h3>
 
-    <!-- Phones: one size at a time, picked with large buttons -->
+    <!-- Phones: one size at a time, picked with large buttons (independent of the size picked in the hero) -->
     <div v-if="columns.length > 1" class="md:hidden mb-6">
       <p class="text-base text-fortu-medium mb-3">Pilih ukuran</p>
       <div class="flex flex-wrap gap-2" role="group" aria-label="Pilih ukuran">
@@ -11,9 +11,9 @@
           :key="col"
           type="button"
           class="min-w-[64px] h-12 px-5 rounded-full border text-lg font-medium transition-colors"
-          :class="i === active ? 'bg-fortu-dark border-fortu-dark text-fortu-off-white' : 'border-fortu-dark/25 text-fortu-dark'"
-          :aria-pressed="i === active ? 'true' : 'false'"
-          @click="$emit('select', col)"
+          :class="i === phoneIndex ? 'bg-fortu-dark border-fortu-dark text-fortu-off-white' : 'border-fortu-dark/25 text-fortu-dark'"
+          :aria-pressed="i === phoneIndex ? 'true' : 'false'"
+          @click="phoneIndex = i"
         >
           {{ col }}
         </button>
@@ -27,15 +27,16 @@
         <div v-for="row in group.rows" :key="row._key || row.label" class="py-3">
           <dt class="text-base text-fortu-medium">{{ row.label }}</dt>
           <dd class="mt-0.5 text-lg text-fortu-dark leading-snug">
-            <SpecValue :value="valueAt(row, active)" />
+            <SpecValue :value="valueAt(row, phoneIndex)" />
           </dd>
         </div>
       </dl>
     </div>
 
-    <!-- Tablet and up: one table, every size side by side, the selected size highlighted -->
+    <!-- Tablet and up: one table, every size side by side. Neighbouring sizes with the same value share one
+         merged, centred cell (like "merge and centre" in a spreadsheet), so no cell is left empty. -->
     <table class="hidden md:table w-full table-fixed border-collapse text-left mb-8">
-      <caption class="sr-only">Spesifikasi lengkap per ukuran</caption>
+      <caption class="sr-only">Productsheet per ukuran</caption>
       <colgroup>
         <col class="w-[28%] lg:w-[24%]" />
         <col v-for="col in columns" :key="col" />
@@ -43,16 +44,14 @@
       <thead v-if="columns.length > 1" class="sticky top-[84px] z-10 bg-white">
         <tr>
           <th scope="col"><span class="sr-only">Spesifikasi</span></th>
-          <th v-for="(col, i) in columns" :key="col" scope="col" class="px-4 py-3 font-normal" :class="i === active ? 'bg-fortu-off-white rounded-t-xl' : ''">
-            <button
-              type="button"
-              class="text-lg font-medium underline-offset-4 hover:underline"
-              :class="i === active ? 'text-fortu-dark' : 'text-fortu-medium'"
-              :aria-pressed="i === active ? 'true' : 'false'"
-              @click="$emit('select', col)"
-            >
-              {{ col }}
-            </button>
+          <th
+            v-for="(col, i) in columns"
+            :key="col"
+            scope="col"
+            class="px-4 py-3 text-center text-lg font-medium text-fortu-dark"
+            :class="i > 0 ? 'border-l border-fortu-dark/10' : ''"
+          >
+            {{ col }}
           </th>
         </tr>
       </thead>
@@ -64,20 +63,15 @@
         </tr>
         <tr v-for="row in group.rows" :key="row._key || row.label" class="border-t border-fortu-dark/10">
           <th scope="row" class="py-3 pr-4 text-base font-normal text-fortu-medium align-top">{{ row.label }}</th>
-          <!-- A value that is the same for every size spans the whole row -->
-          <td v-if="isShared(row)" :colspan="columns.length" class="py-3 px-4 text-base lg:text-lg text-fortu-dark leading-snug align-top">
-            <SpecValue :value="valueAt(row, 0)" />
+          <td
+            v-for="(cell, ci) in cellsOf(row)"
+            :key="ci"
+            :colspan="cell.span"
+            class="py-3 px-4 text-center text-base lg:text-lg text-fortu-dark leading-snug align-middle"
+            :class="cell.start > 0 ? 'border-l border-fortu-dark/10' : ''"
+          >
+            <SpecValue :value="cell.value" />
           </td>
-          <template v-else>
-            <td
-              v-for="(col, i) in columns"
-              :key="col"
-              class="py-3 px-4 text-base lg:text-lg text-fortu-dark leading-snug align-top"
-              :class="i === active ? 'bg-fortu-off-white' : ''"
-            >
-              <SpecValue :value="valueAt(row, i)" />
-            </td>
-          </template>
         </tr>
       </tbody>
     </table>
@@ -99,14 +93,10 @@
 <script setup lang="ts">
 import { computed, defineComponent, h, ref } from 'vue'
 import type { ProductSpecRow, ProductSpecTable } from '@/sanity/queries'
-import { sizeKey } from '@/utils/size'
 
 const props = defineProps<{
   table: ProductSpecTable
-  /** Name of the selected variant (e.g. 55"); its column is highlighted */
-  selected?: string
 }>()
-defineEmits<{ select: [column: string] }>()
 
 // Long sheets start with the first groups only (up to about this many rows)
 const INITIAL_ROWS = 14
@@ -114,11 +104,8 @@ const INITIAL_ROWS = 14
 const columns = computed(() => (props.table.columns?.length ? props.table.columns : ['']))
 const groups = computed(() => (props.table.groups || []).filter((g) => g.rows?.length))
 
-const active = computed(() => {
-  if (!props.selected) return 0
-  const i = columns.value.findIndex((c) => sizeKey(c) === sizeKey(props.selected as string))
-  return i < 0 ? 0 : i
-})
+// The phone layout shows one size; it starts on the first and does not follow the hero's size picker
+const phoneIndex = ref(0)
 
 const expanded = ref(false)
 const initialGroupCount = computed(() => {
@@ -140,9 +127,22 @@ const valueAt = (row: ProductSpecRow, i: number) => {
   const values = row.values || []
   return (values.length === 1 ? values[0] : values[i])?.trim() || ''
 }
-const isShared = (row: ProductSpecRow) => {
-  const values = row.values || []
-  return values.length <= 1 || values.every((v) => v.trim() === values[0].trim())
+
+// Neighbouring sizes with the same value become one cell spanning them (a single value spans every size)
+interface Cell {
+  value: string
+  start: number
+  span: number
+}
+const cellsOf = (row: ProductSpecRow): Cell[] => {
+  const cells: Cell[] = []
+  for (let i = 0; i < columns.value.length; i++) {
+    const value = valueAt(row, i)
+    const last = cells[cells.length - 1]
+    if (last && last.value === value) last.span++
+    else cells.push({ value, start: i, span: 1 })
+  }
+  return cells
 }
 
 // "-" or an empty cell means "not available for this size"

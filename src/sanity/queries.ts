@@ -246,6 +246,8 @@ export interface Product {
   inStock?: boolean
   featured?: boolean
   status?: 'active' | 'draft' | 'archived' | 'coming_soon'
+  /** Switched off in Studio (false): hidden from the menu, sections, listings, sitemap and its own page */
+  showOnSite?: boolean
   seoTitle?: string
   seoDescription?: string
   shareImage?: SanityImage
@@ -397,7 +399,7 @@ export const USE_CASE_SECTION_QUERY = defineQuery(/* groq */ `
 `)
 
 export const PRODUCT_SLIDES_QUERY = defineQuery(/* groq */ `
-  *[_type == "productSlide" && isActive == true] | order(order asc) {
+  *[_type == "productSlide" && isActive == true && (!defined(product) || product->showOnSite != false)] | order(order asc) {
     _id,
     name,
     tagline,
@@ -428,7 +430,7 @@ export const PRODUCT_SLIDES_QUERY = defineQuery(/* groq */ `
 
 // Products query for catalog (essential fields only)
 export const PRODUCTS_QUERY = defineQuery(/* groq */ `
-  *[_type == "product" && status == "active"] | order(_createdAt desc) {
+  *[_type == "product" && status == "active" && showOnSite != false] | order(_createdAt desc) {
     _id,
     name,
     slug,
@@ -661,7 +663,7 @@ export const PRODUCT_COMPARE_QUERY = defineQuery(/* groq */ `
     _id,
     heading,
     subheading,
-    products[] {
+    products[product->showOnSite != false] {
       _key,
       product-> {
         _id,
@@ -703,7 +705,7 @@ export const PRODUCT_COMPARE_QUERY = defineQuery(/* groq */ `
 
 // Single Product by Slug
 export const PRODUCT_BY_SLUG_QUERY = defineQuery(/* groq */ `
-  *[_type == "product" && slug.current == $slug && status == "active"][0] {
+  *[_type == "product" && slug.current == $slug && status == "active" && showOnSite != false][0] {
     _id,
     name,
     slug,
@@ -1104,12 +1106,15 @@ export const PAGE_SEO_QUERY = defineQuery(/* groq */ `
 export interface NavProduct {
   slug: string
   status?: string
+  /** Switched off in Studio: hide it from the menu too */
+  hidden?: boolean
 }
 
 export const NAV_PRODUCTS_QUERY = defineQuery(/* groq */ `
   *[_type == "product" && status in ["active", "coming_soon"] && defined(slug.current)] {
     "slug": slug.current,
-    status
+    status,
+    "hidden": showOnSite == false
   }
 `)
 

@@ -34,6 +34,15 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'showOnSite',
+      title: 'Tampilkan produk di website',
+      type: 'boolean',
+      group: 'basic',
+      description:
+        'Satu sakelar untuk seluruh website. Matikan untuk menyembunyikan produk ini dari menu header, slider produk, perbandingan produk, daftar produk, rekomendasi, sitemap, dan halaman detailnya. Nyalakan lagi untuk memunculkannya kembali di semua tempat itu.',
+      initialValue: true,
+    }),
+    defineField({
       name: 'sku',
       title: 'SKU',
       type: 'string',
@@ -153,6 +162,7 @@ export default defineType({
                   {title: 'Storage', value: 'storage'},
                   {title: 'Connectivity', value: 'connectivity'},
                   {title: 'WiFi', value: 'wifi'},
+                  {title: 'Pen / Stylus', value: 'pen'},
                   {title: 'Weight', value: 'weight'},
                   {title: 'Dimensions', value: 'dimensions'},
                   {title: 'Material', value: 'material'},
@@ -361,6 +371,7 @@ export default defineType({
                           {title: 'Storage', value: 'storage'},
                           {title: 'Connectivity', value: 'connectivity'},
                           {title: 'WiFi', value: 'wifi'},
+                          {title: 'Pen / Stylus', value: 'pen'},
                           {title: 'Weight', value: 'weight'},
                           {title: 'Dimensions', value: 'dimensions'},
                           {title: 'Material', value: 'material'},
@@ -619,12 +630,13 @@ export default defineType({
       status: 'status',
       hasVariants: 'hasVariants',
       variantCount: 'variants.length',
+      showOnSite: 'showOnSite',
     },
-    prepare({title, subtitle, media, status, hasVariants, variantCount}) {
+    prepare({title, subtitle, media, status, hasVariants, variantCount, showOnSite}) {
       const variantText = hasVariants && variantCount ? ` (${variantCount} variants)` : ''
       return {
         title,
-        subtitle: `$${subtitle || '0.00'} - ${status || 'active'}${variantText}`,
+        subtitle: `${showOnSite === false ? 'DISEMBUNYIKAN · ' : ''}$${subtitle || '0.00'} - ${status || 'active'}${variantText}`,
         media,
       }
     },

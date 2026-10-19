@@ -12,16 +12,18 @@
       </div>
 
       <!-- One row of numbered steps on desktop; below that a swipeable rail with arrows and a counter.
-           scroll-px matches the rail padding, so a snapped card keeps its margin on phones. -->
+           scroll-px matches the rail padding, so a snapped card keeps its margin on phones.
+           The list is a grid with three rows (picture / title / description) that every card shares through
+           subgrid, so all titles sit on one line and all descriptions on one line, whatever their length. -->
       <ol
         ref="carouselRef"
-        class="flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-px-6 md:scroll-px-10 scrollbar-hide pb-2 -mx-6 px-6 md:-mx-10 md:px-10 lg:mx-0 lg:px-0 lg:pb-0 lg:scroll-px-0 lg:overflow-visible lg:grid lg:gap-5 list-none"
+        class="grid grid-flow-col auto-cols-[260px] md:auto-cols-[300px] grid-rows-[minmax(226px,1fr)_auto_auto] lg:grid-rows-[minmax(230px,1fr)_auto_auto] gap-x-4 overflow-x-auto snap-x snap-mandatory scroll-px-6 md:scroll-px-10 scrollbar-hide pb-2 -mx-6 px-6 md:-mx-10 md:px-10 lg:mx-0 lg:px-0 lg:pb-0 lg:scroll-px-0 lg:overflow-visible lg:grid-flow-row lg:auto-cols-auto lg:gap-x-5 list-none"
         :class="gridCols"
       >
         <li
           v-for="(service, index) in steps"
           :key="service._key || index"
-          class="service-card relative flex flex-col flex-shrink-0 w-[260px] md:w-[300px] lg:w-auto snap-start overflow-hidden rounded-2xl min-h-[440px] lg:min-h-[460px] bg-fortu-dark text-fortu-off-white"
+          class="service-card relative row-span-3 grid grid-rows-subgrid snap-start overflow-hidden rounded-2xl bg-fortu-dark text-fortu-off-white"
         >
           <!-- Photo background from the installation shoot, with an overlay that keeps the text readable -->
           <img
@@ -49,7 +51,7 @@
 
           <!-- Brand illustration: a zone of the same height on every card, so each title
                (and each description) starts on the same line across the row -->
-          <div v-if="illustrationUrl(service)" class="relative flex-shrink-0 h-[200px] lg:h-[190px] mt-9">
+          <div v-if="illustrationUrl(service)" class="relative row-start-1 h-[200px] lg:h-[190px] mt-9">
             <img
               :src="illustrationUrl(service) as string"
               alt=""
@@ -61,11 +63,9 @@
             />
           </div>
 
-          <!-- Content (photo cards keep their text at the bottom) -->
-          <div class="relative z-10 flex flex-col px-6 pb-6" :class="illustrationUrl(service) ? 'pt-2' : 'mt-auto pt-6'">
-            <h3 class="text-2xl md:text-[26px] font-medium tracking-tight leading-tight min-h-[2.5em]">{{ service.title }}</h3>
-            <p class="mt-2 text-base leading-relaxed text-fortu-light">{{ service.description }}</p>
-          </div>
+          <!-- Title and description sit in the shared rows 2 and 3 (photo cards keep their text at the bottom) -->
+          <h3 class="relative z-10 row-start-2 px-6 text-2xl md:text-[26px] font-medium tracking-tight leading-tight" :class="illustrationUrl(service) ? 'pt-2' : 'pt-6'">{{ service.title }}</h3>
+          <p class="relative z-10 row-start-3 px-6 pb-6 pt-2 text-base leading-relaxed text-fortu-light">{{ service.description }}</p>
         </li>
       </ol>
 
