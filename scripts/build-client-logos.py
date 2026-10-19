@@ -5,7 +5,9 @@ Build the transparent, full-colour client logos used by the marquee section.
 Input : scripts/sources/<slug>.webp   one tile per client, cropped from the CTO's
                                       logo sheet (6 Oct 2026); flat background
         scripts/originals/<slug>.png  original logo (RGBA, any size); used instead of the
-                                      tile crop when present (SVGs: rasterise to PNG first)
+                                      tile crop when present (SVGs: rasterise to PNG first).
+                                      19 of them were replaced on 19 Oct 2026 by the sharper
+                                      files in the client's "New PNG All Clients" folder.
 Output: public/clients/<slug>.webp    colour logo + alpha, 4x upscaled, trimmed
         src/data/clientLogoSizes.ts   pixel sizes for optical size normalisation
 
@@ -30,9 +32,14 @@ SIZES_TS = os.path.join(HERE, "..", "src", "data", "clientLogoSizes.ts")
 SCALE = 4
 # Tiles with a dark background hold white/gold logos: recolour them.
 DARK_TILES = {"the-westin-jakarta", "trinland", "hariom-s", "7am-7pm", "sumak"}
-BRAND_DARK = (16, 17, 17)
+BRAND_DARK = (16, 16, 24)
 # Transparent originals whose white lettering must become dark grey.
 WHITE_TO_GRAY = {"dunex"}
+# Transparent originals that are entirely white/gold (made for dark backgrounds):
+# recoloured to the brand dark, like the dark tiles above.
+LIGHT_ORIGINALS = {"the-westin-jakarta", "trinland", "hariom-s", "7am-7pm", "sumak"}
+# Opaque originals whose background box is part of the logo: kept as they are.
+KEEP_BOX = {"whsmith"}
 
 
 def smoothstep(x, a, b):
@@ -71,8 +78,14 @@ def extract(img, dark, margin=3):
 def from_original(img, slug):
     """Original logos: use as-is when transparent; otherwise key the flat background."""
     alpha = np.asarray(img.getchannel("A"))
-    if (alpha < 250).mean() > 0.02:
-        if slug in WHITE_TO_GRAY:  # white lettering on transparent: invisible on white
+    if slug in KEEP_BOX:
+        pass
+    elif (alpha < 250).mean() > 0.02:
+        if slug in LIGHT_ORIGINALS:
+            px = np.asarray(img).copy()
+            px[..., :3] = BRAND_DARK
+            img = Image.fromarray(px)
+        elif slug in WHITE_TO_GRAY:  # white lettering on transparent: invisible on white
             px = np.asarray(img).copy()
             white = (px[..., :3].min(-1) > 235) & (px[..., 3] > 0)
             px[white, :3] = (74, 78, 84)
