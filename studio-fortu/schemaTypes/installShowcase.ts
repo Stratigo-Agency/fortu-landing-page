@@ -24,7 +24,7 @@ export default defineType({
       title: 'Tahap proses (foto)',
       type: 'array',
       description:
-        'Urutkan sesuai alur: survei, persiapan, perakitan, pemasangan, hasil akhir. Foto dipangkas otomatis 4:5, jadi pilih foto yang subjeknya di tengah.',
+        'Urutkan sesuai alur: konsultasi, pengiriman, pemeriksaan, perakitan, pemasangan, serah terima. Foto dipangkas otomatis 4:5, jadi pilih foto yang subjeknya di tengah.',
       validation: (Rule) => Rule.max(6),
       of: [
         defineField({

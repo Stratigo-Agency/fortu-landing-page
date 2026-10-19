@@ -31,6 +31,8 @@
                   <img
                     v-if="stepImage(step)"
                     :src="stepImage(step) as string"
+                    :srcset="stepSrcset(step)"
+                    sizes="(min-width: 1024px) 30vw, (min-width: 768px) 45vw, 78vw"
                     :alt="step.image?.alt || step.title"
                     width="800"
                     height="1000"
@@ -125,13 +127,11 @@ const { index: currentStep, isAtStart, isAtEnd, prev, next } = useScrollSlider(r
 const steps = computed<InstallStep[]>(() => (props.data.steps || []).filter((s) => s.image?.asset))
 const pad = (n: number) => String(n).padStart(2, '0')
 
-const stepImage = (step: InstallStep) => {
-  try {
-    return buildImageUrl(step.image, { width: 800, height: 1000, fit: 'crop', quality: IMAGE_CONFIG.quality + 15 })
-  } catch {
-    return null
-  }
-}
+// 4:5 crop; the photos are shown large, so a little more quality than the site default
+const stepAt = (step: InstallStep, width: number) =>
+  buildImageUrl(step.image, { width, height: Math.round(width * 1.25), fit: 'crop', quality: IMAGE_CONFIG.quality + 15 })
+const stepImage = (step: InstallStep) => stepAt(step, 800)
+const stepSrcset = (step: InstallStep) => [480, 800, 1200].map((w) => `${stepAt(step, w)} ${w}w`).join(', ')
 
 const posterUrl = computed(() => {
   const p = props.data.demoVideo?.poster

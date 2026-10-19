@@ -23,13 +23,15 @@
           :key="service._key || index"
           class="service-card relative flex flex-col flex-shrink-0 w-[260px] md:w-[300px] lg:w-auto snap-start overflow-hidden rounded-2xl min-h-[440px] lg:min-h-[460px] bg-fortu-dark text-fortu-off-white"
         >
-          <!-- Photo background (legacy cards), with readable overlay -->
+          <!-- Photo background from the installation shoot, with an overlay that keeps the text readable -->
           <img
             v-if="!illustrationUrl(service) && getBackgroundImage(service)"
             :src="getBackgroundImage(service) as string"
+            :srcset="backgroundSrcset(service)"
+            sizes="(min-width: 1024px) 20vw, 300px"
             alt=""
             width="600"
-            height="800"
+            height="1000"
             loading="lazy"
             decoding="async"
             class="absolute inset-0 w-full h-full object-cover"
@@ -37,7 +39,7 @@
           />
           <div
             v-if="!illustrationUrl(service) && getBackgroundImage(service) && service.darkOverlay !== false"
-            class="absolute inset-0 bg-gradient-to-t from-fortu-dark/90 via-fortu-dark/50 to-fortu-dark/20"
+            class="absolute inset-0 bg-gradient-to-t from-fortu-dark via-fortu-dark/60 to-fortu-dark/10"
           ></div>
 
           <!-- Step number -->
@@ -62,7 +64,7 @@
           <!-- Content (photo cards keep their text at the bottom) -->
           <div class="relative z-10 flex flex-col px-6 pb-6" :class="illustrationUrl(service) ? 'pt-2' : 'mt-auto pt-6'">
             <h3 class="text-2xl md:text-[26px] font-medium tracking-tight leading-tight min-h-[2.5em]">{{ service.title }}</h3>
-            <p class="mt-2 text-sm leading-relaxed text-fortu-light">{{ service.description }}</p>
+            <p class="mt-2 text-base leading-relaxed text-fortu-light">{{ service.description }}</p>
           </div>
         </li>
       </ol>
@@ -114,14 +116,15 @@ const illustrationUrl = (service: ServiceItem) =>
     ? `/services/${service.illustration}.svg`
     : null
 
-const getBackgroundImage = (service: ServiceItem): string | null => {
-  if (!service.backgroundImage?.asset) return null
-  try {
-    return buildImageUrl(service.backgroundImage, { width: 600, height: 800, fit: 'crop' })
-  } catch {
-    return null
-  }
-}
+// Portrait crop (3:5) that follows the editor's hotspot
+const backgroundAt = (service: ServiceItem, width: number) =>
+  buildImageUrl(service.backgroundImage, { width, height: Math.round(width * (5 / 3)), fit: 'crop' })
+
+const getBackgroundImage = (service: ServiceItem): string | null =>
+  service.backgroundImage?.asset ? backgroundAt(service, 600) : null
+
+const backgroundSrcset = (service: ServiceItem) =>
+  [400, 600, 900].map((w) => `${backgroundAt(service, w)} ${w}w`).join(', ')
 
 </script>
 

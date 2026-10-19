@@ -7,18 +7,22 @@
  *
  * Colours are stored as space-separated RGB channels so Tailwind can still
  * apply opacity (`bg-fortu-dark/60`) and plain CSS can use
- * `rgb(var(--fortu-dark) / 0.5)`. Final colour codes from the designer
- * (MAR-60) only need to be edited here.
+ * `rgb(var(--fortu-dark) / 0.5)`.
+ *
+ * Palette and typeface from the brand guideline ("Kode Warna & Font", Oct 2026):
+ *   Dark Charcoal #101018 · Deep Navy #0D1730 · Slate Blue #435273 ·
+ *   Light Lavender Gray #DADDEC · White #FFFFFF · Helvetica family.
+ * The semantic names below are what the components use; they map onto the
+ * palette so the whole site follows it from this one place.
  * ------------------------------------------------------------------ */
 :root {
-  --fortu-dark: 16 17 17; /* #101111 */
-  --fortu-dark-raised: 22 23 23; /* #161717, cards on the dark background */
-  --fortu-medium: 125 125 125; /* #7D7D7D */
-  --fortu-light: 191 191 191; /* #BFBFBF */
-  --fortu-off-white: 249 249 249; /* #F9F9F9 */
+  --fortu-dark: 16 16 24; /* Dark Charcoal #101018: dark sections, primary text */
+  --fortu-dark-raised: 13 23 48; /* Deep Navy #0D1730: cards and panels on dark sections */
+  --fortu-medium: 67 82 115; /* Slate Blue #435273: secondary text on light (7.8:1 on white) */
+  --fortu-light: 218 221 236; /* Light Lavender Gray #DADDEC: secondary text on dark, light borders */
+  --fortu-off-white: 246 247 251; /* White with a hint of the lavender: page background, text on dark */
   --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
-
 
 /* ------------------------------------------------------------------ *
  * Skeleton placeholders

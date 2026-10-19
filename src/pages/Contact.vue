@@ -2,8 +2,8 @@
   <div class="contact-page bg-fortu-off-white min-h-screen">
     <PageHero 
       pageName="contact" 
-      fallbackTitle="Contact Us"
-      fallbackSubtitle="We'd love to hear from you"
+      fallbackTitle="Hubungi Kami"
+      fallbackSubtitle="Tim kami siap melayani Anda"
     />
 
     <!-- Loading State - two columns, like the real contact layout -->
@@ -84,7 +84,7 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm font-medium text-fortu-medium uppercase tracking-wider mb-1">Phone</p>
+                    <p class="text-sm font-medium text-fortu-medium uppercase tracking-wider mb-1">Telepon</p>
                     <p class="text-fortu-dark">{{ settings.phone }}</p>
                   </div>
                 </div>
@@ -132,7 +132,7 @@
 
             <!-- Social Media -->
             <div v-if="hasSocialMedia" class="pt-4">
-              <p class="text-sm font-medium text-fortu-medium uppercase tracking-wider mb-4">Follow Us</p>
+              <p class="text-sm font-medium text-fortu-medium uppercase tracking-wider mb-4">Ikuti Kami</p>
               <div class="flex flex-wrap gap-4">
                 <!-- Instagram -->
                 <a 
@@ -225,7 +225,7 @@
           <div class="space-y-8">
             <div v-if="faq">
               <h2 class="text-2xl md:text-6xl font-medium text-fortu-dark mb-4 tracking-tight">
-                {{ faq.heading || 'Frequently Asked Questions' }}
+                {{ faq.heading || 'Pertanyaan yang Sering Diajukan' }}
               </h2>
               <p v-if="faq.subheading" class="text-fortu-medium leading-relaxed mb-8">
                 {{ faq.subheading }}

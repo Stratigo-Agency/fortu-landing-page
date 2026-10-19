@@ -19,7 +19,8 @@ export function organizationGraph(s: SiteSettings | null, withOffices = true) {
     .filter((u): u is string => typeof u === 'string' && /^https?:\/\//.test(u))
     .map((u) => u.split('?')[0]) // drop tracking parameters
   const phone = s.phone?.trim()
-  const logo = s.logo?.asset?.url
+  // Navy lockup: Google shows the logo on a white background
+  const logo = s.logo?.asset?.url || `${SITE_URL}/logo-navy.png`
   const organization = compact({
     '@type': 'Organization',
     '@id': ORG_ID,

@@ -161,13 +161,14 @@ onMounted(async () => {
       <div class="w-full">
         <h1 class="text-4xl sm:text-5xl md:text-8xl font-medium mb-4 tracking-tight leading-[1.1] md:leading-tight hero-title">{{ hero.title }}</h1>
         <h2 v-if="hero.subtitle" class="text-2xl md:text-3xl font-medium mb-4 text-fortu-off-white leading-snug hero-subtitle">{{ hero.subtitle }}</h2>
-        <p v-if="hero.description" class="text-lg md:text-xl leading-relaxed mb-6 max-w-3xl text-[rgba(250,250,250,0.9)] hero-description"
+        <!-- The longer supporting paragraph is for tablet and up; phones keep the headline, tagline and buttons -->
+        <p v-if="hero.description" class="hidden md:block text-lg md:text-xl leading-relaxed mb-6 max-w-3xl text-[rgba(250,250,250,0.9)] hero-description"
            :class="{ 'mx-auto': heroAlignment === 'center', 'ml-auto': heroAlignment === 'right' }">{{ hero.description }}</p>
 
         <!-- Office locations: link to Google Maps when a link exists, plain text otherwise -->
         <ul
           v-if="locations.length"
-          class="hero-locations flex flex-wrap items-center gap-x-6 gap-y-2 mb-8 text-sm md:text-base text-fortu-off-white/85"
+          class="hero-locations flex flex-wrap items-center gap-x-6 gap-y-2 mb-6 md:mb-8 text-sm md:text-base text-fortu-off-white/85"
           :class="{
             'justify-center': heroAlignment === 'center',
             'justify-end': heroAlignment === 'right'

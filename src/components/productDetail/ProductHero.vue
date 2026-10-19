@@ -19,12 +19,15 @@
     <img
       v-else-if="imageUrl"
       :src="imageUrl"
+      :srcset="imageSrcset"
+      sizes="100vw"
       :alt="productName"
       fetchpriority="high"
       decoding="async"
       width="1920"
       height="1080"
       class="absolute inset-0 w-full h-full object-cover"
+      :style="focalStyle(heroImage)"
     />
     
     <!-- Gradient Overlay -->
@@ -34,7 +37,7 @@
     <div class="relative z-10 w-full px-4 md:px-16 pb-12 md:pb-16">
       <!-- Breadcrumb -->
       <nav class="text-sm text-fortu-light/80 mb-4">
-        <router-link to="/products" class="hover:text-fortu-off-white transition-colors">Products</router-link>
+        <router-link to="/products" class="hover:text-fortu-off-white transition-colors">Produk</router-link>
         <span class="mx-2">/</span>
         <span class="text-fortu-off-white">{{ productName }}</span>
       </nav>
@@ -169,7 +172,7 @@
     <div class="relative z-10 w-full px-4 md:px-16 pb-12 md:pb-16">
       <!-- Breadcrumb -->
       <nav class="text-sm text-fortu-light/80 mb-4">
-        <router-link to="/products" class="hover:text-fortu-off-white transition-colors">Products</router-link>
+        <router-link to="/products" class="hover:text-fortu-off-white transition-colors">Produk</router-link>
         <span class="mx-2">/</span>
         <span class="text-fortu-off-white">{{ productName }}</span>
       </nav>
@@ -284,7 +287,7 @@
 </template>
 
 <script setup lang="ts">
-import { buildImageUrl } from '@/utils/image'
+import { buildImageUrl, focalStyle, responsiveImage } from '@/utils/image'
 import { computed } from 'vue'
 import { useContactChooser } from '@/composables/useContactChooser'
 import Button from '@/reusables/Button.vue'
@@ -356,6 +359,11 @@ const imageUrl = computed(() => {
   }
   return null
 })
+
+// The hero is the largest image on the page (LCP): phones get a smaller file
+const imageSrcset = computed(() =>
+  props.heroImage?.asset ? responsiveImage(props.heroImage, [768, 1280, 1920, 2560])?.srcset : undefined,
+)
 
 const hasBackground = computed(() => {
   return videoUrl.value || imageUrl.value

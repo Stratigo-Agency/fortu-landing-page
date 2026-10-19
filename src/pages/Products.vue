@@ -2,8 +2,8 @@
   <div class="products-page min-h-screen bg-fortu-off-white">
     <PageHero 
       pageName="products" 
-      fallbackTitle="Discover Fortu"
-      fallbackSubtitle="Explore our collection of premium products"
+      fallbackTitle="Produk Fortu Digital"
+      fallbackSubtitle="Temukan digital signage yang tepat untuk Anda"
     />
     <ProductCatalog class="py-12" />
     <Compare />

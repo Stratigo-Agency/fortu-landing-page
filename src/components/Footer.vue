@@ -9,14 +9,14 @@
             <img 
               :src="logoUrl || '/logo.png'" 
               :alt="settings?.companyName || 'FORTU DIGITAL'" 
-              width="120"
+              width="164"
               height="48"
               loading="lazy"
               class="h-12 w-auto" 
             />
           </RouterLink>
           <p class="text-fortu-light text-sm leading-relaxed mb-6">
-            {{ settings?.tagline || 'Empowering businesses with seamless digital solutions and premium experiences.' }}
+            {{ settings?.tagline || 'Solusi digital signage dan layar interaktif untuk bisnis dan institusi di seluruh Indonesia.' }}
           </p>
           <!-- Social Links -->
           <div class="flex gap-4">
@@ -199,7 +199,7 @@
     <div class="border-t border-fortu-medium/20">
       <div class="mx-auto px-4 md:px-16 py-6">
         <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-          <p class="text-fortu-medium text-sm">
+          <p class="text-fortu-light text-sm">
             © {{ currentYear }} {{ settings?.companyName || 'FORTU DIGITAL' }}. Hak cipta dilindungi.
           </p>
           <div class="flex gap-6">

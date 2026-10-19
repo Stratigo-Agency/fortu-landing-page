@@ -163,7 +163,7 @@
                     <!-- Header -->
                     <div class="flex items-center justify-between mb-4">
                       <div>
-                        <p class="text-fortu-off-white text-sm font-medium">Products</p>
+                        <p class="text-fortu-off-white text-sm font-medium">Produk</p>
                         <p class="text-fortu-medium text-xs">{{ cmsDemo.products.length }} perangkat terhubung</p>
                       </div>
                       <div class="flex items-center gap-2">

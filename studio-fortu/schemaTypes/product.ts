@@ -195,6 +195,61 @@ export default defineType({
         },
       ],
     }),
+    defineField({
+      name: 'specTable',
+      title: 'Spesifikasi lengkap (tabel)',
+      type: 'object',
+      group: 'specs',
+      description:
+        'Tabel spesifikasi teknis per ukuran, diisi dari specification sheet. Kartu "Spesifikasi" di atas tetap dipakai untuk sorotan dan perbandingan produk.',
+      fields: [
+        defineField({
+          name: 'columns',
+          title: 'Kolom (ukuran/model)',
+          type: 'array',
+          of: [{type: 'string'}],
+          description: 'Tulis sama persis dengan nama varian (mis. 43", 55", 65") agar kolom ikut terpilih saat pengunjung memilih ukuran.',
+        }),
+        defineField({
+          name: 'groups',
+          title: 'Kelompok',
+          type: 'array',
+          of: [
+            {
+              type: 'object',
+              name: 'specGroup',
+              fields: [
+                defineField({name: 'title', title: 'Nama kelompok', type: 'string', validation: (Rule) => Rule.required()}),
+                defineField({
+                  name: 'rows',
+                  title: 'Baris',
+                  type: 'array',
+                  of: [
+                    {
+                      type: 'object',
+                      name: 'specRow',
+                      fields: [
+                        defineField({name: 'label', title: 'Label', type: 'string', validation: (Rule) => Rule.required()}),
+                        defineField({
+                          name: 'values',
+                          title: 'Nilai per kolom',
+                          type: 'array',
+                          of: [{type: 'string'}],
+                          description: 'Satu nilai per kolom, urut sesuai kolom. Isi satu nilai saja jika sama untuk semua ukuran. Pakai "-" jika tidak tersedia.',
+                        }),
+                      ],
+                      preview: {select: {title: 'label', values: 'values'}, prepare: ({title, values}) => ({title, subtitle: (values || []).join(' | ')})},
+                    },
+                  ],
+                }),
+              ],
+              preview: {select: {title: 'title', rows: 'rows'}, prepare: ({title, rows}) => ({title, subtitle: `${rows?.length || 0} baris`})},
+            },
+          ],
+        }),
+        defineField({name: 'note', title: 'Catatan kaki', type: 'string', description: 'Mis. "A = Android, W = Windows. Spesifikasi dapat berubah tanpa pemberitahuan."'}),
+      ],
+    }),
     // FEATURE SECTIONS
     defineField({
       name: 'features',
