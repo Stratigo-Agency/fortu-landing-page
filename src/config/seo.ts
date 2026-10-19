@@ -1,5 +1,5 @@
 /** Site-wide SEO constants. Canonical URLs always point to the production domain. */
-export const SITE_URL = 'https://www.fortu.co.id'
+export const SITE_URL = 'https://fortu.co.id'
 export const SITE_NAME = 'Fortu Digital'
 export const SITE_LOCALE = 'id_ID'
 export const SITE_DESCRIPTION =

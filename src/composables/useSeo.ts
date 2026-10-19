@@ -81,8 +81,10 @@ export function useSeo(options: MaybeRefOrGetter<SeoOptions>) {
       )
     }
 
+    // Indexable pages say so explicitly (and allow large image previews); a staging build's own noindex tag wins
     if (o.noindex) setMeta('name', 'robots', 'noindex, nofollow')
-    else if (!document.head.querySelector('meta[name="robots"][data-build]')) removeMeta('name', 'robots')
+    else if (!document.head.querySelector('meta[name="robots"][data-build]'))
+      setMeta('name', 'robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1')
 
     setMeta('property', 'og:site_name', SITE_NAME)
     setMeta('property', 'og:locale', SITE_LOCALE)
