@@ -2,7 +2,7 @@ import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { loadEnv, type Plugin } from 'vite'
 
-const SITE_URL = 'https://www.fortu.co.id'
+const SITE_URL = 'https://fortu.co.id'
 const STATIC_PATHS: Record<string, string> = {
   home: '/',
   products: '/products',

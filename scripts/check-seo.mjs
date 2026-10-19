@@ -14,7 +14,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs'
 import { extname, join, resolve } from 'node:path'
 import puppeteer from 'puppeteer-core'
 
-const SITE = 'https://www.fortu.co.id'
+const SITE = 'https://fortu.co.id'
 const DIST = resolve(process.cwd(), 'dist')
 const allowNoindex = process.argv.includes('--allow-noindex')
 const MAX_TITLE = 60
