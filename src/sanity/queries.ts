@@ -142,6 +142,20 @@ export interface ProductSpec {
   value?: string
 }
 
+/** Full technical spec sheet: one column per size/model, rows grouped (from the product team's spec sheet). */
+export interface ProductSpecRow {
+  _key?: string
+  label: string
+  /** One value per column, or a single value that applies to every column */
+  values?: string[]
+}
+
+export interface ProductSpecTable {
+  columns?: string[]
+  groups?: { _key?: string; title: string; rows?: ProductSpecRow[] }[]
+  note?: string
+}
+
 export interface FeatureHighlight {
   _key?: string
   icon?: string
@@ -223,6 +237,7 @@ export interface Product {
   currency?: string
   compareAtPrice?: number
   specs?: ProductSpec[]
+  specTable?: ProductSpecTable
   features?: ProductFeature[]
   hasVariants?: boolean
   variantType?: 'color' | 'size' | 'material' | 'style' | 'custom'
@@ -737,6 +752,15 @@ export const PRODUCT_BY_SLUG_QUERY = defineQuery(/* groq */ `
       icon,
       label,
       value
+    },
+    specTable {
+      columns,
+      groups[] {
+        _key,
+        title,
+        rows[] { _key, label, values }
+      },
+      note
     },
     features[] {
       _key,

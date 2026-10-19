@@ -63,13 +63,13 @@
     />
 
     <!-- Specifications Section -->
-    <section v-if="product.specs && product.specs.length > 0" class="py-16 px-4 md:px-16 bg-white">
+    <section v-if="product.specs?.length || product.specTable?.groups?.length" id="spesifikasi" class="py-16 px-4 md:px-16 bg-white">
       <div>
         <h2 class="text-4xl md:text-4xl font-medium text-fortu-dark mb-10 tracking-tight">
           Spesifikasi
         </h2>
         
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <div v-if="product.specs?.length" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
           <div 
             v-for="(spec, index) in product.specs" 
             :key="spec._key || index"
@@ -79,9 +79,18 @@
               <CompareIcon :icon="spec.icon || 'check'" class="text-fortu-dark" />
             </div>
             <p class="font-medium text-fortu-dark">{{ spec.label }}</p>
-            <p v-if="spec.value" class="text-sm text-fortu-medium mt-1">{{ spec.value }}</p>
+            <p v-if="spec.value" class="text-base text-fortu-medium mt-1">{{ spec.value }}</p>
           </div>
         </div>
+
+        <!-- Full spec sheet per size (from the product team's specification sheet) -->
+        <ProductSpecTable
+          v-if="product.specTable?.groups?.length"
+          class="mt-14"
+          :table="product.specTable"
+          :selected="selectedVariant?.name"
+          @select="selectVariantByName"
+        />
       </div>
     </section>
 
@@ -112,6 +121,8 @@ import ImageCarousel from '@/components/ImageCarousel.vue'
 import ProductHero from '@/components/productDetail/ProductHero.vue'
 import ProductSingleFeature from '@/components/productDetail/ProductSingleFeature.vue'
 import ProductRecommendation from '@/components/productDetail/ProductRecommendation.vue'
+import ProductSpecTable from '@/components/productDetail/ProductSpecTable.vue'
+import { sizeKey } from '@/utils/size'
 import CTA from '@/components/CTA.vue'
 import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 const route = useRoute()
@@ -207,14 +218,15 @@ const selectVariant = (variant: ProductVariant) => {
   selectedVariant.value = variant
 }
 
-// "65", "65\"" and "65 inci" all mean the same size
-const sizeKey = (v: string) => v.toLowerCase().replace(/["”″\s]|inci?h?$/g, '')
-const selectVariantFromQuery = () => {
-  const wanted = route.query.ukuran
-  const size = Array.isArray(wanted) ? wanted[0] : wanted
+// A size from the header menu (?ukuran=65) or a column of the spec table
+const selectVariantByName = (size?: string | null) => {
   if (!size || !product.value?.variants) return
   const match = product.value.variants.find((v) => sizeKey(v.name) === sizeKey(size))
   if (match) selectedVariant.value = match
+}
+const selectVariantFromQuery = () => {
+  const wanted = route.query.ukuran
+  selectVariantByName(Array.isArray(wanted) ? wanted[0] : wanted)
 }
 watch(() => route.query.ukuran, selectVariantFromQuery)
 
