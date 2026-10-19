@@ -181,7 +181,7 @@ const th = computed(() =>
         sub: 'text-fortu-light',
         rowLabel: 'text-fortu-light',
         value: 'text-fortu-off-white',
-        na: 'text-fortu-medium',
+        na: 'text-fortu-light/70',
         line: 'border-fortu-light/20',
         cta: 'inverted' as const,
         pill: 'border-fortu-light/45 text-fortu-light',
