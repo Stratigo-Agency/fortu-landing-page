@@ -305,6 +305,8 @@ const mobileExtras = computed(() => mobileIdx.value.some((i) => extraCells.value
   max-width: 84%;
   max-height: 84%;
   object-fit: contain;
+  /* studio photos have their own backdrop: round it like the panel */
+  border-radius: 14px;
 }
 .pimg-dark {
   background: radial-gradient(circle at 50% 38%, rgb(var(--fortu-off-white) / 0.12), rgb(var(--fortu-off-white) / 0.03));
