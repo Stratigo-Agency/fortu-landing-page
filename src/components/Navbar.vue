@@ -144,13 +144,13 @@ onUnmounted(() => {
       <div class="flex items-center justify-between gap-6">
         <!-- Logo = home -->
         <RouterLink to="/" class="flex items-center flex-shrink-0 hover:opacity-80 transition-opacity" aria-label="Fortu Digital, ke beranda" @click="closeMenu">
+          <!-- White lockup over the hero, navy lockup on the white bar (brand guideline) -->
           <img
-            src="/logo.png"
+            :src="isInHero ? '/logo.png' : '/logo-navy.png'"
             alt="FORTU DIGITAL"
-            width="120"
+            width="164"
             height="48"
-            class="h-12 xl:h-10 2xl:h-12 w-auto transition-all duration-300"
-            :class="isInHero ? '' : 'brightness-0'"
+            class="h-12 xl:h-10 2xl:h-12 w-auto"
           />
         </RouterLink>
 
