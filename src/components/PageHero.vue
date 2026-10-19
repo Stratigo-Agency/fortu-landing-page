@@ -37,19 +37,19 @@
       :style="{ opacity: (pageHero.overlayOpacity ?? 60) / 100 }"
     ></div>
     
-    <!-- Content -->
+    <!-- Content: always centred on phones (symmetry), aligned as set in Sanity from tablet up -->
     <div 
       class="relative z-10 px-4 md:px-16 w-full"
       :class="{
-        'text-left': pageHero.alignment === 'left',
+        'text-center md:text-left': pageHero.alignment === 'left',
         'text-center': pageHero.alignment === 'center' || !pageHero.alignment,
-        'text-right': pageHero.alignment === 'right'
+        'text-center md:text-right': pageHero.alignment === 'right'
       }"
     >
       <h1 class="text-5xl md:text-6xl lg:text-7xl font-medium text-fortu-off-white mb-4 tracking-tight hero-title">
         {{ pageHero.title }}
       </h1>
-      <p v-if="pageHero.subtitle" class="text-lg md:text-xl text-fortu-light max-w-2xl hero-subtitle" :class="{ 'mx-auto': pageHero.alignment === 'center' }">
+      <p v-if="pageHero.subtitle" class="text-lg md:text-xl text-fortu-light max-w-2xl mx-auto hero-subtitle" :class="{ 'md:mx-0': pageHero.alignment === 'left', 'md:ml-auto md:mr-0': pageHero.alignment === 'right' }">
         {{ pageHero.subtitle }}
       </p>
     </div>
