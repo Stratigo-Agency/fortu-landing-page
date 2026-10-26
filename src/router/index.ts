@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { whenElement } from '@/utils/whenElement'
+import { prefetchHero } from '@/utils/heroPrefetch'
 
 // Lazy load routes for code splitting
 const Home = () => import('@/pages/Home.vue')
@@ -82,6 +83,10 @@ const router = createRouter({
     }
     return { top: 0 }
   },
+})
+
+router.beforeEach((to) => {
+  prefetchHero(to.path)
 })
 
 export default router

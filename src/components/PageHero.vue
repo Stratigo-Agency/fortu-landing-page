@@ -2,7 +2,7 @@
   <!-- Page Hero -->
   <section 
     v-if="pageHero && !loading" 
-    class="relative h-[70vh] min-h-[400px] flex items-center justify-center overflow-hidden"
+    class="relative h-[70vh] min-h-[400px] flex items-center justify-center overflow-hidden bg-fortu-dark"
   >
     <!-- Background Video -->
     <video
@@ -70,7 +70,10 @@
     </div>
   </section>
 
-  <SectionSkeleton v-else-if="loading" min-height="h-[70vh] min-h-[400px]" :cards="0" />
+  <!-- Same size and colour as the hero, so the photo lands on a dark block instead of a blank flash -->
+  <section v-else-if="loading" class="h-[70vh] min-h-[400px] bg-fortu-dark" aria-busy="true">
+    <span class="sr-only">Memuat konten…</span>
+  </section>
 </template>
 
 <style scoped>
@@ -101,7 +104,6 @@ import { ref, computed, onMounted, watchEffect, onUnmounted } from 'vue'
 import { fetchSanity } from '@/sanity/fetch'
 import { PAGE_HERO_QUERY, type PageHero } from '@/sanity/queries'
 import { focalStyle, responsiveImage } from '@/utils/image'
-import SectionSkeleton from '@/reusables/SectionSkeleton.vue'
 
 const props = defineProps<{
   pageName: 'products' | 'about' | 'contact' | 'services' | 'privacy' | 'blog' | 'case-studies'
@@ -124,36 +126,22 @@ const heroImage = computed(() =>
     ? responsiveImage(pageHero.value.backgroundImage, [640, 1024, 1536, 2048])
     : null,
 )
-const heroImageUrl = computed(() => heroImage.value?.src ?? null)
-
-// Add preload link for LCP optimization
+// Still images are preloaded by the router (utils/heroPrefetch); only a video is preloaded here
 let preloadLink: HTMLLinkElement | null = null
 
 watchEffect(() => {
-  const imageUrl = heroImageUrl.value
   const videoUrl = heroVideoUrl.value
-  
-  // Remove existing preload link if any
+
   if (preloadLink && preloadLink.parentNode) {
     preloadLink.parentNode.removeChild(preloadLink)
     preloadLink = null
   }
-  
-  // Preload video if available (takes priority)
+
   if (videoUrl) {
     preloadLink = document.createElement('link')
     preloadLink.rel = 'preload'
     preloadLink.as = 'video'
     preloadLink.href = videoUrl
-    preloadLink.setAttribute('fetchpriority', 'high')
-    document.head.appendChild(preloadLink)
-  } 
-  // Otherwise preload image
-  else if (imageUrl) {
-    preloadLink = document.createElement('link')
-    preloadLink.rel = 'preload'
-    preloadLink.as = 'image'
-    preloadLink.href = imageUrl
     preloadLink.setAttribute('fetchpriority', 'high')
     document.head.appendChild(preloadLink)
   }

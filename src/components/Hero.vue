@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { focalStyle, buildImageUrl } from '@/utils/image'
-import { ref, onMounted, computed, watchEffect, onUnmounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { fetchSanity } from '@/sanity/fetch'
 import { HERO_QUERY, SITE_SETTINGS_QUERY, type Hero, type Office } from '@/sanity/queries'
 import { getOffices, safeUrl } from '@/utils/offices'
@@ -67,34 +67,7 @@ const heroAlignment = computed(() => {
   return hero.value?.alignment || 'left'
 })
 
-// Add preload link for LCP optimization
-let preloadLink: HTMLLinkElement | null = null
-
-watchEffect(() => {
-  // Preload the still (poster or image): it is the LCP element and is small.
-  // The video itself is never preloaded, so it cannot compete with the page for bandwidth.
-  const imageUrl = heroPosterUrl.value || heroImageUrl.value
-
-  if (preloadLink && preloadLink.parentNode) {
-    preloadLink.parentNode.removeChild(preloadLink)
-    preloadLink = null
-  }
-
-  if (imageUrl) {
-    preloadLink = document.createElement('link')
-    preloadLink.rel = 'preload'
-    preloadLink.as = 'image'
-    preloadLink.href = imageUrl
-    preloadLink.setAttribute('fetchpriority', 'high')
-    document.head.appendChild(preloadLink)
-  }
-})
-
-onUnmounted(() => {
-  if (preloadLink && preloadLink.parentNode) {
-    preloadLink.parentNode.removeChild(preloadLink)
-  }
-})
+// The still (poster or image) is the LCP element; its preload starts in the router (utils/heroPrefetch)
 
 onMounted(async () => {
   try {
@@ -215,7 +188,7 @@ onMounted(async () => {
     </div>
   </section>
 
-  <SectionSkeleton v-else-if="loading" min-height="min-h-dvh" :cards="0" class="pt-24" />
+  <SectionSkeleton v-else-if="loading" min-height="min-h-dvh" tone="dark" :cards="0" class="pt-24" />
 </template>
 
 <style scoped>
