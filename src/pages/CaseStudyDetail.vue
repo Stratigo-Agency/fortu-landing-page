@@ -40,13 +40,17 @@
     </header>
 
     <!-- Main photo (the card's photo opens into this) -->
-    <div v-if="cover" class="relative z-10 mx-auto max-w-6xl px-4 md:px-8 -mt-20 md:-mt-40">
-      <div class="overflow-hidden rounded-3xl bg-fortu-dark aspect-[4/3] md:aspect-[16/9]" style="view-transition-name: case-open">
+    <div v-if="cover" class="relative z-10 mx-auto px-4 md:px-8 -mt-20 md:-mt-40" :class="portrait ? 'max-w-xl' : 'max-w-6xl'">
+      <div
+        class="overflow-hidden rounded-3xl bg-fortu-dark"
+        :class="portrait ? 'aspect-[4/5]' : 'aspect-[4/3] md:aspect-[16/9]'"
+        style="view-transition-name: case-open"
+      >
         <img
           :src="cover"
           :alt="study.coverImage?.alt || study.clientName"
-          width="1600"
-          height="900"
+          :width="portrait ? 1200 : 1600"
+          :height="portrait ? 1500 : 900"
           fetchpriority="high"
           decoding="async"
           class="w-full h-full object-cover"
@@ -148,7 +152,13 @@ const headline = computed(() => {
   if (!s) return ''
   return s.headline?.trim() || (s.projectType ? `${s.projectType}: ${s.clientName}` : s.clientName)
 })
-const cover = computed(() => imageUrl(study.value?.coverImage, 1920, 1080))
+// Upright photos (phone shots) keep their shape instead of being cropped to a wide strip that cuts the screen off.
+// The size is part of the Sanity asset id: image-<hash>-<width>x<height>-<ext>
+const portrait = computed(() => {
+  const m = study.value?.coverImage?.asset?._id?.match(/-(\d+)x(\d+)-/)
+  return !!m && Number(m[2]) > Number(m[1])
+})
+const cover = computed(() => (portrait.value ? imageUrl(study.value?.coverImage, 1200, 1500) : imageUrl(study.value?.coverImage, 1920, 1080)))
 
 const facts = computed(() => {
   const s = study.value
