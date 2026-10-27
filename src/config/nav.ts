@@ -29,7 +29,7 @@ export interface MenuCategory {
 }
 
 const inch = (...n: number[]): MenuSize[] => n.map((v) => ({ label: `${v}"`, value: String(v) }))
-const pitch = (...p: string[]): MenuSize[] => p.map((v) => (v === 'TBD' ? { label: 'TBD', soon: true } : { label: v, value: v }))
+const pitch = (...p: string[]): MenuSize[] => p.map((v) => ({ label: v, value: v }))
 
 export const NAV_MENU: MenuCategory[] = [
   {
@@ -54,8 +54,10 @@ export const NAV_MENU: MenuCategory[] = [
     id: 'videotron',
     label: 'Videotron',
     groups: [
-      { label: 'Videotron Indoor', slug: 'videotron-indoor', product: 'videotron', sizes: pitch('P1.8', 'P2.5', 'TBD') },
-      { label: 'Videotron Outdoor', slug: 'videotron-outdoor', product: 'videotron', sizes: pitch('P4', 'P6', 'TBD') },
+      { label: 'Videotron Indoor Flat', slug: 'videotron-indoor', sizes: pitch('P1.25', 'P1.53', 'P1.83', 'P1.86', 'P2.0', 'P2.5', 'P3.076', 'P4') },
+      { label: 'Videotron Indoor Curve', slug: 'videotron-indoor-curve', sizes: pitch('P1.53', 'P1.86', 'P2.5', 'P4') },
+      { label: 'Videotron Indoor GOB', slug: 'videotron-indoor-gob', sizes: pitch('P1.25', 'P1.53', 'P1.86') },
+      { label: 'Videotron Outdoor', slug: 'videotron-outdoor', sizes: pitch('P2.5', 'P3.076', 'P4', 'P5', 'P6.67', 'P8', 'P10', 'Flexible P4') },
     ],
   },
 ]
