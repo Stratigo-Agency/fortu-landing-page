@@ -11,8 +11,21 @@
 
   <article v-else class="bg-white">
     <!-- Title block. A dark band keeps the transparent menu above it readable; the photo below straddles its edge. -->
-    <header class="bg-fortu-dark text-fortu-off-white pt-28 md:pt-36" :class="cover ? 'pb-28 md:pb-52' : 'pb-16 md:pb-24'">
-      <div class="mx-auto max-w-5xl px-4 md:px-8">
+    <header class="relative overflow-hidden bg-fortu-dark text-fortu-off-white pt-28 md:pt-36" :class="cover ? 'pb-28 md:pb-52' : 'pb-16 md:pb-24'">
+      <!-- The client's own photo behind the title (a gallery photo when there is one, so it is not the same as the main photo below) -->
+      <img
+        v-if="headerImage"
+        :src="headerImage.url"
+        alt=""
+        width="1920"
+        height="1080"
+        fetchpriority="high"
+        decoding="async"
+        class="absolute inset-0 h-full w-full object-cover"
+        :style="focalStyle(headerImage.source)"
+      />
+      <div v-if="headerImage" class="absolute inset-0 bg-fortu-dark/70" aria-hidden="true"></div>
+      <div class="relative mx-auto max-w-5xl px-4 md:px-8">
         <nav aria-label="Navigasi halaman">
           <RouterLink to="/studi-kasus" class="inline-flex items-center gap-2 text-base text-fortu-light hover:text-fortu-off-white transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -159,6 +172,13 @@ const portrait = computed(() => {
   return !!m && Number(m[2]) > Number(m[1])
 })
 const cover = computed(() => (portrait.value ? imageUrl(study.value?.coverImage, 1200, 1500) : imageUrl(study.value?.coverImage, 1920, 1080)))
+
+// Header photo: the first gallery photo, else the main photo
+const headerImage = computed(() => {
+  const source = study.value?.gallery?.[0] ?? study.value?.coverImage
+  const url = imageUrl(source, 1920, 1080)
+  return source && url ? { url, source } : null
+})
 
 const facts = computed(() => {
   const s = study.value
