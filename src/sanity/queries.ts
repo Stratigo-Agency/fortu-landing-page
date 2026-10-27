@@ -197,6 +197,8 @@ export interface SanityImageCrop {
 
 export interface SanityImage {
   asset: {
+    /** Present when the query dereferences the asset (`asset-> { _id, url }`); carries the pixel size */
+    _id?: string
     _ref: string
     _type: string
     url?: string
