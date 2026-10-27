@@ -1,0 +1,23 @@
+name: Release Please
+
+# Every push to main updates (or opens) one "Release PR" that bumps the version in package.json /
+# package-lock.json and writes CHANGELOG.md, from the Conventional Commit messages since the last release:
+#   fix:  -> patch (1.0.1 -> 1.0.2)    feat: -> minor (1.0.1 -> 1.1.0)    feat!: / BREAKING CHANGE: -> major
+# Merging that PR creates the git tag and GitHub release. Needs the repo setting
+# Settings > Actions > General > "Allow GitHub Actions to create and approve pull requests".
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
