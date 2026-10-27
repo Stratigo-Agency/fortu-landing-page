@@ -165,3 +165,19 @@ No redeployment needed. Content updates in Sanity Studio appear automatically on
 | Project ID | mb1o2t9p |
 | Dataset | production |
 
+
+---
+
+## Versioning and releases
+
+Versions follow semantic versioning and are bumped automatically by [release-please](https://github.com/googleapis/release-please) (`.github/workflows/release-please.yml`).
+
+1. Write commit messages and PR titles as Conventional Commits:
+   - `fix: ...` raises the patch version (1.0.1 → 1.0.2)
+   - `feat: ...` raises the minor version (1.0.1 → 1.1.0)
+   - `feat!: ...` or a `BREAKING CHANGE:` footer raises the major version (1.0.1 → 2.0.0)
+   - `chore:`, `docs:`, `ci:`, `refactor:` do not raise the version
+2. After a merge to `main`, release-please opens or updates a single "Release PR" with the new version in `package.json` / `package-lock.json` and an updated `CHANGELOG.md`.
+3. Merging that Release PR creates the git tag and GitHub release.
+
+Content-only changes in Sanity do not change the version. The repository setting "Allow GitHub Actions to create and approve pull requests" must be enabled (Settings → Actions → General).
