@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "535bac976085c50500934fb34ebe353318f9ee8e",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "fortu-landing-page",
+      "include-component-in-tag": false,
+      "changelog-sections": [
+        { "type": "feat", "section": "Fitur" },
+        { "type": "fix", "section": "Perbaikan" },
+        { "type": "perf", "section": "Performa" },
+        { "type": "refactor", "section": "Refactor", "hidden": true },
+        { "type": "docs", "section": "Dokumentasi", "hidden": true },
+        { "type": "chore", "section": "Lainnya", "hidden": true },
+        { "type": "ci", "section": "CI", "hidden": true }
+      ]
+    }
+  }
+}
