@@ -328,26 +328,6 @@ onUnmounted(() => {
                   <span class="ml-2 text-xs font-normal uppercase tracking-wider">Segera</span>
                 </p>
 
-                <ul v-if="g.sizes" class="flex flex-wrap gap-2 mt-1.5">
-                  <li v-for="s in g.sizes" :key="s.label">
-                    <RouterLink
-                      v-if="sizeLive(g, s)"
-                      :to="sizeTo(g, s)"
-                      class="inline-flex min-h-[44px] min-w-[56px] items-center justify-center rounded-full border px-4 text-base transition-colors"
-                      :class="isInHero ? 'border-fortu-light/40 text-fortu-off-white' : 'border-fortu-dark/25 text-fortu-dark'"
-                      @click="closeMenu"
-                    >
-                      {{ s.label }}
-                    </RouterLink>
-                    <span
-                      v-else
-                      class="inline-flex min-h-[44px] items-center justify-center rounded-full border border-dashed px-4 text-base"
-                      :class="isInHero ? 'border-fortu-light/25 text-fortu-off-white/45' : 'border-fortu-dark/20 text-fortu-dark/40'"
-                    >
-                      {{ s.soon ? 'Segera' : s.label }}
-                    </span>
-                  </li>
-                </ul>
               </div>
             </div>
           </li>
