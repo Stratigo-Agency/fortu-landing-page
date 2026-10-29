@@ -34,9 +34,9 @@
     <div class="absolute inset-0 bg-fortu-dark/60"></div>
     
     <!-- Content -->
-    <div class="relative z-10 w-full px-4 md:px-16 pb-12 md:pb-16">
+    <div class="relative z-10 w-full px-4 md:px-16 pb-12 md:pb-16 text-center md:text-left">
       <!-- Breadcrumb -->
-      <nav class="text-sm text-fortu-light/80 mb-4">
+      <nav class="text-sm text-fortu-light/80 mb-4 text-center md:text-left">
         <router-link to="/products" class="hover:text-fortu-off-white transition-colors">Produk</router-link>
         <span class="mx-2">/</span>
         <span class="text-fortu-off-white">{{ productName }}</span>
@@ -46,12 +46,12 @@
         {{ productName }}
       </h1>
       
-      <p v-if="description" class="text-md md:text-xl text-fortu-light max-w-3xl hero-subtitle">
+      <p v-if="description" class="text-md md:text-xl text-fortu-light max-w-3xl mx-auto md:mx-0 hero-subtitle">
         {{ description }}
       </p>
 
       <!-- Price -->
-      <div v-if="price" class="flex items-center gap-3 mt-6">
+      <div v-if="price" class="flex items-center justify-center md:justify-start gap-3 mt-6">
         <span class="text-2xl md:text-3xl font-medium text-fortu-off-white">
           {{ formattedPrice }}
         </span>
@@ -67,75 +67,40 @@
       </div>
 
     
-      <!-- Product Variants -->
+      <!-- Product Variants: compact pills, stock shown only when sold out -->
       <div v-if="hasVariants && variants && variants.length > 0" class="mt-8">
         <h2 class="text-lg md:text-xl font-medium text-fortu-off-white mb-4">
           Pilih Varian
         </h2>
-        
-        <div class="flex flex-wrap gap-3">
+
+        <div class="flex flex-wrap justify-center md:justify-start gap-2">
           <button
             v-for="variant in variants"
             :key="variant._key"
             @click="handleVariantSelect(variant)"
-            class="px-4 py-3 bg-white/10 backdrop-blur-sm rounded-lg border-2 transition-all hover:bg-white/20"
-            :class="selectedVariantKey === variant._key 
-              ? 'border-fortu-off-white bg-white/20' 
-              : 'border-white/30 hover:border-white/50'"
+            :aria-pressed="selectedVariantKey === variant._key"
+            class="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border px-4 text-base font-medium text-fortu-off-white transition-colors"
+            :class="[
+              selectedVariantKey === variant._key
+                ? 'border-fortu-off-white bg-white/25'
+                : 'border-white/30 bg-white/10 hover:bg-white/20',
+              variant.inStock === false ? 'opacity-60' : '',
+            ]"
           >
-            <!-- Variant Name -->
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-sm md:text-base font-medium text-fortu-off-white">
-                {{ variant.name }}
-              </span>
-              <div 
-                v-if="selectedVariantKey === variant._key"
-                class="w-4 h-4 rounded-full bg-fortu-off-white flex items-center justify-center"
-              >
-                <svg class="w-2.5 h-2.5 text-fortu-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                </svg>
-              </div>
-            </div>
-
-            <!-- Variant Color (if color variant) -->
-            <div v-if="variantType === 'color' && variant.colorHex" class="mb-2">
-              <div 
-                class="w-6 h-6 rounded-full border-2 mx-auto"
-                :class="selectedVariantKey === variant._key 
-                  ? 'border-fortu-off-white' 
-                  : 'border-white/50'"
-                :style="{ backgroundColor: variant.colorHex }"
-              ></div>
-            </div>
-
-            <!-- Variant Price -->
-            <div class="flex items-center justify-center gap-2">
-              <span v-if="variant.price" class="text-sm md:text-base font-medium text-fortu-off-white">
-                {{ formatVariantPrice(variant.price) }}
-              </span>
-              <span 
-                v-if="variant.compareAtPrice && variant.compareAtPrice > (variant.price || 0)" 
-                class="text-xs text-fortu-light/70 line-through"
-              >
-                {{ formatVariantPrice(variant.compareAtPrice) }}
-              </span>
-            </div>
-
-            <!-- Stock Status -->
-            <div v-if="variant.inStock !== undefined" class="mt-2">
-              <span 
-                class="text-xs py-0.5 rounded-full block text-left"
-              >
-                {{ variant.inStock ? 'Tersedia' : 'Habis' }}
-              </span>
-            </div>
+            <span
+              v-if="variantType === 'color' && variant.colorHex"
+              class="w-4 h-4 rounded-full border border-white/50"
+              :style="{ backgroundColor: variant.colorHex }"
+            ></span>
+            {{ variant.name }}
+            <span v-if="variant.price" class="text-sm font-normal text-fortu-light">{{ formatVariantPrice(variant.price) }}</span>
+            <span v-if="variant.inStock === false" class="text-xs font-normal text-fortu-light">Habis</span>
           </button>
         </div>
       </div>
 
       <!-- Buy Button -->
-      <div class="mt-8" data-track-source="product_hero">
+      <div class="mt-8 flex justify-center md:justify-start" data-track-source="product_hero">
         <Button
           variant="secondary"
           size="lg"
@@ -169,9 +134,9 @@
     <div class="absolute inset-0 bg-gradient-to-t from-fortu-dark via-fortu-dark/80 to-fortu-dark/60"></div>
     
     <!-- Content -->
-    <div class="relative z-10 w-full px-4 md:px-16 pb-12 md:pb-16">
+    <div class="relative z-10 w-full px-4 md:px-16 pb-12 md:pb-16 text-center md:text-left">
       <!-- Breadcrumb -->
-      <nav class="text-sm text-fortu-light/80 mb-4">
+      <nav class="text-sm text-fortu-light/80 mb-4 text-center md:text-left">
         <router-link to="/products" class="hover:text-fortu-off-white transition-colors">Produk</router-link>
         <span class="mx-2">/</span>
         <span class="text-fortu-off-white">{{ productName }}</span>
@@ -181,12 +146,12 @@
         {{ productName }}
       </h1>
       
-      <p v-if="description" class="text-lg md:text-xl text-fortu-light max-w-3xl hero-subtitle">
+      <p v-if="description" class="text-lg md:text-xl text-fortu-light max-w-3xl mx-auto md:mx-0 hero-subtitle">
         {{ description }}
       </p>
 
       <!-- Price -->
-      <div v-if="price" class="flex items-center gap-3 mt-6">
+      <div v-if="price" class="flex items-center justify-center md:justify-start gap-3 mt-6">
         <span class="text-2xl md:text-3xl font-medium text-fortu-off-white">
           {{ formattedPrice }}
         </span>
@@ -201,78 +166,40 @@
         </span>
       </div>
 
-      <!-- Product Variants -->
+      <!-- Product Variants: compact pills, stock shown only when sold out -->
       <div v-if="hasVariants && variants && variants.length > 0" class="mt-8">
         <h2 class="text-lg md:text-xl font-medium text-fortu-off-white mb-4">
           Pilih Varian
         </h2>
-        
-        <div class="flex flex-wrap gap-3">
+
+        <div class="flex flex-wrap justify-center md:justify-start gap-2">
           <button
             v-for="variant in variants"
             :key="variant._key"
             @click="handleVariantSelect(variant)"
-            class="px-4 py-3 bg-white/10 backdrop-blur-sm rounded-lg border-2 transition-all hover:bg-white/20"
-            :class="selectedVariantKey === variant._key 
-              ? 'border-fortu-off-white bg-white/20' 
-              : 'border-white/30 hover:border-white/50'"
+            :aria-pressed="selectedVariantKey === variant._key"
+            class="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border px-4 text-base font-medium text-fortu-off-white transition-colors"
+            :class="[
+              selectedVariantKey === variant._key
+                ? 'border-fortu-off-white bg-white/25'
+                : 'border-white/30 bg-white/10 hover:bg-white/20',
+              variant.inStock === false ? 'opacity-60' : '',
+            ]"
           >
-            <!-- Variant Name -->
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-sm md:text-base font-medium text-fortu-off-white">
-                {{ variant.name }}
-              </span>
-              <div 
-                v-if="selectedVariantKey === variant._key"
-                class="w-4 h-4 rounded-full bg-fortu-off-white flex items-center justify-center"
-              >
-                <svg class="w-2.5 h-2.5 text-fortu-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                </svg>
-              </div>
-            </div>
-
-            <!-- Variant Color (if color variant) -->
-            <div v-if="variantType === 'color' && variant.colorHex" class="mb-2">
-              <div 
-                class="w-6 h-6 rounded-full border-2 mx-auto"
-                :class="selectedVariantKey === variant._key 
-                  ? 'border-fortu-off-white' 
-                  : 'border-white/50'"
-                :style="{ backgroundColor: variant.colorHex }"
-              ></div>
-            </div>
-
-            <!-- Variant Price -->
-            <div class="flex items-center justify-center gap-2">
-              <span v-if="variant.price" class="text-sm md:text-base font-medium text-fortu-off-white">
-                {{ formatVariantPrice(variant.price) }}
-              </span>
-              <span 
-                v-if="variant.compareAtPrice && variant.compareAtPrice > (variant.price || 0)" 
-                class="text-xs text-fortu-light/70 line-through"
-              >
-                {{ formatVariantPrice(variant.compareAtPrice) }}
-              </span>
-            </div>
-
-            <!-- Stock Status -->
-            <div v-if="variant.inStock !== undefined" class="mt-2">
-              <span 
-                class="text-xs px-2 py-0.5 rounded-full block text-center"
-                :class="variant.inStock 
-                  ? 'bg-green-500/80 text-white' 
-                  : 'bg-red-500/80 text-white'"
-              >
-                {{ variant.inStock ? 'Tersedia' : 'Habis' }}
-              </span>
-            </div>
+            <span
+              v-if="variantType === 'color' && variant.colorHex"
+              class="w-4 h-4 rounded-full border border-white/50"
+              :style="{ backgroundColor: variant.colorHex }"
+            ></span>
+            {{ variant.name }}
+            <span v-if="variant.price" class="text-sm font-normal text-fortu-light">{{ formatVariantPrice(variant.price) }}</span>
+            <span v-if="variant.inStock === false" class="text-xs font-normal text-fortu-light">Habis</span>
           </button>
         </div>
       </div>
 
       <!-- Buy Button -->
-      <div class="mt-8" data-track-source="product_hero">
+      <div class="mt-8 flex justify-center md:justify-start" data-track-source="product_hero">
         <Button
           variant="secondary"
           size="lg"

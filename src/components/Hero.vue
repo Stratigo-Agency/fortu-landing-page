@@ -126,9 +126,9 @@ onMounted(async () => {
     <div 
       class="relative z-[2] flex-1 flex items-center px-4 md:px-16 py-4"
       :class="{
-        'text-left': heroAlignment === 'left',
+        'text-center md:text-left': heroAlignment === 'left',
         'text-center': heroAlignment === 'center',
-        'text-right': heroAlignment === 'right'
+        'text-center md:text-right': heroAlignment === 'right'
       }"
     >
       <div class="w-full">
@@ -136,7 +136,7 @@ onMounted(async () => {
         <h2 v-if="hero.subtitle" class="text-2xl md:text-3xl font-medium mb-4 text-fortu-off-white leading-snug hero-subtitle">{{ hero.subtitle }}</h2>
         <!-- The longer supporting paragraph is for tablet and up; phones keep the headline, tagline and buttons -->
         <p v-if="hero.description" class="hidden md:block text-lg md:text-xl leading-relaxed mb-6 max-w-3xl text-[rgba(250,250,250,0.9)] hero-description"
-           :class="{ 'mx-auto': heroAlignment === 'center', 'ml-auto': heroAlignment === 'right' }">{{ hero.description }}</p>
+           :class="{ 'mx-auto': heroAlignment === 'center', 'md:mx-0': heroAlignment === 'left', 'mx-auto md:mr-0 md:ml-auto': heroAlignment === 'right' }">{{ hero.description }}</p>
 
         <!-- Office locations: link to Google Maps when a link exists, plain text otherwise -->
         <ul
@@ -144,7 +144,8 @@ onMounted(async () => {
           class="hero-locations flex flex-wrap items-center gap-x-6 gap-y-2 mb-6 md:mb-8 text-sm md:text-base text-fortu-off-white/85"
           :class="{
             'justify-center': heroAlignment === 'center',
-            'justify-end': heroAlignment === 'right'
+            'justify-center md:justify-start': heroAlignment === 'left',
+            'justify-center md:justify-end': heroAlignment === 'right'
           }"
           aria-label="Lokasi kantor Fortu Digital"
         >
