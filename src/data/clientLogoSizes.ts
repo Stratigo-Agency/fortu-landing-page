@@ -28,6 +28,7 @@ export const clientLogoSizes: Record<string, [number, number]> = {
   'pro-mitra-analitika': [687, 363],
   'rumah-sehat-jakarta': [900, 549],
   'san-medical-center': [900, 786],
+  'skuadron-18': [533, 579],
   'smk-angkasa': [900, 900],
   'sudirman-park': [434, 189],
   'sumak': [769, 701],

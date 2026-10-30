@@ -19,6 +19,7 @@ const items: ClientLogoItem[] = [
   light('PLN', 'pln'),
   light('Perhutani', 'perhutani'),
   light('Mabes TNI AL', 'mabes-tni-al'),
+  light('Skuadron 18', 'skuadron-18'),
   light('CIMB Niaga', 'cimb-niaga'),
   light('Tirta Musi', 'tirta-musi'),
   light('Bank TKI (BPR Tata Karya Indonesia)', 'bank-tki'),
