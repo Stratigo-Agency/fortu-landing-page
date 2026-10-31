@@ -2,6 +2,7 @@
   <div class="blog-page bg-fortu-off-white min-h-screen">
     <PageHero
       pageName="blog"
+      alignment="center"
       fallbackTitle="Blog"
       fallbackSubtitle="Wawasan, berita, dan cerita dari FORTU Digital"
     />
