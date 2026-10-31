@@ -73,7 +73,7 @@ export interface NavLink {
 }
 
 export const NAV_LINKS: NavLink[] = [
-  { label: 'Portfolio', to: '/', hash: '#portfolio' },
+  { label: 'Portfolio', to: '/studi-kasus' },
   { label: 'Tentang', to: '/about' },
   { label: 'Blog', to: '/blog' },
   { label: 'Kontak', to: '/contact' },
