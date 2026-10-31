@@ -41,15 +41,15 @@
     <div 
       class="relative z-10 px-4 md:px-16 w-full"
       :class="{
-        'text-center md:text-left': pageHero.alignment === 'left',
-        'text-center': pageHero.alignment === 'center' || !pageHero.alignment,
-        'text-center md:text-right': pageHero.alignment === 'right'
+        'text-center md:text-left': align === 'left',
+        'text-center': align === 'center' || !align,
+        'text-center md:text-right': align === 'right'
       }"
     >
       <h1 class="text-5xl md:text-6xl lg:text-7xl font-medium text-fortu-off-white mb-4 tracking-tight hero-title">
         {{ pageHero.title }}
       </h1>
-      <p v-if="pageHero.subtitle" class="text-lg md:text-xl text-fortu-light max-w-2xl mx-auto hero-subtitle" :class="{ 'md:mx-0': pageHero.alignment === 'left', 'md:ml-auto md:mr-0': pageHero.alignment === 'right' }">
+      <p v-if="pageHero.subtitle" class="text-lg md:text-xl text-fortu-light max-w-2xl mx-auto hero-subtitle" :class="{ 'md:mx-0': align === 'left', 'md:ml-auto md:mr-0': align === 'right' }">
         {{ pageHero.subtitle }}
       </p>
     </div>
@@ -109,7 +109,11 @@ const props = defineProps<{
   pageName: 'products' | 'about' | 'contact' | 'services' | 'privacy' | 'blog' | 'case-studies'
   fallbackTitle?: string
   fallbackSubtitle?: string
+  /** Overrides the alignment set in Sanity (e.g. the Blog title sits above a centred grid) */
+  alignment?: 'left' | 'center' | 'right'
 }>()
+
+const align = computed(() => props.alignment ?? pageHero.value?.alignment)
 
 const pageHero = ref<PageHero | null>(null)
 const loading = ref(true)
