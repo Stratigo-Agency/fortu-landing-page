@@ -42,6 +42,8 @@
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
       
+      // Nothing is sent to Meta until the visitor accepts cookies (CookieBanner grants it).
+      fbq('consent', localStorage.getItem('fortu_cookie_consent') === 'accepted' ? 'grant' : 'revoke');
       fbq('init', '1676430123516270'); 
       fbq('track', 'PageView');
     </script>
@@ -50,10 +52,6 @@
     </style>
   </head>
   <body>
-    <noscript>
-      <img height="1" width="1" style="display:none" 
-           src="https://www.facebook.com/tr?id=1676430123516270&ev=PageView&noscript=1" />
-    </noscript>
 
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>

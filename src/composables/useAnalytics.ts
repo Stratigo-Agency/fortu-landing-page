@@ -22,8 +22,19 @@ export const useAnalytics = () => {
     }
   }
 
+  /** Meta Pixel standard event (e.g. 'Contact'). Same consent rule as GA. */
+  const trackPixel = (eventName: string, eventParams?: Record<string, any>) => {
+    if (!hasConsent() || !(window as any).fbq) return
+    try {
+      ;(window as any).fbq('track', eventName, eventParams || {})
+    } catch (error) {
+      console.error('Failed to track pixel event:', error)
+    }
+  }
+
   return {
     trackEvent,
+    trackPixel,
     hasConsent,
   }
 }

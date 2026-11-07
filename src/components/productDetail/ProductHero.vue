@@ -319,7 +319,7 @@ const handleVariantSelect = (variant: ProductVariant) => {
 
 const { openChooser } = useContactChooser()
 
-// Product name travels to the destination as utm_campaign (a pre-filled message is not possible via Linktree)
+// Product name goes into the first WhatsApp message and its slug into utm_campaign (via the CRM link)
 const askAboutProduct = () =>
   openChooser('product_hero', {
     campaign: props.productSlug || undefined,
