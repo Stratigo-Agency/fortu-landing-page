@@ -10,6 +10,8 @@ interface ImportMetaEnv {
   readonly VITE_SANITY_PROJECT_ID: string
   readonly VITE_SANITY_DATASET: string
   readonly VITE_SANITY_API_VERSION: string
+  /** Fortu CRM address for the tracked WhatsApp link; defaults to the Railway production URL */
+  readonly VITE_CRM_URL?: string
 }
 
 interface ImportMeta {

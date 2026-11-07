@@ -8,6 +8,7 @@ const Products = () => import('@/pages/Products.vue')
 const ProductDetail = () => import('@/pages/ProductDetail.vue')
 const About = () => import('@/pages/About.vue')
 const Contact = () => import('@/pages/Contact.vue')
+const Hubungi = () => import('@/pages/Hubungi.vue')
 const Privacy = () => import('@/pages/Privacy.vue')
 const Blog = () => import('@/pages/Blog.vue')
 const BlogDetail = () => import('@/pages/BlogDetail.vue')
@@ -42,6 +43,12 @@ const router = createRouter({
       path: '/contact',
       name: 'Contact',
       component: Contact,
+    },
+    {
+      // Linktree replacement for the Instagram / TikTok bio and the "Hubungi Sales" button
+      path: '/hubungi',
+      name: 'Hubungi',
+      component: Hubungi,
     },
     {
       path: '/privacy',
