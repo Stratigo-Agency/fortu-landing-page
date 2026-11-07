@@ -32,7 +32,7 @@
             Hubungi Kami
           </h2>
           <p class="mt-2 text-fortu-medium">
-            Pilih keperluan Anda. Tim kami akan menyambut lewat halaman Fortu Digital berikut.
+            Pilih keperluan Anda.
           </p>
 
           <div class="mt-6 space-y-3">
@@ -62,6 +62,13 @@
               </svg>
             </a>
           </div>
+
+          <p class="mt-4 text-sm text-fortu-medium">
+            Di Medan atau mau lihat kontak lain?
+            <RouterLink to="/hubungi" class="font-medium text-fortu-dark underline underline-offset-4" @click="closeChooser">
+              Semua kontak
+            </RouterLink>
+          </p>
         </div>
       </div>
     </Transition>
@@ -75,7 +82,7 @@ import { useRoute } from 'vue-router'
 import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
 import { useContactChooser } from '@/composables/useContactChooser'
 import { useAnalytics } from '@/composables/useAnalytics'
-import { buildContactUrl, type ContactChoice } from '@/config/contact'
+import { SALES_TEAMS, buildContactUrl, buildSalesWhatsAppUrl, type ContactChoice } from '@/config/contact'
 
 const { data: settings } = useSanityQuery<SiteSettings | null>(SITE_SETTINGS_QUERY, { label: 'site settings' })
 
@@ -91,8 +98,13 @@ const options = computed(() => [
   {
     choice: 'sales' as ContactChoice,
     title: 'Hubungi Sales',
-    description: 'Konsultasi kebutuhan layar, informasi produk, dan penawaran.',
-    href: buildContactUrl(settings.value?.contactSalesUrl, 'sales', state.campaign),
+    description: 'Chat WhatsApp dengan sales Jakarta: kebutuhan layar, produk, dan penawaran.',
+    // Straight to WhatsApp through the CRM's tracked link (no Linktree), with the product in the first message
+    href: buildSalesWhatsAppUrl(SALES_TEAMS[0], {
+      location: state.source,
+      productName: state.productName,
+      productSlug: state.campaign,
+    }),
   },
   {
     choice: 'partnership' as ContactChoice,

@@ -1,19 +1,28 @@
 import { onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAnalytics } from '@/composables/useAnalytics'
+import { isCrmWhatsAppLink } from '@/config/contact'
 
 /**
  * One delegated click listener that records every lead action in GA4:
- *   go_to_whatsapp (wa.me), click_phone (tel:), click_email (mailto:)
+ *   go_to_whatsapp (wa.me or the CRM's tracked /go/wa link), click_phone (tel:), click_email (mailto:)
+ * A WhatsApp click also sends the Meta Pixel 'Contact' event, so Meta ads can be measured on real chats.
  * Each event carries where the button is (button_location), the page, and the product
  * name on product pages. Mark a section with data-track-source="..." to name its location;
  * otherwise the route name is used. Events only fire after cookie consent (useAnalytics).
  */
 export function useContactTracking() {
   const route = useRoute()
-  const { trackEvent } = useAnalytics()
+  const { trackEvent, trackPixel } = useAnalytics()
 
   const classify = (href: string): { event: string; extra: Record<string, string> } | null => {
+    if (isCrmWhatsAppLink(href)) {
+      const url = new URL(href)
+      return {
+        event: 'go_to_whatsapp',
+        extra: { whatsapp_number: `team:${url.searchParams.get('line') || 'unknown'}`, link_type: 'crm_tracked' },
+      }
+    }
     if (/^https?:\/\/(wa\.me|api\.whatsapp\.com|web\.whatsapp\.com)\b/i.test(href)) {
       const digits = href.match(/wa\.me\/(\d+)/i)?.[1] || new URL(href).searchParams.get('phone') || 'unknown'
       return { event: 'go_to_whatsapp', extra: { whatsapp_number: digits } }
@@ -45,6 +54,7 @@ export function useContactTracking() {
       if (name) params.product_name = name
     }
     trackEvent(hit.event, params)
+    if (hit.event === 'go_to_whatsapp') trackPixel('Contact', { content_name: params.product_name || source })
   }
 
   onMounted(() => document.addEventListener('click', onClick, true))

@@ -75,6 +75,7 @@ onBeforeUnmount(() => {
 const acceptCookies = () => {
   localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted')
   showBanner.value = false
+  ;(window as any).fbq?.('consent', 'grant')
   
   // Update Consent Mode to allow analytics
   if ((window as any).gtag) {
@@ -93,6 +94,7 @@ const acceptCookies = () => {
 const declineCookies = () => {
   localStorage.setItem(COOKIE_CONSENT_KEY, 'declined')
   showBanner.value = false
+  ;(window as any).fbq?.('consent', 'revoke')
   
   // Ensure Consent Mode remains denied
   if ((window as any).gtag) {
