@@ -4,3 +4,14 @@ dist
 .env.local
 *.local
 
+
+# build cache, editor and local files (never pushed: this repository is public)
+*.tsbuildinfo
+.DS_Store
+.env.*
+!.env.example
+.claude/
+credentials*.txt
+*.csv
+*.pptx
+*.xlsx
