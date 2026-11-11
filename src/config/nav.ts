@@ -37,8 +37,8 @@ export const NAV_MENU: MenuCategory[] = [
     label: 'Digital Signage',
     groups: [
       { label: 'Digital Signage Standing', slug: 'digital-signage-standing', sizes: inch(43, 55, 65) },
-      { label: 'Digital Signage Wall-mount', slug: 'digital-signage-wall-mount', sizes: inch(32, 43, 55, 65, 75) },
-      { label: 'Digital Signage Outdoor', slug: 'digital-signage-outdoor', sizes: inch(43, 55, 65) },
+      { label: 'Digital Signage Wall-mount', slug: 'digital-signage-wall-mount', sizes: inch(32, 43, 55, 65, 75, 86, 100) },
+      { label: 'Digital Signage Outdoor', slug: 'digital-signage-outdoor', sizes: inch(65) },
       { label: 'Smart Mobile Signage', slug: 'smart-mobile-signage' },
     ],
   },
