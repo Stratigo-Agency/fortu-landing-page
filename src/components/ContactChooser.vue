@@ -40,10 +40,10 @@
               v-for="opt in options"
               :key="opt.choice"
               :href="opt.href"
-              target="_blank"
-              rel="noopener noreferrer"
+              :target="opt.internal ? undefined : '_blank'"
+              :rel="opt.internal ? undefined : 'noopener noreferrer'"
               class="chooser-option group flex items-start gap-4 rounded-2xl border border-fortu-light/70 p-4 sm:p-5 hover:border-fortu-dark hover:bg-fortu-off-white transition-colors"
-              @click="onChoose(opt.choice)"
+              @click="onChoose($event, opt)"
             >
               <span class="w-11 h-11 rounded-full bg-fortu-dark text-fortu-off-white flex items-center justify-center flex-shrink-0">
                 <svg v-if="opt.choice === 'sales'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -58,7 +58,8 @@
                 <span class="block text-sm text-fortu-medium mt-0.5">{{ opt.description }}</span>
               </span>
               <svg class="w-4 h-4 mt-1.5 text-fortu-medium group-hover:text-fortu-dark transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                <path v-if="opt.internal" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
             </a>
           </div>
@@ -76,17 +77,14 @@
 </template>
 
 <script setup lang="ts">
-import { useSanityQuery } from '@/composables/useSanityQuery'
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
-import { useRoute } from 'vue-router'
-import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
+import { useRoute, useRouter } from 'vue-router'
 import { useContactChooser } from '@/composables/useContactChooser'
 import { useAnalytics } from '@/composables/useAnalytics'
-import { SALES_TEAMS, buildContactUrl, buildSalesWhatsAppUrl, type ContactChoice } from '@/config/contact'
-
-const { data: settings } = useSanityQuery<SiteSettings | null>(SITE_SETTINGS_QUERY, { label: 'site settings' })
+import { PARTNERSHIP_PATH, SALES_TEAMS, buildSalesWhatsAppUrl, type ContactChoice } from '@/config/contact'
 
 const route = useRoute()
+const router = useRouter()
 const { state, closeChooser } = useContactChooser()
 const { trackEvent } = useAnalytics()
 
@@ -94,9 +92,18 @@ const dialogEl = ref<HTMLElement | null>(null)
 const closeBtn = ref<HTMLElement | null>(null)
 let previouslyFocused: HTMLElement | null = null
 
-const options = computed(() => [
+interface ChooserOption {
+  choice: ContactChoice
+  title: string
+  description: string
+  href: string
+  /** a page on fortu.co.id (opened in the same tab) instead of WhatsApp */
+  internal: boolean
+}
+
+const options = computed<ChooserOption[]>(() => [
   {
-    choice: 'sales' as ContactChoice,
+    choice: 'sales',
     title: 'Hubungi Sales',
     description: 'Chat WhatsApp dengan sales Jakarta: kebutuhan layar, produk, dan penawaran.',
     // Straight to WhatsApp through the CRM's tracked link (no Linktree), with the product in the first message
@@ -105,22 +112,31 @@ const options = computed(() => [
       productName: state.productName,
       productSlug: state.campaign,
     }),
+    internal: false,
   },
   {
-    choice: 'partnership' as ContactChoice,
+    choice: 'partnership',
     title: 'Partnership & Kolaborasi',
     description: 'Kerja sama bisnis, program kemitraan, dan kolaborasi proyek.',
-    href: buildContactUrl(settings.value?.contactPartnershipUrl, 'partnership', state.campaign),
+    // Our own /hubungi page (no Linktree): GA4 sees the visit, and the chat from there goes through the CRM
+    href: PARTNERSHIP_PATH,
+    internal: true,
   },
 ])
 
-const onChoose = (choice: ContactChoice) => {
+const onChoose = (event: MouseEvent, opt: ChooserOption) => {
+  const { choice } = opt
   trackEvent(choice === 'sales' ? 'click_contact_sales' : 'click_contact_partnership', {
     button_location: state.source,
     page_path: route.path,
     ...(state.productName ? { product_name: state.productName } : {}),
   })
   closeChooser()
+  // A plain click on the page link stays in the app; Ctrl/Cmd-click still opens a new tab.
+  if (opt.internal && !event.metaKey && !event.ctrlKey && !event.shiftKey && event.button === 0) {
+    event.preventDefault()
+    router.push(opt.href)
+  }
 }
 
 const focusables = () =>

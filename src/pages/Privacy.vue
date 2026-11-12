@@ -47,6 +47,11 @@
               pengunjung berinteraksi dengan situs web kami. Kami hanya menggunakan cookies ini setelah 
               Anda memberikan persetujuan melalui banner cookies.
             </p>
+            <p>
+              Saat Anda menekan tombol chat WhatsApp, sistem kami menyimpan satu cookie fungsional berisi nomor
+              sales yang melayani Anda (tanpa data pribadi, berlaku 90 hari), agar chat berikutnya tetap terhubung
+              ke sales yang sama.
+            </p>
           </div>
         </section>
 

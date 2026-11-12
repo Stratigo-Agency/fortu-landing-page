@@ -145,8 +145,9 @@ export default defineType({
       title: 'Tujuan "Hubungi Sales"',
       type: 'url',
       group: 'contact',
-      description:
-        'Tujuan pilihan "Hubungi Sales" di semua tombol Hubungi Kami. Kosongkan untuk memakai Linktree Fortu. Contoh: link WhatsApp sales. Kode pelacak asal website (utm) ditambahkan otomatis.',
+      // No longer read by the site: "Hubungi Sales" always goes through the CRM's tracked WhatsApp link.
+      hidden: true,
+      description: 'Tidak dipakai lagi: "Hubungi Sales" selalu lewat link WhatsApp CRM.',
       validation: (Rule) => Rule.uri({scheme: ['http', 'https']}),
     }),
     defineField({
@@ -154,8 +155,9 @@ export default defineType({
       title: 'Tujuan "Partnership & Kolaborasi"',
       type: 'url',
       group: 'contact',
-      description:
-        'Tujuan pilihan "Partnership & Kolaborasi". Kosongkan untuk memakai Linktree Fortu. Contoh: mailto:partnership@fortu.co.id tidak didukung, gunakan alamat https.',
+      // No longer read by the site: "Partnership & Kolaborasi" opens fortu.co.id/hubungi#partnership.
+      hidden: true,
+      description: 'Tidak dipakai lagi: "Partnership & Kolaborasi" membuka fortu.co.id/hubungi.',
       validation: (Rule) => Rule.uri({scheme: ['http', 'https']}),
     }),
     // SOCIAL MEDIA

@@ -500,8 +500,6 @@ export interface SiteSettings {
   whatsapp?: string
   socialMedia?: SocialMedia
   offices?: Office[]
-  contactSalesUrl?: string
-  contactPartnershipUrl?: string
 }
 
 export interface OfficeHours {
@@ -540,8 +538,6 @@ export const SITE_SETTINGS_QUERY = defineQuery(/* groq */ `
     phone,
     email,
     whatsapp,
-    contactSalesUrl,
-    contactPartnershipUrl,
     offices[] {
       _key,
       city,
