@@ -29,6 +29,35 @@
         </a>
       </section>
 
+      <section
+        id="partnership"
+        class="mt-8 scroll-mt-28 space-y-3"
+        aria-labelledby="hubungi-partnership"
+        data-track-source="hubungi_partnership"
+      >
+        <h2 id="hubungi-partnership" class="text-sm font-medium text-fortu-medium uppercase tracking-wide">
+          Partnership &amp; Kolaborasi
+        </h2>
+        <p class="text-fortu-medium">Kerja sama bisnis, program kemitraan, reseller, dan kolaborasi proyek.</p>
+        <a
+          :href="partnership.whatsapp"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center justify-between rounded-2xl border border-fortu-light/70 bg-white p-4 text-fortu-dark hover:border-fortu-dark transition-colors"
+        >
+          <span class="font-medium">Chat soal partnership</span>
+          <span aria-hidden="true">↗</span>
+        </a>
+        <a
+          v-if="partnership.email"
+          :href="partnership.email"
+          class="flex items-center justify-between rounded-2xl border border-fortu-light/70 bg-white p-4 text-fortu-dark hover:border-fortu-dark transition-colors"
+        >
+          <span class="font-medium">Kirim email proposal</span>
+          <span aria-hidden="true">↗</span>
+        </a>
+      </section>
+
       <section class="mt-8 space-y-3" aria-labelledby="hubungi-links" data-track-source="hubungi_links">
         <h2 id="hubungi-links" class="text-sm font-medium text-fortu-medium uppercase tracking-wide">Lainnya</h2>
         <RouterLink
@@ -101,6 +130,19 @@ const { data: settings } = useSanityQuery<SiteSettings | null>(SITE_SETTINGS_QUE
 const teams = computed(() =>
   SALES_TEAMS.map((team) => ({ ...team, href: buildSalesWhatsAppUrl(team, { location: `hubungi_${team.id}` }) })),
 )
+
+// Partnership chats go through the CRM's tracked link too (campaign "partnership"), so they are recorded there and
+// told apart from sales enquiries.
+const partnership = computed(() => ({
+  whatsapp: buildSalesWhatsAppUrl(SALES_TEAMS[0], {
+    location: 'hubungi_partnership',
+    productSlug: 'partnership',
+    text: 'Halo Fortu, saya tertarik kerja sama (partnership / kolaborasi).',
+  }),
+  email: settings.value?.email
+    ? `mailto:${settings.value.email}?subject=${encodeURIComponent('Partnership & Kolaborasi')}`
+    : null,
+}))
 
 const otherLinks = computed(() => {
   const social = settings.value?.socialMedia
