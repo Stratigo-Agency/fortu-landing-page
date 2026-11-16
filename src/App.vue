@@ -8,12 +8,16 @@ import { SITE_SETTINGS_QUERY, type SiteSettings } from '@/sanity/queries'
 import { useContactTracking } from '@/composables/useContactTracking'
 import { useContactChooser } from '@/composables/useContactChooser'
 import ContactChooser from '@/components/ContactChooser.vue'
+import LeadFormDialog from '@/components/LeadFormDialog.vue'
+import { useLeadGate } from '@/composables/useLeadForm'
 import { useRoute } from 'vue-router'
 import { useJsonLd } from '@/composables/useJsonLd'
 import { organizationGraph } from '@/utils/structuredData'
 
 const siteSettings = ref<SiteSettings | null>(null)
 useContactTracking()
+// every tracked WhatsApp link opens the short lead form first (MAR-232)
+useLeadGate()
 const { openChooser } = useContactChooser()
 
 const route = useRoute()
@@ -49,6 +53,7 @@ onMounted(async () => {
   </button>
 
   <ContactChooser />
+  <LeadFormDialog />
 </template>
 
 <style>

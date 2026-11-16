@@ -5,7 +5,9 @@ import { isCrmWhatsAppLink } from '@/config/contact'
 
 /**
  * One delegated click listener that records every lead action in GA4:
- *   go_to_whatsapp (wa.me or the CRM's tracked /go/wa link), click_phone (tel:), click_email (mailto:)
+ *   go_to_whatsapp (a plain wa.me link), click_phone (tel:), click_email (mailto:)
+ * Tracked CRM WhatsApp links (/go/wa) are left to the lead form (useLeadForm.ts / LeadFormDialog.vue), which sends
+ * the same events once the visitor sends the form.
  * Each of those also sends GA4's recommended `generate_lead` event (method whatsapp / phone / email, lead_source =
  * button location, and the CRM line for WhatsApp), so one Key event in GA4 counts every lead.
  * A WhatsApp click also sends the Meta Pixel 'Contact' event, so Meta ads can be measured on real chats.
@@ -19,8 +21,12 @@ export function useContactTracking() {
   const route = useRoute()
   const { trackEvent, trackPixel } = useAnalytics()
 
-  const classify = (href: string): Lead | null => {
+  const classify = (href: string, plainClick: boolean): Lead | null => {
+    // A tracked CRM link opens the lead form first (useLeadGate); the form sends go_to_whatsapp, generate_lead and the
+    // Pixel events when it is sent, so a lead is counted once, with the CRM's answer. A Ctrl/Cmd/middle click skips the
+    // form and opens the tracked link in a new tab, so it is counted here.
     if (isCrmWhatsAppLink(href)) {
+      if (plainClick) return null
       const line = new URL(href).searchParams.get('line') || 'unknown'
       return {
         event: 'go_to_whatsapp',
@@ -44,7 +50,8 @@ export function useContactTracking() {
   const onClick = (e: MouseEvent) => {
     const anchor = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null
     if (!anchor) return
-    const hit = classify(anchor.getAttribute('href') || '')
+    const plainClick = e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey
+    const hit = classify(anchor.getAttribute('href') || '', plainClick)
     if (!hit) return
 
     const source =

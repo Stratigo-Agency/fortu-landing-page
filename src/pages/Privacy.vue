@@ -63,6 +63,23 @@
         </section>
 
         <section class="mb-12">
+          <h2 class="text-3xl font-medium text-fortu-dark mb-6">Form Sebelum Chat WhatsApp</h2>
+          <div class="space-y-4 text-fortu-medium leading-relaxed">
+            <p>
+              Sebelum membuka chat WhatsApp dengan tim kami, Anda mengisi form singkat: nama, nomor WhatsApp, dan bila
+              mau, nama instansi atau perusahaan serta kebutuhan Anda. Data ini dikirim ke sistem CRM internal Fortu
+              bersama halaman tempat Anda menekan tombol dan kode kampanye di atas, agar sales yang tepat bisa
+              membalas dan menindaklanjuti kebutuhan Anda. Data ini tidak kami jual atau bagikan ke pihak lain.
+            </p>
+            <p>
+              Agar Anda tidak perlu mengetik ulang, isian form disimpan di peramban perangkat Anda sendiri
+              (localStorage). Anda bisa menghapusnya kapan saja lewat tautan "Hapus data tersimpan" di form tersebut.
+              Untuk meminta data Anda di CRM kami dihapus, hubungi kami lewat kontak di bawah.
+            </p>
+          </div>
+        </section>
+
+        <section class="mb-12">
           <h2 class="text-3xl font-medium text-fortu-dark mb-6">Google Analytics</h2>
           <p class="text-fortu-medium leading-relaxed mb-4">
             Kami menggunakan Google Analytics untuk menganalisis penggunaan situs web. Google Analytics 
