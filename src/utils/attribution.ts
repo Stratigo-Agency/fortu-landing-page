@@ -2,17 +2,19 @@
  * Remembers which campaign brought a visitor to the site, so the "Hubungi Sales" link can pass it on
  * (the CRM then shows the lead under the right ad or campaign).
  *
- * Only the four campaign tags are kept: utm_source, utm_medium, utm_campaign, utm_content. They name a
- * campaign, not a person. No click ids (fbclid, gclid) are stored. The values live in sessionStorage, so they
- * disappear when the tab closes, and the first campaign of a visit wins.
+ * Kept: the four campaign tags (utm_source, utm_medium, utm_campaign, utm_content) and the ad click ids the ad
+ * networks add to the link (fbclid from Meta, gclid from Google Ads), so a chat can be tied to the exact ad click.
+ * utm_term is not kept. The values live in sessionStorage, so they disappear when the tab closes, and the first
+ * tagged visit of the tab wins (later campaigns or click ids do not overwrite it).
  */
 const KEY = 'fortu_campaign'
-const TAGS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'] as const
+const TAGS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'fbclid', 'gclid'] as const
+const MAX_LENGTH: Partial<Record<(typeof TAGS)[number], number>> = { fbclid: 500, gclid: 500 }
 
 export type CampaignTags = Partial<Record<(typeof TAGS)[number], string>>
 
-const clean = (value: string | null): string | undefined => {
-  const v = value?.trim().slice(0, 100)
+const clean = (value: string | null, max = 100): string | undefined => {
+  const v = value?.trim().slice(0, max)
   return v ? v : undefined
 }
 
@@ -21,7 +23,7 @@ export function readCampaignTags(search: string): CampaignTags {
   const params = new URLSearchParams(search)
   const tags: CampaignTags = {}
   for (const key of TAGS) {
-    const value = clean(params.get(key))
+    const value = clean(params.get(key), MAX_LENGTH[key])
     if (value) tags[key] = value
   }
   return tags

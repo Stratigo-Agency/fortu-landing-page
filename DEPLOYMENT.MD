@@ -114,6 +114,31 @@ Checklist for a new staging domain: add it to Sanity CORS origins (sanity.io/man
 
 ---
 
+## Fortu CRM link (`VITE_CRM_URL`) and lead tracking
+
+Every WhatsApp button goes through the Fortu CRM's tracked link (`{CRM}/go/wa?line=…`), which records the click
+and opens WhatsApp with a short click code. Which CRM the links point to is fixed at build time:
+
+| Railway environment | Branch | `VITE_CRM_URL` | CRM used |
+| --- | --- | --- | --- |
+| production (fortu.co.id) | `main` | `https://fortu-crm-production.up.railway.app` (recommended to set; also the default) | production CRM |
+| staging | `staging` | `https://soothing-manifestation-staging.up.railway.app` (recommended to set; also the default) | staging CRM |
+| local (`npm run dev`), tests | any | unset | staging CRM |
+
+When `VITE_CRM_URL` is unset, `vite.config.ts` picks the production CRM only for a production build of a branch other
+than `staging` (`RAILWAY_GIT_BRANCH`); everything else uses the staging CRM, so test clicks never reach production.
+Like every `VITE_*` variable it is inlined at build time: change it, then redeploy.
+
+The labels the site sends must exist as active lines in that CRM (Pengaturan → WhatsApp lines), or `/go/wa` answers
+404. They are listed in `src/config/contact.ts`: `SALES_TEAMS` (Jakarta-1 … Jakarta-4, Medan-5) and
+`OFFICE_WHATSAPP_LINES` (Kantor-Jakarta, Kantor-Bali: the office WhatsApp numbers shown on /kontak).
+
+Analytics (GA4 `G-0BP7NTVTPH`, Meta Pixel; both only after cookie consent): each WhatsApp, phone or email click sends
+`go_to_whatsapp` / `click_phone` / `click_email` plus GA4's `generate_lead` (`method`, `lead_source`, `whatsapp_line`);
+WhatsApp clicks also send the Pixel `Contact` event. Mark `generate_lead` as a Key event in GA4 (Admin → Events).
+
+---
+
 ## 4. Redeploying After Changes
 
 ### Frontend Changes

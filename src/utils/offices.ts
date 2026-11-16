@@ -1,4 +1,5 @@
 import type { Office, OfficeHours, SiteSettings } from '@/sanity/queries'
+import { buildSalesWhatsAppUrl, officeWhatsAppLine } from '@/config/contact'
 
 /**
  * Offices from Site Settings. Falls back to the legacy single `address` field so pages
@@ -48,7 +49,15 @@ export function officePhone(o: Office): { kind: OfficePhoneKind; display: string
   const display = o.phone?.trim()
   if (!display) return null
   if (o.phoneType === 'whatsapp') {
-    return { kind: 'whatsapp', display, href: `https://wa.me/${toInternationalDigits(display)}` }
+    // through the CRM's tracked link when the office number is registered there as a line, so the chat is traced
+    const line = officeWhatsAppLine(o.city)
+    const href = line
+      ? buildSalesWhatsAppUrl(
+          { lines: [line] },
+          { location: `kontak_kantor_${o.city.trim().toLowerCase()}`, text: `Halo Fortu, saya mau tanya ke kantor ${o.city.trim()}.` },
+        )
+      : `https://wa.me/${toInternationalDigits(display)}`
+    return { kind: 'whatsapp', display, href }
   }
   return { kind: 'phone', display, href: `tel:${display.replace(/[^+\d]/g, '')}` }
 }

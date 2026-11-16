@@ -6,9 +6,17 @@ export type ContactChoice = 'sales' | 'partnership'
  *  chat that follows still runs through the CRM's tracked link. */
 export const PARTNERSHIP_PATH = '/hubungi#partnership'
 
+export const PRODUCTION_CRM_URL = 'https://fortu-crm-production.up.railway.app'
+export const STAGING_CRM_URL = 'https://soothing-manifestation-staging.up.railway.app'
+
+/** VITE_CRM_URL when set; otherwise the production CRM for a production build and the staging CRM for everything
+ *  else (staging branch, local dev, tests), so test clicks never land in the production CRM. */
+export function resolveCrmUrl(envUrl: string | undefined, productionBuild: boolean): string {
+  return (envUrl?.trim() || (productionBuild ? PRODUCTION_CRM_URL : STAGING_CRM_URL)).replace(/\/+$/, '')
+}
+
 /** The Fortu CRM. Its /go/wa link records the click and opens WhatsApp with a short click code. */
-export const CRM_URL =
-  ((import.meta.env.VITE_CRM_URL as string | undefined) || 'https://fortu-crm-production.up.railway.app').replace(/\/+$/, '')
+export const CRM_URL = resolveCrmUrl(import.meta.env.VITE_CRM_URL, __FORTU_PRODUCTION_BUILD__)
 
 export interface SalesTeam {
   id: string
@@ -24,6 +32,20 @@ export const SALES_TEAMS: SalesTeam[] = [
   { id: 'medan', title: 'Sales Medan', city: 'Medan', lines: ['Medan-5'] },
 ]
 
+/**
+ * Office WhatsApp numbers (Sanity: Site Settings → offices, phoneType "whatsapp") by city, with the CRM line label
+ * that holds the same number (CRM: Pengaturan → WhatsApp lines). The office card then opens that exact number
+ * through the CRM's tracked link. A label must exist in the CRM before it is used here: /go/wa answers 404 for an
+ * unknown line. An office WhatsApp number whose city is not listed falls back to a plain wa.me link.
+ */
+export const OFFICE_WHATSAPP_LINES: Record<string, string> = {
+  jakarta: 'Kantor-Jakarta',
+  bali: 'Kantor-Bali',
+}
+
+export const officeWhatsAppLine = (city?: string): string | undefined =>
+  city ? OFFICE_WHATSAPP_LINES[city.trim().toLowerCase()] : undefined
+
 /** Marketplace stores (moved here from the Linktree). */
 export const SHOP_LINKS = [
   { id: 'shopee_mga', title: 'Beli di MGA Shopee', href: 'https://id.shp.ee/pKTfC6Dy' },
@@ -36,7 +58,7 @@ export const SHOP_LINKS = [
  * the product (or "kontak") as campaign and the button location as content.
  */
 export function buildSalesWhatsAppUrl(
-  team: SalesTeam,
+  team: Pick<SalesTeam, 'lines'>,
   opts: { location: string; productName?: string; productSlug?: string; text?: string },
 ): string {
   const url = new URL(`${CRM_URL}/go/wa`)
@@ -60,6 +82,9 @@ export function buildSalesWhatsAppUrl(
     url.searchParams.set('utm_campaign', opts.productSlug || 'kontak')
     url.searchParams.set('utm_content', opts.location)
   }
+  // ad click ids (first touch of the visit), so the CRM can tie the chat to the exact ad click
+  if (from.fbclid) url.searchParams.set('fbclid', from.fbclid)
+  if (from.gclid) url.searchParams.set('gclid', from.gclid)
   return url.toString()
 }
 
