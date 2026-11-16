@@ -52,6 +52,13 @@
               sales yang melayani Anda (tanpa data pribadi, berlaku 90 hari), agar chat berikutnya tetap terhubung
               ke sales yang sama.
             </p>
+            <p>
+              Jika Anda datang dari iklan (misalnya Instagram, Facebook, atau Google), situs kami mengingat sementara
+              kode kampanye pada tautan iklan tersebut (parameter utm, serta ID klik iklan seperti fbclid dan gclid)
+              selama tab peramban Anda terbuka. Saat Anda menekan tombol chat WhatsApp, kode itu ikut dikirim ke
+              sistem CRM kami agar kami tahu iklan mana yang membawa Anda. Kode ini tidak berisi nama, nomor telepon,
+              atau data pribadi lain, dan hilang dari peramban Anda saat tab ditutup.
+            </p>
           </div>
         </section>
 
