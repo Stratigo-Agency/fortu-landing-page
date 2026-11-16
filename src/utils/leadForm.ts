@@ -12,7 +12,7 @@ export type Interest = 'IFP' | 'DSS' | 'LED' | 'OTHER'
 export const INTERESTS: { value: Interest; label: string }[] = [
   { value: 'IFP', label: 'Smartboard / IFP' },
   { value: 'DSS', label: 'Digital signage' },
-  { value: 'LED', label: 'LED videowall' },
+  { value: 'LED', label: 'Videotron' },
   { value: 'OTHER', label: 'Lainnya' },
 ]
 
