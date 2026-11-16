@@ -133,7 +133,14 @@ The labels the site sends must exist as active lines in that CRM (Pengaturan →
 404. They are listed in `src/config/contact.ts`: `SALES_TEAMS` (Jakarta-1 … Jakarta-4, Medan-5) and
 `OFFICE_WHATSAPP_LINES` (Kantor-Jakarta, Kantor-Bali: the office WhatsApp numbers shown on /kontak).
 
-Analytics (GA4 `G-0BP7NTVTPH`, Meta Pixel; both only after cookie consent): each WhatsApp, phone or email click sends
+Lead form (MAR-232): a plain click on any of those links first opens a short form (name, WhatsApp number, optional
+organisation and need). It posts to `{CRM}/go/wa/lead`, which records the click, creates the lead and answers with the
+WhatsApp chat to open; if the CRM does not answer, the visitor still goes to the tracked `/go/wa` link. The CRM only
+accepts the form from fortu.co.id, www.fortu.co.id and `fortu-landing-page-staging.up.railway.app` (CRM variable
+`WA_LEAD_ORIGINS` overrides the list). To test against the staging CRM from `npm run dev`, set
+`WA_LEAD_ALLOW_LOCALHOST=true` on the staging CRM.
+
+Analytics (GA4 `G-0BP7NTVTPH`, Meta Pixel; both only after cookie consent): each phone or email click, and each sent lead form, sends
 `go_to_whatsapp` / `click_phone` / `click_email` plus GA4's `generate_lead` (`method`, `lead_source`, `whatsapp_line`);
 WhatsApp clicks also send the Pixel `Contact` event. Mark `generate_lead` as a Key event in GA4 (Admin → Events).
 
