@@ -36,7 +36,13 @@ function noIndexPlugin(): Plugin {
   }
 }
 
-export default defineConfig({
+// Which Fortu CRM the tracked WhatsApp links go to when VITE_CRM_URL is not set (src/config/contact.ts):
+// production only for a production build of anything but the `staging` branch; staging, `vite` dev and tests
+// use the staging CRM, so test clicks never reach the production CRM.
+export default defineConfig(({ mode }) => ({
+  define: {
+    __FORTU_PRODUCTION_BUILD__: JSON.stringify(mode === 'production' && process.env.RAILWAY_GIT_BRANCH !== 'staging'),
+  },
   plugins: [vue(), noIndexPlugin(), sitemapPlugin(isNoIndexBuild)],
   resolve: {
     alias: {
@@ -56,4 +62,4 @@ export default defineConfig({
     // Enable code splitting
     chunkSizeWarningLimit: 1000,
   },
-})
+}))
