@@ -13,6 +13,9 @@ import {
   savedContact,
   submitLead,
   validateLeadForm,
+  chatMessage,
+  chatNumber,
+  isInAppBrowser,
 } from './leadForm'
 
 const form = (v: Partial<LeadFormValues> = {}): LeadFormValues => ({
@@ -135,5 +138,22 @@ describe('saved contact', () => {
     expect(savedContact()).toEqual({})
     localStorage.setItem('fortu_lead_contact', JSON.stringify({ name: 1, interest: 'TV' }))
     expect(savedContact()).toEqual({ name: '', phone: '', company: '', interest: '' })
+  })
+})
+
+describe('the chat step after the form', () => {
+  const url = 'https://wa.me/6281300000010?text=Halo%20Fortu%2C%20saya%20Octa.%20%238P4F'
+
+  it('reads the message and the sales number from the wa.me address', () => {
+    expect(chatMessage(url)).toBe('Halo Fortu, saya Octa. #8P4F')
+    expect(chatNumber(url)).toBe('+6281300000010')
+    expect(chatMessage('not a url')).toBe('')
+    expect(chatNumber('https://example.com/6281300000010')).toBe('')
+  })
+
+  it('knows the browsers inside Instagram, Facebook and TikTok', () => {
+    expect(isInAppBrowser('Mozilla/5.0 (iPhone; CPU iPhone OS 26_6 like Mac OS X) Mobile/23G71 Instagram 456.0.0.36.62')).toBe(true)
+    expect(isInAppBrowser('Mozilla/5.0 (Linux; Android 10) [FB_IAB/FB4A;FBAV/450.0]')).toBe(true)
+    expect(isInAppBrowser('Mozilla/5.0 (iPhone) AppleWebKit/605.1.15 Version/17 Mobile Safari/604.1')).toBe(false)
   })
 })

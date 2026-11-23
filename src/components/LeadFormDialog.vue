@@ -28,12 +28,44 @@
             </svg>
           </button>
 
+          <div v-if="chatUrl" data-testid="lead-chat-step">
+            <h2 id="lead-form-title" class="text-2xl sm:text-3xl font-medium tracking-tight text-fortu-dark pr-10">
+              Satu langkah lagi
+            </h2>
+            <p id="lead-form-desc" class="mt-2 text-fortu-medium">
+              Data Anda sudah kami terima, tetapi <span class="text-fortu-dark font-medium">pesan Anda belum terkirim</span>.
+              Buka WhatsApp, lalu tekan tombol kirim. Sales kami baru bisa membalas setelah itu.
+            </p>
+            <a
+              ref="chatLinkEl"
+              :href="chatUrl"
+              :target="coarsePointer ? undefined : '_blank'"
+              rel="noopener"
+              class="mt-6 w-full flex items-center justify-center gap-2 rounded-full bg-fortu-dark text-fortu-off-white h-12 font-medium hover:opacity-90 transition-opacity"
+            >
+              Buka WhatsApp
+            </a>
+            <p v-if="inApp" class="mt-4 text-sm text-fortu-dark leading-relaxed">
+              Anda membuka halaman ini dari aplikasi lain. Jika WhatsApp tidak terbuka, buka halaman ini di Chrome atau
+              Safari (menu titik tiga, lalu Buka di browser), atau salin pesan di bawah dan kirim sendiri.
+            </p>
+            <div class="mt-4 rounded-xl border border-fortu-light/90 bg-white p-4 text-sm">
+              <p v-if="number" class="text-fortu-medium">Nomor sales: <span class="text-fortu-dark font-medium">{{ number }}</span></p>
+              <p v-if="message" class="mt-2 text-fortu-dark">{{ message }}</p>
+              <button v-if="message" type="button" class="mt-3 underline underline-offset-2 text-fortu-dark" @click="copyMessage">
+                {{ copied ? 'Pesan tersalin' : 'Salin pesan' }}
+              </button>
+            </div>
+            <button type="button" class="mt-4 text-sm underline underline-offset-2 text-fortu-medium" @click="closeLeadForm">Tutup</button>
+          </div>
+
+          <template v-else>
           <h2 id="lead-form-title" class="text-2xl sm:text-3xl font-medium tracking-tight text-fortu-dark pr-10">
             Chat dengan sales Fortu
           </h2>
           <p id="lead-form-desc" class="mt-2 text-fortu-medium">
             <template v-if="state.productName">Soal <span class="text-fortu-dark font-medium">{{ state.productName }}</span>. </template>
-            Isi sebentar, lalu WhatsApp langsung terbuka dan sales kami tahu siapa yang menghubungi.
+            Isi sebentar, lalu kirim pesan di WhatsApp. Sales kami baru bisa membalas setelah pesan Anda terkirim.
           </p>
 
           <form class="mt-6 space-y-4" novalidate @submit.prevent="submit">
@@ -115,7 +147,7 @@
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.14-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.07c.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35zM12.05 21.8h-.01a9.87 9.87 0 01-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 01-1.51-5.26c0-5.45 4.44-9.88 9.89-9.88 2.64 0 5.12 1.03 6.99 2.9a9.82 9.82 0 012.89 6.99c0 5.45-4.44 9.88-9.88 9.88zm8.41-18.3A11.82 11.82 0 0012.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.95L.06 24l6.3-1.65a11.88 11.88 0 005.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.16-3.48-8.41z" />
               </svg>
-              {{ submitting ? 'Membuka WhatsApp…' : 'Lanjut ke WhatsApp' }}
+              {{ submitting ? 'Menyimpan…' : 'Lanjut' }}
             </button>
 
             <p class="text-xs text-fortu-medium leading-relaxed">
@@ -128,6 +160,7 @@
               </template>
             </p>
           </form>
+          </template>
         </div>
       </div>
     </Transition>
@@ -141,6 +174,9 @@ import { useLeadForm } from '@/composables/useLeadForm'
 import { useAnalytics } from '@/composables/useAnalytics'
 import {
   INTERESTS,
+  chatMessage,
+  chatNumber,
+  isInAppBrowser,
   type LeadFormErrors,
   type LeadFormValues,
   forgetContact,
@@ -163,6 +199,13 @@ const values = reactive<LeadFormValues>({ name: '', phone: '', company: '', inte
 const errors = ref<LeadFormErrors>({})
 const submitting = ref(false)
 const hadSaved = ref(false)
+const chatUrl = ref('')
+const chatLinkEl = ref<HTMLAnchorElement | null>(null)
+const copied = ref(false)
+const message = ref('')
+const number = ref('')
+const inApp = typeof navigator !== 'undefined' && isInAppBrowser(navigator.userAgent)
+const coarsePointer = typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches
 let submissionId = ''
 let previouslyFocused: HTMLElement | null = null
 
@@ -177,25 +220,6 @@ const clearSaved = () => {
   nameEl.value?.focus()
 }
 
-/**
- * A new tab opened right on the click (so no popup blocker stops it), pointed at WhatsApp once the CRM answers.
- * On a phone the chat opens in the same tab: wa.me hands over to the WhatsApp app.
- */
-function pendingWindow(): Window | null {
-  if (window.matchMedia?.('(pointer: coarse)').matches) return null
-  const win = window.open('', '_blank')
-  if (!win) return null
-  try {
-    win.opener = null
-    win.document.title = 'Membuka WhatsApp…'
-    win.document.body.style.cssText = 'font-family:Helvetica,Arial,sans-serif;display:grid;place-items:center;height:100vh;margin:0;color:#333'
-    win.document.body.textContent = 'Membuka WhatsApp…'
-  } catch {
-    // the blank page is still ours to send to WhatsApp
-  }
-  return win
-}
-
 async function submit() {
   if (submitting.value) return
   errors.value = validateLeadForm(values)
@@ -203,12 +227,10 @@ async function submit() {
   if (errors.value.phone) return phoneEl.value?.focus()
 
   submitting.value = true
-  const win = pendingWindow()
   const body = leadRequest(state.href, values, submissionId, window.location.href)
   const result = await submitLead(state.href, body)
 
   if (!result.ok && result.phoneRejected) {
-    win?.close()
     submitting.value = false
     errors.value = { phone: 'Nomor ini tidak bisa dipakai. Pakai nomor HP Indonesia, contoh 0812-3456-7890.' }
     await nextTick()
@@ -239,10 +261,23 @@ async function submit() {
   trackPixel('Contact', { content_name: state.productName || state.source })
 
   const url = result.ok ? result.url : result.fallbackUrl
-  if (win) win.location.replace(url)
-  else window.location.assign(url)
+  // The chat is not opened for them: a redirect that fails (Instagram's browser, a blocked tab) would leave a lead in
+  // the CRM with no message. They tap the button, which always counts as their own action.
+  chatUrl.value = url
+  message.value = chatMessage(url)
+  number.value = chatNumber(url)
   submitting.value = false
-  closeLeadForm()
+  await nextTick()
+  chatLinkEl.value?.focus()
+}
+
+async function copyMessage() {
+  try {
+    await navigator.clipboard.writeText(message.value)
+    copied.value = true
+  } catch {
+    // clipboard blocked: the text stays on screen to select by hand
+  }
 }
 
 const trapFocus = (e: KeyboardEvent) => {
@@ -272,6 +307,8 @@ watch(
     previouslyFocused = document.activeElement as HTMLElement | null
     submissionId = newSubmissionId() // one per opening: a double submit is one lead in the CRM
     errors.value = {}
+    chatUrl.value = ''
+    copied.value = false
     const saved = savedContact()
     hadSaved.value = !!(saved.name || saved.phone)
     Object.assign(values, { name: '', phone: '', company: '', interest: '', website: '' }, saved)

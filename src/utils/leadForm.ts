@@ -112,6 +112,26 @@ export async function submitLead(
   }
 }
 
+/** The browser inside Instagram, Facebook, TikTok or Line: it often fails to hand a wa.me link over to WhatsApp. */
+export function isInAppBrowser(userAgent: string): boolean {
+  return /Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|BytedanceWebview|\bLine\//i.test(userAgent)
+}
+
+/** The prefilled message in a wa.me address, for the visitor to copy if WhatsApp does not fill it in. */
+export function chatMessage(url: string): string {
+  try {
+    return new URL(url).searchParams.get('text') || ''
+  } catch {
+    return ''
+  }
+}
+
+/** The sales number in a wa.me address as +62 812…, or '' when the address is not a wa.me chat. */
+export function chatNumber(url: string): string {
+  const m = /^https:\/\/wa\.me\/(\d{8,15})/.exec(url)
+  return m ? `+${m[1]}` : ''
+}
+
 // The answers are kept in this browser only (localStorage), so a returning visitor does not type them again.
 const SAVED_KEY = 'fortu_lead_contact'
 
