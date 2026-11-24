@@ -11,7 +11,7 @@
     @touchstart.passive="pause"
   >
     <!-- Product tabs (shared by all slides) -->
-    <div class="relative z-10 px-6 pt-24 pb-5 md:absolute md:top-0 md:left-0 md:w-1/2 md:px-10 lg:px-16 md:pt-36 md:pb-0" role="group" aria-label="Pilih produk">
+    <div class="relative z-10 px-6 pt-24 pb-3 md:absolute md:top-0 md:left-0 md:w-1/2 md:px-10 lg:px-16 md:pt-36 md:pb-0" role="group" aria-label="Pilih produk">
       <!-- One row on every screen: on phones it scrolls sideways and keeps the active tab in view -->
       <div ref="tabsEl" class="product-tabs flex sm:inline-flex max-w-full overflow-x-auto gap-1 p-1 rounded-full bg-fortu-dark">
         <button
@@ -43,14 +43,14 @@
         :aria-label="`${index + 1} dari ${productSlides.length}: ${product.name}`"
       >
         <!-- Content -->
-        <div class="px-6 pt-8 pb-8 md:px-10 lg:px-16 md:pt-60 md:pb-32 flex flex-col text-center md:text-left">
-          <h2 class="text-4xl sm:text-5xl lg:text-6xl font-medium text-fortu-dark tracking-tight leading-[1.05] mb-5 md:mb-6 md:max-w-xl">
+        <div class="px-6 pt-5 pb-4 md:px-10 lg:px-16 md:pt-60 md:pb-32 flex flex-col text-center md:text-left">
+          <h2 class="text-3xl sm:text-5xl lg:text-6xl font-medium text-fortu-dark tracking-tight leading-[1.05] mb-4 md:mb-6 md:max-w-xl">
             {{ product.tagline || product.name }}
           </h2>
 
           <ul
             v-if="product.features && product.features.length > 0"
-            class="flex flex-wrap justify-center md:justify-start gap-2 mb-7 md:mb-8 md:max-w-xl"
+            class="flex flex-wrap justify-center md:justify-start gap-2 mb-5 md:mb-8 md:max-w-xl"
           >
             <li
               v-for="(feature, fIndex) in product.features"
@@ -82,7 +82,7 @@
         </div>
 
         <!-- Image: first on phones, right-hand column from tablet up -->
-        <div class="order-first md:order-none relative aspect-[4/5] max-h-[68svh] md:max-h-none md:aspect-auto md:h-full bg-fortu-dark/5">
+        <div class="order-first md:order-none relative aspect-[4/3] max-h-[42svh] md:max-h-none md:aspect-auto md:h-full bg-fortu-dark/5">
           <img
             v-if="image(product, index)"
             :src="image(product, index)!.src"
@@ -115,7 +115,7 @@
     </div>
 
     <!-- Controls (shared with every other slider on the site) -->
-    <div class="relative z-10 px-6 pb-10 md:absolute md:left-0 md:bottom-0 md:w-1/2 md:px-10 lg:px-16 md:pb-12">
+    <div class="relative z-10 px-6 pb-6 md:absolute md:left-0 md:bottom-0 md:w-1/2 md:px-10 lg:px-16 md:pb-12">
       <SliderControls
         :index="currentIndex"
         :count="productSlides.length"
