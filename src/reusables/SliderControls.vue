@@ -89,6 +89,8 @@ const alignClass = computed(
 .slider-control {
   width: 3rem;
   height: 3rem;
+  /* Stops quick double-taps on the arrows from triggering the browser's double-tap zoom */
+  touch-action: manipulation;
   display: flex;
   align-items: center;
   justify-content: center;

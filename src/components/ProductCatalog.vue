@@ -28,7 +28,31 @@
       Produk belum tersedia.
     </div>
 
-    <!-- Products Carousel -->
+    <!-- Mobile: 2-column grid so every product is visible without swiping -->
+    <section v-else-if="isMobile" class="px-4 overflow-hidden">
+      <h2 class="text-3xl font-medium mb-8 tracking-tight text-fortu-dark">Produk Kami</h2>
+      <ul class="grid grid-cols-2 gap-3">
+        <li v-for="(image, index) in productImages" :key="image.slug">
+          <RouterLink :to="`/products/${image.slug}`" class="block group">
+            <div class="aspect-[3/4] rounded-2xl overflow-hidden bg-black">
+              <SkeletonImage
+                :src="image.url"
+                :alt="image.alt || `Produk Fortu Digital - gambar ${index + 1}`"
+                :width="320"
+                :height="427"
+                tone="dark"
+                img-class="w-full h-full object-cover group-hover:opacity-80"
+              />
+            </div>
+            <p class="mt-2 text-lg font-medium leading-snug text-fortu-dark">
+              {{ image.caption }}
+            </p>
+          </RouterLink>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Desktop / tablet: products carousel -->
     <ImageCarousel
       v-else
       :images="productImages"
@@ -43,17 +67,25 @@
 
 <script setup lang="ts">
 import { buildImageUrl } from '@/utils/image'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { fetchSanity } from '@/sanity/fetch'
 import { PRODUCTS_QUERY, type Product } from '@/sanity/queries'
 import ImageCarousel from '@/components/ImageCarousel.vue'
+import SkeletonImage from '@/reusables/SkeletonImage.vue'
 
 const router = useRouter()
 const route = useRoute()
 const products = ref<Product[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
+
+// Phones get the grid; the carousel stays for tablet and desktop
+const mobileQuery = typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)') : null
+const isMobile = ref(mobileQuery?.matches ?? false)
+const syncMobile = () => {
+  isMobile.value = mobileQuery?.matches ?? false
+}
 
 const emit = defineEmits<{
   (e: 'product-click', slug: string): void
@@ -104,6 +136,7 @@ const handleProductClick = (index: number) => {
 }
 
 onMounted(async () => {
+  mobileQuery?.addEventListener('change', syncMobile)
   try {
     products.value = await fetchSanity(PRODUCTS_QUERY)
   } catch (e) {
@@ -111,5 +144,9 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+})
+
+onBeforeUnmount(() => {
+  mobileQuery?.removeEventListener('change', syncMobile)
 })
 </script>
